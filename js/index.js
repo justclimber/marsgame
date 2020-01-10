@@ -3,7 +3,7 @@ import * as PIXI from 'pixi.js'
 const app = new PIXI.Application();
 
 window.onload = function() {
-    document.body.appendChild(app.view);
+    document.getElementById('pixiDiv').appendChild(app.view);
 
     app.loader.add('mech', '/images/mech_base.png').load((loader, resources) => {
         // This creates a texture from a 'mech.png' image

@@ -3,16 +3,22 @@
 <head>
     <meta charset="utf-8">
     <title>MarsGame</title>
-    <style>* {padding: 0; margin: 0}</style>
+    <link rel="stylesheet" href="https://unpkg.com/papercss@1.6.1/dist/paper.min.css">
+    <link rel="stylesheet" href="css/main.css">
 </head>
 <script src="js/app.js"></script>
 <body>
-<h2>Type your code here</h2>
-<textarea id="sourceCode"></textarea>
-<br/>
-<button id="saveCode">Save code</button>
-<br/>
-<div id="errors"></div>
-<br/>
+    <div class="paper container">
+        <div class="row">
+            <div class="form-group">
+                <label for="sourceCode">Type your code here:</label>
+                <textarea id="sourceCode"></textarea>
+            </div>
+        </div>
+        <button id="saveCode">Save code</button>
+        <div class="container" id="errors"></div>
+        <br/>
+        <div id="pixiDiv" class="container"></div>
+    </div>
 </body>
 </html>
