@@ -3,11 +3,13 @@ import * as PIXI from 'pixi.js'
 const app = new PIXI.Application();
 
 window.onload = function() {
+    let mech;
+
     document.getElementById('pixiDiv').appendChild(app.view);
 
     app.loader.add('mech', '/images/mech_base.png').load((loader, resources) => {
         // This creates a texture from a 'mech.png' image
-        const mech = new PIXI.Sprite(resources.mech.texture);
+        mech = new PIXI.Sprite(resources.mech.texture);
 
         mech.scale.set(0.3, 0.3);
         mech.anchor.set(0.5);
@@ -21,12 +23,17 @@ window.onload = function() {
     saveCodeButton.onclick = () => {
         fetch("save_source_code", {
             method: "POST",
-            body: document.getElementById('sourceCode')
-        }).then((response) => {
-            if (response.status !== 200) {
-                return Promise.reject();
-            }
-        }).catch(() => console.log("Sending failed"))
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(document.getElementById('sourceCode').value)
+        }).then(response => response.json())
+        .then(result => {
+            console.log(JSON.stringify(result, null, 2))
+            mech.rotation += parseFloat(result.rotation);
+            mech.y += parseFloat(result.y);
+        })
     };
 };
 

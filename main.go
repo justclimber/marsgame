@@ -1,9 +1,15 @@
 package main
 
 import (
+	"aakimov/marslang/lexer"
+	"aakimov/marslang/object"
+	"aakimov/marslang/parser"
+	"bytes"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/websocket"
 )
@@ -38,6 +44,36 @@ func setupRoutes() {
 }
 
 func saveSourceCodeEndpoint(w http.ResponseWriter, r *http.Request) {
+	reqBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	sourceCode := bytes.Trim(reqBody, "\"")
+	sourceCodeStr := string(sourceCode)
+	sourceCodeStr = strings.ReplaceAll(sourceCodeStr, "\\n", "\n")
+	fmt.Printf("Program to parse: %s\n", sourceCodeStr)
+
+	l := lexer.New(sourceCodeStr)
+	p := parser.New(l)
+	astProgram, err := p.Parse()
+	if err != nil {
+		fmt.Printf("Parsing error: %s\n", err.Error())
+	}
+	env := object.NewEnvironment()
+	_, err = astProgram.Exec(env)
+	if err != nil {
+		fmt.Printf("Runtime error: %s\n", err.Error())
+	}
+
+	vars, err := env.GetVarsAsJson()
+	if err != nil {
+		fmt.Printf("Marshaling error: %s\n", err.Error())
+	}
+
+	w.Write(vars)
+
+	env.Print()
+	fmt.Printf("Returned to client: %s", string(vars))
 
 }
 
