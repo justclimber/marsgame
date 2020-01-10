@@ -3,9 +3,14 @@ const path = require('path');
 module.exports = {
     mode: 'development',
     entry: './js/index.js',
-    output: {
-        filename: 'app.js',
-        path: path.resolve(__dirname, 'static/js'),
+    devtool: 'inline-source-map',
+    devServer: {
+        contentBase: path.resolve(__dirname, 'static'),
+        watchContentBase: true,
     },
-    watch: true
+    output: {
+        filename: 'js/app.js',
+        path: path.resolve(__dirname, 'static'),
+    },
+    watch: true,
 };
