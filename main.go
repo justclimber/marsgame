@@ -55,28 +55,32 @@ func saveSourceCodeEndpoint(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("Program to parse: %s\n", sourceCodeStr)
 
 	l := lexer.New(sourceCodeStr)
-	p := parser.New(l)
+	p, err := parser.New(l)
+	if err != nil {
+		respondWithError(err.Error(), "Lexing", w)
+		return
+	}
 	astProgram, err := p.Parse()
 	if err != nil {
-		error(err.Error(), "Parsing", w)
+		respondWithError(err.Error(), "Parsing", w)
 		return
 	}
 	env := object.NewEnvironment()
 	_, err = astProgram.Exec(env)
 	if err != nil {
-		error(err.Error(), "Runtime", w)
+		respondWithError(err.Error(), "Runtime", w)
 		return
 	}
 
 	vars, err := env.GetVarsAsJson()
 	if err != nil {
-		error(err.Error(), "Marshaling", w)
+		respondWithError(err.Error(), "Marshaling", w)
 		return
 	}
 
 	_, err = w.Write(vars)
 	if err != nil {
-		error(err.Error(), "Responding", w)
+		respondWithError(err.Error(), "Responding", w)
 		return
 	}
 
@@ -84,7 +88,7 @@ func saveSourceCodeEndpoint(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("Returned to client: %s", string(vars))
 }
 
-func error(msg, prefix string, w http.ResponseWriter) {
+func respondWithError(msg, prefix string, w http.ResponseWriter) {
 	fmt.Printf("%s error: %s\n", prefix, msg)
 	_, err := w.Write(errorToJson(msg))
 	if err != nil {
