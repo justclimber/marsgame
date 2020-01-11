@@ -4,12 +4,12 @@ const app = new PIXI.Application({
     backgroundColor: "0xffffff",
 });
 
-let mech;
+let mech, mechBase, mechWeaponCannon;
 
 function initMechVars() {
     mech.scale.set(0.2, 0.2);
     mech.scale.y *= -1;
-    mech.anchor.set(0.5);
+    mech.pivot.set(0.5);
     mech.x = app.screen.width / 2 - mech.width / 2;
     mech.y = app.screen.height / 2 - mech.height / 2;
     mech.vx = 0;
@@ -17,6 +17,11 @@ function initMechVars() {
     mech.vr = 0;
     mech.throttle = 0;
     mech.rotation = 0;
+
+    // смещаем башню немного, потому что она не по центру меха
+    mechWeaponCannon.y = 30;
+    mechWeaponCannon.vr = 0;
+    mechWeaponCannon.rotation = 0;
 }
 
 function parseResponse(result) {
@@ -41,16 +46,22 @@ function updateMechVars(result) {
         }
     }
     if (result.rotation) {
-        let rotation = parseFloat(result.rotation);
-        if (rotation === rotation) {
-            mech.rotation = rotation;
-        }
+        mech.rotation = fetchFloatOr0(result.rotation);
     }
     if (result.throttle) {
-        let throttle = parseFloat(result.throttle);
-        if (throttle === throttle) {
-            mech.throttle = throttle
-        }
+        mech.throttle = fetchFloatOr0(result.throttle);
+    }
+    if (result.cannonVr) {
+        mechWeaponCannon.vr = fetchFloatOr0(result.cannonVr);
+    }
+}
+
+function fetchFloatOr0(value) {
+    let floatVal = parseFloat(value);
+    if (floatVal === floatVal) {
+        return floatVal;
+    } else {
+        return 0;
     }
 }
 
@@ -62,6 +73,7 @@ function gameLoop(delta) {
     mech.x += mech.vx;
     mech.y += mech.vy;
     mech.rotation += mech.vr;
+    mechWeaponCannon.rotation += mechWeaponCannon.vr
 }
 
 function resetVelocity() {
@@ -69,18 +81,26 @@ function resetVelocity() {
     mech.vy = 0;
     mech.vr = 0;
     mech.throttle = 0;
+    mechWeaponCannon.vr = 0;
 }
 
 window.onload = function() {
     document.getElementById('pixiDiv').appendChild(app.view);
 
     app.loader
-        .add('mech', '/images/mech_base.png')
+        .add('mechBase', '/images/mech_base.png')
+        .add('mechWeaponCannon', '/images/mech_weapon_cannon.png')
         .load((loader, resources) => {
-        mech = new PIXI.Sprite(resources.mech.texture);
-        initMechVars();
-        app.stage.addChild(mech);
-        app.ticker.add(delta => gameLoop(delta));
+            mechBase = new PIXI.Sprite(resources.mechBase.texture);
+            mechWeaponCannon = new PIXI.Sprite(resources.mechWeaponCannon.texture);
+            mechBase.anchor.set(0.5);
+            mechWeaponCannon.anchor.set(0.5, 0.6);
+            mech = new PIXI.Container();
+            mech.addChild(mechBase)
+            mech.addChild(mechWeaponCannon)
+            initMechVars();
+            app.stage.addChild(mech);
+            app.ticker.add(delta => gameLoop(delta));
     });
 
     let stopMechButton = document.getElementById('stopMech');
