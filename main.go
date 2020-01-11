@@ -1,6 +1,7 @@
 package main
 
 import (
+	"aakimov/marslang/interpereter"
 	"aakimov/marslang/lexer"
 	"aakimov/marslang/object"
 	"aakimov/marslang/parser"
@@ -66,7 +67,7 @@ func saveSourceCodeEndpoint(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	env := object.NewEnvironment()
-	_, err = astProgram.Exec(env)
+	_, err = interpereter.Exec(astProgram, env)
 	if err != nil {
 		respondWithError(err.Error(), "Runtime", w)
 		return
