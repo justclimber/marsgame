@@ -10,12 +10,20 @@
 <body>
     <div class="paper container">
         <div class="row">
-            <div class="form-group">
+            <div class="form-group col-9 col">
                 <label for="sourceCode">Type your code here:</label>
                 <textarea id="sourceCode">
-rotation = 0.4
-y = 10
+vx = 0.5
+vr = 0.1
 </textarea>
+            </div>
+            <div class="col-3 col">
+                <div>Output vars used:</div>
+                <ul>
+                    <li>vx - x velocity</li>
+                    <li>vr - y velocity</li>
+                    <li>vr - rotation velocity</li>
+                </ul>
             </div>
         </div>
         <button id="saveCode">Run the code!</button>

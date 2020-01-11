@@ -54,12 +54,11 @@ function resetVelocity() {
 window.onload = function() {
     document.getElementById('pixiDiv').appendChild(app.view);
 
-    app.loader.add('mech', '/images/mech_base.png').load((loader, resources) => {
-        // This creates a texture from a 'mech.png' image
+    app.loader
+        .add('mech', '/images/mech_base.png')
+        .load((loader, resources) => {
         mech = new PIXI.Sprite(resources.mech.texture);
-
         initMechVars();
-
         app.stage.addChild(mech);
         app.ticker.add(delta => gameLoop(delta));
     });
