@@ -5,6 +5,7 @@ import (
 	"aakimov/marslang/object"
 	"aakimov/marslang/parser"
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -57,24 +58,46 @@ func saveSourceCodeEndpoint(w http.ResponseWriter, r *http.Request) {
 	p := parser.New(l)
 	astProgram, err := p.Parse()
 	if err != nil {
-		fmt.Printf("Parsing error: %s\n", err.Error())
+		error(err.Error(), "Parsing", w)
+		return
 	}
 	env := object.NewEnvironment()
 	_, err = astProgram.Exec(env)
 	if err != nil {
-		fmt.Printf("Runtime error: %s\n", err.Error())
+		error(err.Error(), "Runtime", w)
+		return
 	}
 
 	vars, err := env.GetVarsAsJson()
 	if err != nil {
-		fmt.Printf("Marshaling error: %s\n", err.Error())
+		error(err.Error(), "Marshaling", w)
+		return
 	}
 
-	w.Write(vars)
+	_, err = w.Write(vars)
+	if err != nil {
+		error(err.Error(), "Responding", w)
+		return
+	}
 
 	env.Print()
 	fmt.Printf("Returned to client: %s", string(vars))
+}
 
+func error(msg, prefix string, w http.ResponseWriter) {
+	fmt.Printf("%s error: %s\n", prefix, msg)
+	_, err := w.Write(errorToJson(msg))
+	if err != nil {
+		fmt.Printf("Writing to response error: %s\n", err.Error())
+	}
+}
+
+func errorToJson(msg string) []byte {
+	errJson := make(map[string]string)
+	errJson["error"] = msg
+	errBytes, _ := json.Marshal(errJson)
+
+	return errBytes
 }
 
 func wsEndpoint(w http.ResponseWriter, r *http.Request) {

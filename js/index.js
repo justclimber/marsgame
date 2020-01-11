@@ -17,8 +17,21 @@ function initMechVars() {
     mech.rotation = Math.PI;
 }
 
-function updateMechVars(result) {
+function parseResponse(result) {
     console.log(JSON.stringify(result, null, 2))
+    let errorContainer = document.getElementById("errorsContainer");
+    if (result.error) {
+        let errorTextContainer = document.getElementById("errorsText");
+        errorTextContainer.innerHTML = result.error.replace(/\n/g, '<br/>')
+
+        errorContainer.style.display = 'block'
+    } else {
+        errorContainer.style.display = 'none'
+        updateMechVars(result)
+    }
+}
+
+function updateMechVars(result) {
     if (result.vr) {
         let vr = parseFloat(result.vr);
         if (vr === vr) {
@@ -79,7 +92,7 @@ window.onload = function() {
             },
             body: JSON.stringify(document.getElementById('sourceCode').value)
         }).then(response => response.json())
-        .then(result => updateMechVars(result))
+        .then(result => parseResponse(result))
     };
 };
 
