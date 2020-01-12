@@ -111,7 +111,7 @@ window.onload = function() {
 
     let saveCodeButton = document.getElementById('saveCode');
     saveCodeButton.onclick = () => {
-        fetch("http://localhost/save_source_code", {
+        fetch("save_source_code", {
             method: "POST",
             headers: {
                 'Accept': 'application/json',
@@ -122,13 +122,18 @@ window.onload = function() {
         .then(result => parseResponse(result))
     };
 };
-
-let socket = new WebSocket("ws://localhost/ws");
-console.log("Connection to websocket");
+let userId = getUserId();
+let url = "ws://localhost/ws?id=" + userId;
+let socket = new WebSocket(url);
+console.log("Connection to websocket", url);
 
 socket.onopen = () => {
     console.log("Connection success");
-    socket.send("Hi from the client!");
+    let command = {
+        "type": "greetings",
+        "payload": "Hi from the client!",
+    };
+    socket.send(JSON.stringify(command));
 };
 socket.onmessage = (msg) => {
     console.log(msg);
@@ -139,3 +144,7 @@ socket.onclose = (event) => {
 socket.onerror = (error) => {
     console.log("Socket error: ", error);
 };
+
+function getUserId() {
+    return Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);
+}
