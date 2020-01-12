@@ -36,9 +36,17 @@ func timeStampDif(t1, t2 time.Time) int64 {
 	return makeTimestamp(t2) - makeTimestamp(t1)
 }
 
+func (w *World) codeRun() {
+	// players are empty at start, so this block is for future
+	for _, player := range w.players {
+		go player.mainProgram.Run()
+	}
+}
+
 func (w *World) Run() {
 	ticker := time.NewTicker(1 * time.Second)
 	go w.sendChangelogLoop()
+	w.codeRun()
 
 	serverStartTime := time.Now()
 
@@ -71,6 +79,13 @@ func (w *World) listenChannels() {
 
 		player.setBaseParams()
 		w.players[player.id] = player
+		go player.mainProgram.Run()
+	case saveCode := <-w.Server.SaveAstCodeCh:
+		player, ok := w.players[saveCode.UserId]
+		if !ok {
+			log.Fatalf("Save code attempt for inexistant player [%s]", saveCode.UserId)
+		}
+		player.saveAstCode(saveCode.SourceCode)
 	default:
 		// noop
 	}

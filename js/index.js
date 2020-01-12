@@ -117,7 +117,10 @@ window.onload = function() {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(document.getElementById('sourceCode').value)
+            body: JSON.stringify({
+                userId: userId,
+                sourceCode: document.getElementById('sourceCode').value
+            })
         }).then(response => response.json())
         .then(result => parseResponse(result))
     };

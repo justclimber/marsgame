@@ -1,9 +1,8 @@
 package server
 
 import (
-	"aakimov/marsgame/go/code"
+	"encoding/json"
 	"github.com/gorilla/websocket"
-	"io/ioutil"
 	"log"
 	"net/http"
 )
@@ -27,17 +26,24 @@ func (s *Server) wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	client.Listen()
 }
 
-func saveSourceCodeEndpoint(w http.ResponseWriter, r *http.Request) {
-	reqBody, err := ioutil.ReadAll(r.Body)
+type saveCode struct {
+	UserId     string `json:"userId"`
+	SourceCode string `json:"sourceCode"`
+}
+
+func (s *Server) saveSourceCodeEndpoint(w http.ResponseWriter, r *http.Request) {
+	var sc saveCode
+	err := json.NewDecoder(r.Body).Decode(&sc)
 	if err != nil {
 		log.Fatal(err)
 	}
-	code.SaveSourceCode(reqBody, w)
+
+	s.saveSourceCode(sc.UserId, sc.SourceCode)
 }
 
 func (s *Server) Setup() {
 	go s.ListenClients()
 	http.Handle("/", http.FileServer(http.Dir("./static")))
 	http.HandleFunc("/ws", s.wsEndpoint)
-	http.HandleFunc("/save_source_code", saveSourceCodeEndpoint)
+	http.HandleFunc("/save_source_code", s.saveSourceCodeEndpoint)
 }

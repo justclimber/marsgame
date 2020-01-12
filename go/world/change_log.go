@@ -12,8 +12,8 @@ const (
 	TypeObject = "object"
 )
 
-const ChangelogChannelBufferSize = 5
-const ChangelogBufferSize = 4
+const ChangelogChannelBufferSize = 10
+const ChangelogBufferSize = 8
 
 type ChangeLog struct {
 	changesByTimeCh  chan *ChangeByTime

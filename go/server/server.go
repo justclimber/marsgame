@@ -11,6 +11,7 @@ type Server struct {
 	doneCh          chan bool
 	errCh           chan error
 	NewClientCh     chan *Client
+	SaveAstCodeCh   chan *SaveAstCode
 }
 
 func NewServer() *Server {
@@ -21,6 +22,7 @@ func NewServer() *Server {
 		NewClientCh:     make(chan *Client),
 		doneCh:          make(chan bool),
 		errCh:           make(chan error),
+		SaveAstCodeCh:   make(chan *SaveAstCode),
 	}
 }
 
@@ -52,6 +54,22 @@ func (s *Server) ListenClients() {
 func (s *Server) connectClient(client *Client) {
 	s.connectClientCh <- client
 	s.NewClientCh <- client
+}
+
+type SaveAstCode struct {
+	UserId     string
+	SourceCode string
+}
+
+func (s *Server) saveSourceCode(clientId, sourceCode string) {
+	_, ok := s.clients[clientId]
+	if !ok {
+		log.Fatalf("Save code attempt for inexistant client [%s]", clientId)
+	}
+	s.SaveAstCodeCh <- &SaveAstCode{
+		UserId:     clientId,
+		SourceCode: sourceCode,
+	}
 }
 
 func (s *Server) HandleCommand(client *Client, command *Command) {
