@@ -44,6 +44,12 @@ func (c *Client) listenWrite() {
 }
 
 func (c *Client) listenRead() {
+	defer func() {
+		if err := c.ws.Close(); err != nil {
+			log.Println(err)
+		}
+		c.server.leaveClientCh <- c
+	}()
 	for {
 		select {
 		case <-c.doneCh:
@@ -54,7 +60,10 @@ func (c *Client) listenRead() {
 		default:
 			var command Command
 			if err := c.ws.ReadJSON(&command); err != nil {
-				log.Printf("Unmarshaling error: %s\n", err)
+				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+					log.Printf("Reading from ws error: %s\n", err)
+				}
+				return
 			}
 			c.server.HandleCommand(c, &command)
 		}

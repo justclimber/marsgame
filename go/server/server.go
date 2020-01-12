@@ -33,6 +33,7 @@ func (s *Server) Listen() {
 			s.clients[c.id] = c
 
 		case c := <-s.leaveClientCh:
+			log.Printf("Client [%s] unconnected", c.id)
 			delete(s.clients, c.id)
 
 		case err := <-s.errCh:
