@@ -136,7 +136,17 @@ socket.onopen = () => {
     socket.send(JSON.stringify(command));
 };
 socket.onmessage = (msg) => {
-    console.log(msg);
+    if (msg.data) {
+        let data = JSON.parse(msg.data);
+        if (data.type && data.payload) {
+            let payload = JSON.parse(data.payload);
+            console.log(data.type, data.payload);
+        } else {
+            console.log(data);
+        }
+    } else {
+        console.log(msg);
+    }
 };
 socket.onclose = (event) => {
     console.log("Socket connection closed: ", event);

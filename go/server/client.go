@@ -6,16 +6,16 @@ import (
 )
 
 type Client struct {
-	id       string
+	Id       string
 	ws       *websocket.Conn
 	server   *Server
 	commands chan *Command
 	doneCh   chan bool
 }
 
-func NewClient(id string, ws *websocket.Conn, server *Server) Client {
-	return Client{
-		id:       id,
+func NewClient(id string, ws *websocket.Conn, server *Server) *Client {
+	return &Client{
+		Id:       id,
 		ws:       ws,
 		server:   server,
 		commands: make(chan *Command),
@@ -28,6 +28,10 @@ func (c *Client) Listen() {
 	c.listenRead()
 }
 
+func (c *Client) SendCommand(command *Command) {
+	c.commands <- command
+}
+
 func (c *Client) listenWrite() {
 	for {
 		select {
@@ -35,6 +39,7 @@ func (c *Client) listenWrite() {
 			if err := c.ws.WriteJSON(cmd); err != nil {
 				log.Println(err)
 			}
+			log.Printf("Command sent to the client with payload %s\n", cmd.Payload)
 
 		case <-c.doneCh:
 			c.doneCh <- true // for listenRead method

@@ -13,9 +13,7 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-var server = NewServer()
-
-func wsEndpoint(w http.ResponseWriter, r *http.Request) {
+func (s *Server) wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 	ws, err := upgrader.Upgrade(w, r, nil)
@@ -23,9 +21,9 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 
-	log.Println("Client Connected")
-	client := NewClient(id, ws, &server)
-	server.connectClient(&client)
+	log.Println("Client open ws connection")
+	client := NewClient(id, ws, s)
+	s.connectClient(client)
 	client.Listen()
 }
 
@@ -37,9 +35,9 @@ func saveSourceCodeEndpoint(w http.ResponseWriter, r *http.Request) {
 	code.SaveSourceCode(reqBody, w)
 }
 
-func SetupRoutes() {
-	go server.Listen()
+func (s *Server) Setup() {
+	go s.ListenClients()
 	http.Handle("/", http.FileServer(http.Dir("./static")))
-	http.HandleFunc("/ws", wsEndpoint)
+	http.HandleFunc("/ws", s.wsEndpoint)
 	http.HandleFunc("/save_source_code", saveSourceCodeEndpoint)
 }
