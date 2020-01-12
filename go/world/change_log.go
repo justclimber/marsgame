@@ -50,7 +50,7 @@ func (ch *ChangeByTime) IsNotEmpty() bool {
 func NewChangeLog() *ChangeLog {
 	return &ChangeLog{
 		changesByTimeCh:  make(chan *ChangeByTime, ChangelogChannelBufferSize),
-		changesByTimeLog: make([]*ChangeByTime, 0),
+		changesByTimeLog: make([]*ChangeByTime, 0, ChangelogBufferSize),
 	}
 }
 

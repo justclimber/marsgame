@@ -5,13 +5,15 @@ const app = new PIXI.Application({
 });
 
 let mech, mechBase, mechWeaponCannon;
+let xShift = 300;
+let yShift = 300;
 
 function initMechVars() {
     mech.scale.set(0.2, 0.2);
     mech.scale.y *= -1;
     mech.pivot.set(0.5);
-    mech.x = app.screen.width / 2 - mech.width / 2;
-    mech.y = app.screen.height / 2 - mech.height / 2;
+    mech.x = xShift;
+    mech.y = yShift;
     mech.vx = 0;
     mech.vy = 0;
     mech.vr = 0;
@@ -56,6 +58,30 @@ function updateMechVars(result) {
     }
 }
 
+let changelogToRun = [];
+let timeId;
+function parseChangelog(changelog) {
+    console.log(changelog);
+    changelog.forEach(function (changeByTime) {
+        let changesByObject = changeByTime.changesByObject;
+        changesByObject.forEach(function (changeByObj) {
+            if (changeByObj.objId !== userId) {
+                return;
+            }
+            changelogToRun.push({
+                timeId: changeByTime.timeId,
+                x: changeByObj.Pos.x + xShift,
+                y: changeByObj.Pos.y + yShift,
+                rotation: changeByObj.angle
+            });
+        });
+        if (!timeId) {
+            timeId = changeByTime.timeId;
+            console.log(timeId)
+        }
+    });
+}
+
 function fetchFloatOr0(value) {
     let floatVal = parseFloat(value);
     if (floatVal === floatVal) {
@@ -64,16 +90,20 @@ function fetchFloatOr0(value) {
         return 0;
     }
 }
-
+let timer = new Date();
 function gameLoop(delta) {
-    if (mech.throttle) {
-        mech.vx = Math.cos(mech.rotation + Math.PI/2) * mech.throttle;
-        mech.vy = Math.sin(mech.rotation + Math.PI/2) * mech.throttle;
+    let now = new Date();
+    let timeDelta = now.getTime() - timer.getTime();
+    timer = now;
+    if (timeId) {
+        timeId += timeDelta;
+        if (changelogToRun.length && changelogToRun[0].timeId - timeId < 40) {
+            let change = changelogToRun.shift();
+            mech.x = change.x;
+            mech.y = change.y;
+            mech.rotation = change.rotation;
+        }
     }
-    mech.x += mech.vx;
-    mech.y += mech.vy;
-    mech.rotation += mech.vr;
-    mechWeaponCannon.rotation += mechWeaponCannon.vr
 }
 
 function resetVelocity() {
@@ -84,6 +114,10 @@ function resetVelocity() {
     mechWeaponCannon.vr = 0;
 }
 
+function getSpriteRotated(texture) {
+    return new PIXI.Sprite(new PIXI.Texture(texture.baseTexture, null, null, null, 6));
+}
+
 window.onload = function() {
     document.getElementById('pixiDiv').appendChild(app.view);
 
@@ -91,8 +125,8 @@ window.onload = function() {
         .add('mechBase', '/images/mech_base.png')
         .add('mechWeaponCannon', '/images/mech_weapon_cannon.png')
         .load((loader, resources) => {
-            mechBase = new PIXI.Sprite(resources.mechBase.texture);
-            mechWeaponCannon = new PIXI.Sprite(resources.mechWeaponCannon.texture);
+            mechBase = getSpriteRotated(resources.mechBase.texture);
+            mechWeaponCannon = getSpriteRotated(resources.mechWeaponCannon.texture);
             mechBase.anchor.set(0.5);
             mechWeaponCannon.anchor.set(0.5, 0.6);
             mech = new PIXI.Container();
@@ -143,7 +177,9 @@ socket.onmessage = (msg) => {
         let data = JSON.parse(msg.data);
         if (data.type && data.payload) {
             let payload = JSON.parse(data.payload);
-            console.log(data.type, data.payload);
+            if (data.type === 'worldChanges') {
+                parseChangelog(payload)
+            }
         } else {
             console.log(data);
         }

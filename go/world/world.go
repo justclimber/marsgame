@@ -45,7 +45,7 @@ func (w *World) codeRun() {
 }
 
 func (w *World) Run() {
-	ticker := time.NewTicker(1 * time.Second)
+	ticker := time.NewTicker(200 * time.Millisecond)
 	go w.sendChangelogLoop()
 	w.codeRun()
 
@@ -121,9 +121,7 @@ func (w *World) runObject(object *Object) {
 }
 
 func (w *World) sendChangelogLoop() {
-	ticker := time.NewTicker(1 * time.Second)
-	// endless loop here
-	for _ = range ticker.C {
+	for {
 		select {
 		case ch := <-w.changeLog.changesByTimeCh:
 			if w.changeLog.AddAndCheckSize(ch) {
@@ -131,8 +129,10 @@ func (w *World) sendChangelogLoop() {
 				for _, player := range w.players {
 					player.client.SendCommand(command)
 				}
-				w.changeLog.changesByTimeLog = make([]*ChangeByTime, 0)
+				w.changeLog.changesByTimeLog = make([]*ChangeByTime, 0, ChangelogBufferSize)
 			}
+		default:
+			// noop
 		}
 	}
 }
