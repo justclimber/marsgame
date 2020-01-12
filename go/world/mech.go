@@ -1,6 +1,9 @@
 package world
 
+import "sync"
+
 type Mech struct {
+	mu sync.Mutex
 	Object
 	Throttle       float64
 	RotateThrottle float64

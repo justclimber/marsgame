@@ -18,6 +18,31 @@ type Code struct {
 	env        *object.Environment
 	mu         sync.Mutex
 	astProgram *ast.StatementsBlock
+	outputCh   chan *MechOutputVars
+}
+
+type MechOutputVars struct {
+	MThrottle float64
+	RThrottle float64
+}
+
+func newMechOutputVarsFromEnv(env *object.Environment) *MechOutputVars {
+	return &MechOutputVars{
+		MThrottle: getFloatVarFromEnv("mThrottle", env),
+		RThrottle: getFloatVarFromEnv("rThrottle", env),
+	}
+}
+
+func getFloatVarFromEnv(varName string, env *object.Environment) float64 {
+	envObj, ok := env.Get(varName)
+	if !ok {
+		return 0
+	}
+	objFloat, ok := envObj.(*object.Float)
+	if !ok {
+		log.Fatalf("%s should be type float, %s given", varName, objFloat.Type())
+	}
+	return objFloat.Value
 }
 
 func (c *Code) Run() {
@@ -41,6 +66,8 @@ func (c *Code) Run() {
 		if err != nil {
 			log.Printf("Runtime error: %s", err.Error())
 		}
+
+		c.outputCh <- newMechOutputVarsFromEnv(env)
 
 		env.Print()
 	}

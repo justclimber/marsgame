@@ -40,6 +40,7 @@ func (w *World) codeRun() {
 	// players are empty at start, so this block is for future
 	for _, player := range w.players {
 		go player.mainProgram.Run()
+		go player.listen()
 	}
 }
 
@@ -77,9 +78,9 @@ func (w *World) listenChannels() {
 		player := NewPlayer(client.Id, client, NewMech())
 		log.Printf("New player [%s] added to the game", player.id)
 
-		player.setBaseParams()
 		w.players[player.id] = player
 		go player.mainProgram.Run()
+		go player.listen()
 	case saveCode := <-w.Server.SaveAstCodeCh:
 		player, ok := w.players[saveCode.UserId]
 		if !ok {
@@ -97,6 +98,7 @@ func (w *World) runPlayer(player *Player) *ChangeByObject {
 		ObjType: TypePlayer,
 		ObjId:   player.id,
 	}
+	mech.mu.Lock()
 	if mech.RotateThrottle != 0 {
 		mech.Object.Angle += mech.RotateThrottle * MaxRotationValue
 		changeByObject.Angle = mech.Object.Angle
@@ -106,6 +108,7 @@ func (w *World) runPlayer(player *Player) *ChangeByObject {
 		mech.Object.Pos.MoveForward(mech.Object.Angle, length)
 		changeByObject.Pos = mech.Object.Pos
 	}
+	mech.mu.Unlock()
 
 	if mech.RotateThrottle != 0 || mech.Throttle != 0 {
 		return &changeByObject
