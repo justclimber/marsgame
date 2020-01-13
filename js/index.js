@@ -59,9 +59,9 @@ function updateMechVars(result) {
 }
 
 let changelogToRun = [];
-let timeId;
+let timeShiftForPrediction = 2000;
 function parseChangelog(changelog) {
-    console.log(changelog);
+    // console.log(changelog);
     changelog.forEach(function (changeByTime) {
         let changesByObject = changeByTime.changesByObject;
         changesByObject.forEach(function (changeByObj) {
@@ -75,9 +75,9 @@ function parseChangelog(changelog) {
                 rotation: changeByObj.angle
             });
         });
-        if (!timeId) {
-            timeId = changeByTime.timeId;
-            console.log(timeId)
+        if (!currTimeId) {
+            // use time shift for more smooth prediction: we need changelogToRun always be not empty on run
+            currTimeId = changeByTime.timeId - timeShiftForPrediction;
         }
     });
 }
@@ -91,17 +91,40 @@ function fetchFloatOr0(value) {
     }
 }
 let timer = new Date();
+let currTimeId;
 function gameLoop(delta) {
+    mech.x += mech.vx;
+    mech.y += mech.vy;
+    mech.rotation += mech.vr;
+
     let now = new Date();
     let timeDelta = now.getTime() - timer.getTime();
     timer = now;
-    if (timeId) {
-        timeId += timeDelta;
-        if (changelogToRun.length && changelogToRun[0].timeId - timeId < 40) {
-            let change = changelogToRun.shift();
-            mech.x = change.x;
-            mech.y = change.y;
-            mech.rotation = change.rotation;
+    if (currTimeId) {
+        currTimeId += timeDelta;
+        if (changelogToRun.length) {
+            if (changelogToRun[0].timeId < currTimeId) {
+                let timeId = changelogToRun[0].timeId;
+                let change = changelogToRun.shift();
+                mech.x = change.x;
+                mech.y = change.y;
+                mech.rotation = change.rotation;
+
+                // prediction for smooth moving
+                if (changelogToRun.length) {
+                    let nextChange = changelogToRun[0];
+                    let nextTimeIdDelta = nextChange.timeId - timeId;
+                    let futureGameTicks = nextTimeIdDelta / timeDelta;
+                    mech.vx = (nextChange.x - mech.x) / futureGameTicks;
+                    mech.vy = (nextChange.y - mech.y) / futureGameTicks;
+                    mech.vr = (nextChange.rotation - mech.rotation) / futureGameTicks;
+                }
+            }
+        } else {
+            // stop prediction
+            mech.vx = 0;
+            mech.vy = 0;
+            mech.vr = 0;
         }
     }
 }
