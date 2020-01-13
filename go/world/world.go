@@ -125,6 +125,7 @@ func (w *World) sendChangelogLoop() {
 		select {
 		case ch := <-w.changeLog.changesByTimeCh:
 			if w.changeLog.AddAndCheckSize(ch) {
+				w.changeLog.Optimize()
 				command := PackChangesToCommand(w.changeLog.changesByTimeLog)
 				for _, player := range w.players {
 					player.client.SendCommand(command)
