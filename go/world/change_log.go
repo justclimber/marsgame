@@ -13,7 +13,7 @@ const (
 )
 
 const ChangelogChannelBufferSize = 10
-const ChangelogBufferSize = 4
+const ChangelogBufferSize = 6
 
 type ChangeLog struct {
 	changesByTimeCh  chan *ChangeByTime
@@ -26,10 +26,10 @@ type ChangeByTime struct {
 }
 
 type ChangeByObject struct {
-	ObjType string `json:"objType"`
-	ObjId   string `json:"objId"`
-	Pos     physics.Point
-	Angle   float64 `json:"angle"`
+	ObjType string        `json:"objType"`
+	ObjId   string        `json:"objId"`
+	Pos     physics.Point `json:"pos"`
+	Angle   float64       `json:"angle"`
 }
 
 func NewChangeByTime(timeId int64) *ChangeByTime {

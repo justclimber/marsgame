@@ -70,8 +70,8 @@ function parseChangelog(changelog) {
             }
             changelogToRun.push({
                 timeId: changeByTime.timeId,
-                x: changeByObj.Pos.x + xShift,
-                y: changeByObj.Pos.y + yShift,
+                x: changeByObj.pos.x + xShift,
+                y: changeByObj.pos.y + yShift,
                 rotation: changeByObj.angle
             });
         });
@@ -178,8 +178,9 @@ window.onload = function() {
                 userId: userId,
                 sourceCode: document.getElementById('sourceCode').value
             })
-        }).then(response => response.json())
-        .then(result => parseResponse(result))
+        }).then(function (response) {
+            
+        })
     };
 };
 let userId = getUserId();

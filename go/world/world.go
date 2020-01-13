@@ -7,7 +7,7 @@ import (
 )
 
 // max moving forward per turn
-const MaxMovingLength float64 = 5
+const MaxMovingLength float64 = 7
 
 // max rotation per turn in radians
 const MaxRotationValue float64 = 0.5
