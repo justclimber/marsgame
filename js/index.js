@@ -40,6 +40,13 @@ function parseResponse(result) {
     }
 }
 
+function parseError(payload) {
+    let errorContainer = document.getElementById("errorsContainer");
+    let errorTextContainer = document.getElementById("errorsText");
+    errorTextContainer.innerHTML = payload.message.replace(/\n/g, '<br/>');
+    errorContainer.style.display = 'block';
+}
+
 function updateMechVars(result) {
     if (result.vr) {
         let vr = parseFloat(result.vr);
@@ -217,6 +224,8 @@ window.onload = function() {
 };
 
 function saveCode() {
+    document.getElementById("errorsContainer").style.display = 'none';
+
     let sourceCode = document.getElementById('sourceCode').value;
     localStorage.setItem('sourceCode', sourceCode);
     fetch("save_source_code", {
@@ -278,6 +287,8 @@ socket.onmessage = (msg) => {
             let payload = JSON.parse(data.payload);
             if (data.type === 'worldChanges') {
                 parseChangelog(payload)
+            } else if (data.type === 'error') {
+                parseError(payload)
             }
         } else {
             console.log(data);

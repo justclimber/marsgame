@@ -43,6 +43,8 @@ func (p *Player) listen() {
 			p.mech.Throttle = codeOutputs.MThrottle
 			p.mech.RotateThrottle = codeOutputs.RThrottle
 			p.mech.mu.Unlock()
+		case codeError := <-p.mainProgram.errorCh:
+			p.client.PackAndSendCommand("error", codeError)
 		default:
 			// noop
 		}

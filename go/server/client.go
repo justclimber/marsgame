@@ -28,6 +28,10 @@ func (c *Client) Listen() {
 	c.listenRead()
 }
 
+func (c *Client) PackAndSendCommand(name string, payload interface{}) {
+	c.SendCommand(PackStructToCommand(name, payload))
+}
+
 func (c *Client) SendCommand(command *Command) {
 	c.commands <- command
 }
@@ -44,6 +48,8 @@ func (c *Client) listenWrite() {
 		case <-c.doneCh:
 			c.doneCh <- true // for listenRead method
 			return
+		default:
+			// noop
 		}
 	}
 }

@@ -26,25 +26,40 @@ type Code struct {
 	state      ProgramState
 	mu         sync.Mutex
 	astProgram *ast.StatementsBlock
-	outputCh   chan *MechOutputVars
-	flowCh     chan ProgramState
 	worldP     *World
 	mechP      *Mech
+	outputCh   chan *MechOutputVars
+	flowCh     chan ProgramState
+	errorCh    chan *Error
 }
 
 func NewCode(id string, world *World, mech *Mech) *Code {
 	return &Code{
 		id:       "main",
-		outputCh: make(chan *MechOutputVars),
-		flowCh:   make(chan ProgramState),
 		worldP:   world,
 		mechP:    mech,
+		outputCh: make(chan *MechOutputVars),
+		flowCh:   make(chan ProgramState),
+		errorCh:  make(chan *Error),
 	}
 }
 
 type MechOutputVars struct {
 	MThrottle float64
 	RThrottle float64
+}
+
+type ErrorType int
+
+const (
+	Lexing ErrorType = iota
+	Parsing
+	Runtime
+)
+
+type Error struct {
+	ErrorType ErrorType `json:"errorType"`
+	Message   string    `json:"message"`
 }
 
 func newMechOutputVarsFromEnv(env *object.Environment) *MechOutputVars {
@@ -92,6 +107,11 @@ func (c *Code) Run() {
 
 		_, err := interpereter.Exec(astProgram, env)
 		if err != nil {
+			c.state = Stopped
+			c.errorCh <- &Error{
+				ErrorType: Runtime,
+				Message:   err.Error(),
+			}
 			log.Printf("Runtime error: %s", err.Error())
 		}
 

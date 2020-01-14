@@ -2,9 +2,6 @@ package world
 
 import (
 	"aakimov/marsgame/go/physics"
-	"aakimov/marsgame/go/server"
-	"encoding/json"
-	"log"
 )
 
 const (
@@ -62,14 +59,4 @@ func (ch *ChangeLog) AddToBuffer(changeByTime *ChangeByTime) {
 func (ch *ChangeLog) AddAndCheckSize(changeByTime *ChangeByTime) bool {
 	ch.changesByTimeLog = append(ch.changesByTimeLog, changeByTime)
 	return len(ch.changesByTimeLog) >= ChangelogBufferSize
-}
-
-func PackChangesToCommand(changes []*ChangeByTime) *server.Command {
-	command := server.Command{Type: "worldChanges"}
-	jsonBytes, err := json.Marshal(changes)
-	if err != nil {
-		log.Println(err)
-	}
-	command.Payload = string(jsonBytes)
-	return &command
 }
