@@ -4,7 +4,7 @@ const app = new PIXI.Application({
     backgroundColor: "0xffffff",
 });
 
-let mech, mechBase, mechWeaponCannon;
+let mech, mechBase, mechWeaponCannon, terra;
 let xShift = 300;
 let yShift = 300;
 
@@ -98,19 +98,18 @@ function gameLoop(delta) {
     }
 }
 
-function getSpriteRotated(texture) {
-    return new PIXI.Sprite(new PIXI.Texture(texture.baseTexture, null, null, null, 6));
-}
-
 window.onload = function() {
     document.getElementById('pixiDiv').appendChild(app.view);
 
     app.loader
-        .add('mechBase', '/images/mech_base.png')
-        .add('mechWeaponCannon', '/images/mech_weapon_cannon.png')
+        .add('/images/spritesheet.json')
         .load((loader, resources) => {
-            mechBase = getSpriteRotated(resources.mechBase.texture);
-            mechWeaponCannon = getSpriteRotated(resources.mechWeaponCannon.texture);
+            let sheet = resources["/images/spritesheet.json"];
+            mechBase = new PIXI.Sprite(sheet.textures['mech_base.png']);
+            mechWeaponCannon = new PIXI.Sprite(sheet.textures['mech_weapon_cannon.png']);
+            mechWeaponCannon = new PIXI.Sprite(sheet.textures['mech_weapon_cannon.png']);
+            terra = new PIXI.TilingSprite(sheet.textures['terra.jpg'], 1600, 1200);
+            app.stage.addChild(terra);
             mechBase.anchor.set(0.5);
             mechWeaponCannon.anchor.set(0.5, 0.6);
             mech = new PIXI.Container();
@@ -119,7 +118,7 @@ window.onload = function() {
             initMechVars();
             app.stage.addChild(mech);
             app.ticker.add(delta => gameLoop(delta));
-    });
+        });
 
     let resetVarsButton = document.getElementById('resetVars');
     resetVarsButton.onclick = initMechVars;
