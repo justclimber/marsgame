@@ -10,8 +10,8 @@
 <script src="js/app.js"></script>
 <body>
     <div class="paper container">
-        <div class="row">
-            <div class="form-group col-8 col">
+        <div class="row margin-bottom-none">
+            <div class="form-group col-8 col margin-bottom-none padding-bottom-none">
                 <label for="sourceCode">Type your code here:</label>
                 <textarea id="sourceCode">
 mThrottle = 1.0
@@ -19,7 +19,7 @@ rThrottle = -0.1
 </textarea>
             </div>
             <div class="col-4 col">
-                <div class="row">
+                <div class="row margin-bottom-large margin-top-large">
                     <div>Input vars:</div>
                     <ul>
                         <li>x (float) - x position</li>
@@ -36,9 +36,21 @@ rThrottle = -0.1
                 </div>
             </div>
         </div>
-        <div id="errorsContainer" class="row text-danger">
+        <div id="errorsContainer" class="row text-danger margin-none">
             <label>Errors from interpreter:</label>
             <div id="errorsText"></div>
+        </div>
+        <div class="row form-group margin-bottom-none">
+            <div class="col-4 col">
+                <label for="autoSaveCheckbox" class="paper-radio">
+                    <input type="checkbox" id="autoSaveCheckbox"> <span>Auto save code on startup</span>
+                </label>
+            </div>
+            <div class="col-4 col">
+                <label for="autoStartCheckbox" class="paper-radio">
+                    <input type="checkbox" id="autoStartCheckbox"> <span>Auto start code on startup</span>
+                </label>
+            </div>
         </div>
         <button id="saveCode">Save the code</button>
         <button id="runProgram">Run the code</button>
