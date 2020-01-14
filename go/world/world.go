@@ -75,7 +75,7 @@ func (w *World) Run() {
 func (w *World) listenChannels() {
 	select {
 	case client := <-w.Server.NewClientCh:
-		player := NewPlayer(client.Id, client, NewMech())
+		player := NewPlayer(client.Id, client, NewMech(), w)
 		log.Printf("New player [%s] added to the game", player.id)
 
 		w.players[player.id] = player
@@ -93,7 +93,7 @@ func (w *World) listenChannels() {
 }
 
 func (w *World) runPlayer(player *Player) *ChangeByObject {
-	mech := &player.mech
+	mech := player.mech
 	changeByObject := ChangeByObject{
 		ObjType: TypePlayer,
 		ObjId:   player.id,
@@ -101,13 +101,15 @@ func (w *World) runPlayer(player *Player) *ChangeByObject {
 	mech.mu.Lock()
 	if mech.RotateThrottle != 0 {
 		mech.Object.Angle += mech.RotateThrottle * MaxRotationValue
-		changeByObject.Angle = mech.Object.Angle
+		newAngle := mech.Object.Angle
+		changeByObject.Angle = &newAngle
 	}
 	if mech.Throttle != 0 {
 		length := mech.Throttle * MaxMovingLength
 		mech.Object.Pos.MoveForward(mech.Object.Angle, length)
-		changeByObject.Pos = mech.Object.Pos
-		changeByObject.length = length
+		newPos := mech.Object.Pos
+		changeByObject.Pos = &newPos
+		changeByObject.length = &length
 	}
 	mech.mu.Unlock()
 

@@ -68,12 +68,15 @@ function parseChangelog(changelog) {
             if (changeByObj.objId !== userId) {
                 return;
             }
-            changelogToRun.push({
-                timeId: changeByTime.timeId,
-                x: changeByObj.pos.x + xShift,
-                y: changeByObj.pos.y + yShift,
-                rotation: changeByObj.angle
-            });
+            let change = {timeId: changeByTime.timeId};
+            if (changeByObj.pos) {
+                change.x = changeByObj.pos.x + xShift;
+                change.y = changeByObj.pos.y + yShift;
+            }
+            if (changeByObj.angle) {
+                change.rotation = changeByObj.angle;
+            }
+            changelogToRun.push(change);
         });
         if (!currTimeId) {
             // use time shift for more smooth prediction: we need changelogToRun always be not empty on run
@@ -106,18 +109,24 @@ function gameLoop(delta) {
             if (changelogToRun[0].timeId < currTimeId) {
                 let timeId = changelogToRun[0].timeId;
                 let change = changelogToRun.shift();
-                mech.x = change.x;
-                mech.y = change.y;
-                mech.rotation = change.rotation;
+                if (change.x) {
+                    mech.x = change.x;
+                }
+                if (change.y) {
+                    mech.y = change.y;
+                }
+                if (change.rotation) {
+                    mech.rotation = change.rotation;
+                }
 
                 // prediction for smooth moving
                 if (changelogToRun.length) {
                     let nextChange = changelogToRun[0];
                     let nextTimeIdDelta = nextChange.timeId - timeId;
                     let futureGameTicks = nextTimeIdDelta / timeDelta;
-                    mech.vx = (nextChange.x - mech.x) / futureGameTicks;
-                    mech.vy = (nextChange.y - mech.y) / futureGameTicks;
-                    mech.vr = (nextChange.rotation - mech.rotation) / futureGameTicks;
+                    mech.vx = !nextChange.x ? 0 : (nextChange.x - mech.x) / futureGameTicks;
+                    mech.vy = !nextChange.y ? 0 : (nextChange.y - mech.y) / futureGameTicks;
+                    mech.vr = !nextChange.rotation ? 0 : (nextChange.rotation - mech.rotation) / futureGameTicks;
                 }
             }
         } else {

@@ -19,6 +19,8 @@ type Code struct {
 	mu         sync.Mutex
 	astProgram *ast.StatementsBlock
 	outputCh   chan *MechOutputVars
+	worldP     *World
+	mechP      *Mech
 }
 
 type MechOutputVars struct {
@@ -45,6 +47,12 @@ func getFloatVarFromEnv(varName string, env *object.Environment) float64 {
 	return objFloat.Value
 }
 
+func (c *Code) loadMechVarsIntoEnv(env *object.Environment) {
+	env.Set("x", &object.Float{Value: c.mechP.Pos.X})
+	env.Set("y", &object.Float{Value: c.mechP.Pos.Y})
+	env.Set("angle", &object.Float{Value: c.mechP.Angle})
+}
+
 func (c *Code) Run() {
 	ticker := time.NewTicker(2 * time.Second)
 
@@ -57,6 +65,7 @@ func (c *Code) Run() {
 			continue
 		}
 		env := object.NewEnvironment()
+		c.loadMechVarsIntoEnv(env)
 
 		c.mu.Lock()
 		astProgram := c.astProgram

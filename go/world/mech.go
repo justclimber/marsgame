@@ -9,8 +9,8 @@ type Mech struct {
 	RotateThrottle float64
 }
 
-func NewMech() Mech {
-	return Mech{
+func NewMech() *Mech {
+	return &Mech{
 		Object:         Object{},
 		Throttle:       0,
 		RotateThrottle: 0,

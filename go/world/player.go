@@ -8,11 +8,11 @@ import (
 type Player struct {
 	id          string
 	client      *server.Client
-	mech        Mech
+	mech        *Mech
 	mainProgram *Code
 }
 
-func NewPlayer(id string, client *server.Client, mech Mech) *Player {
+func NewPlayer(id string, client *server.Client, mech *Mech, w *World) *Player {
 	player := &Player{
 		id:     id,
 		client: client,
@@ -20,6 +20,8 @@ func NewPlayer(id string, client *server.Client, mech Mech) *Player {
 		mainProgram: &Code{
 			id:       "main",
 			outputCh: make(chan *MechOutputVars),
+			worldP:   w,
+			mechP:    mech,
 		},
 	}
 	return player

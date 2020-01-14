@@ -23,16 +23,18 @@ func TestChangeLog_OptimizeSimplePositiveCase(t *testing.T) {
 		x = x + dx
 		y = y + dy
 		r = r + dr
+		newL := l
+		newR := r
 
 		changeByObject := &ChangeByObject{
 			ObjType: TypePlayer,
 			ObjId:   "11",
-			Pos: physics.Point{
+			Pos: &physics.Point{
 				X: x,
 				Y: y,
 			},
-			Angle:  r,
-			length: l,
+			Angle:  &newR,
+			length: &newL,
 		}
 		changeByTime.Add(changeByObject)
 
@@ -66,16 +68,18 @@ func TestChangeLog_OptimizeSimpleNegative(t *testing.T) {
 		if i == 1 {
 			l = l + 5.
 		}
+		newL := l
+		newR := r
 
 		changeByObject := &ChangeByObject{
 			ObjType: TypePlayer,
 			ObjId:   "11",
-			Pos: physics.Point{
+			Pos: &physics.Point{
 				X: x,
 				Y: y,
 			},
-			Angle:  r,
-			length: l,
+			Angle:  &newR,
+			length: &newL,
 		}
 		changeByTime.Add(changeByObject)
 
@@ -102,16 +106,18 @@ func TestChangeLog_OptimizePositiveMoreElements(t *testing.T) {
 		x = x + dx
 		y = y + dy
 		r = r + dr
+		newL := l
+		newR := r
 
 		changeByObject := &ChangeByObject{
 			ObjType: TypePlayer,
 			ObjId:   "11",
-			Pos: physics.Point{
+			Pos: &physics.Point{
 				X: x,
 				Y: y,
 			},
-			Angle:  r,
-			length: l,
+			Angle:  &newR,
+			length: &newL,
 		}
 		changeByTime.Add(changeByObject)
 
