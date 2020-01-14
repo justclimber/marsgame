@@ -14,6 +14,7 @@ func TestChangeLog_OptimizeSimplePositiveCase(t *testing.T) {
 	x := 0.
 	y := 0.
 	r := 0.
+	l := 1.5
 
 	changelog := NewChangeLog()
 	for i := 0; i <= 2; i++ {
@@ -30,7 +31,8 @@ func TestChangeLog_OptimizeSimplePositiveCase(t *testing.T) {
 				X: x,
 				Y: y,
 			},
-			Angle: r,
+			Angle:  r,
+			length: l,
 		}
 		changeByTime.Add(changeByObject)
 
@@ -50,6 +52,7 @@ func TestChangeLog_OptimizeSimpleNegative(t *testing.T) {
 	x := 0.
 	y := 0.
 	r := 0.
+	l := 1.5
 
 	changelog := NewChangeLog()
 	for i := 0; i <= 2; i++ {
@@ -61,7 +64,7 @@ func TestChangeLog_OptimizeSimpleNegative(t *testing.T) {
 
 		// make some diff shake here
 		if i == 1 {
-			x = x + 5
+			l = l + 5.
 		}
 
 		changeByObject := &ChangeByObject{
@@ -71,7 +74,8 @@ func TestChangeLog_OptimizeSimpleNegative(t *testing.T) {
 				X: x,
 				Y: y,
 			},
-			Angle: r,
+			Angle:  r,
+			length: l,
 		}
 		changeByTime.Add(changeByObject)
 
@@ -89,6 +93,7 @@ func TestChangeLog_OptimizePositiveMoreElements(t *testing.T) {
 	x := 0.
 	y := 0.
 	r := 0.
+	l := 1.5
 
 	changelog := NewChangeLog()
 	for i := 0; i <= 6; i++ {
@@ -105,7 +110,8 @@ func TestChangeLog_OptimizePositiveMoreElements(t *testing.T) {
 				X: x,
 				Y: y,
 			},
-			Angle: r,
+			Angle:  r,
+			length: l,
 		}
 		changeByTime.Add(changeByObject)
 

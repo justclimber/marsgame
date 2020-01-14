@@ -107,6 +107,7 @@ func (w *World) runPlayer(player *Player) *ChangeByObject {
 		length := mech.Throttle * MaxMovingLength
 		mech.Object.Pos.MoveForward(mech.Object.Angle, length)
 		changeByObject.Pos = mech.Object.Pos
+		changeByObject.length = length
 	}
 	mech.mu.Unlock()
 

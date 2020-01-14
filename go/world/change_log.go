@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math"
 )
 
 const (
@@ -31,6 +32,7 @@ type ChangeByObject struct {
 	ObjId   string        `json:"objId"`
 	Pos     physics.Point `json:"pos"`
 	Angle   float64       `json:"angle"`
+	length  float64
 }
 
 func NewChangeByTime(timeId int64) *ChangeByTime {
@@ -83,10 +85,10 @@ func (ch *ChangeLog) cutInterpolableChanges(i1, i2 int) {
 }
 
 func lookupForSameDiff(tailIndex int, index int, ch *ChangeLog) (int, int, bool) {
-	dx, dy, dr := getDiff(tailIndex, index, ch)
-	dx1, dy1, dr1 := getDiff(tailIndex-1, index-1, ch)
+	dl, dr := getDiff(tailIndex, index, ch)
+	dl1, dr1 := getDiff(tailIndex-1, index-1, ch)
 
-	if checkAreDiffTheSame(dx, dx1) && checkAreDiffTheSame(dy, dy1) && checkAreDiffTheSame(dr, dr1) {
+	if checkAreDiffEqualZero(dl, dl1) && checkAreDiffTheSame(dr, dr1) {
 		if index > 2 {
 			_, index1, ok := lookupForSameDiff(tailIndex, index-2, ch)
 			if ok {
@@ -108,7 +110,7 @@ func lookupForSameDiff(tailIndex int, index int, ch *ChangeLog) (int, int, bool)
 	return 0, 0, false
 }
 
-const floatDelta = 0.0001
+const floatDelta = 0.01
 
 func checkAreDiffTheSame(d1, d2 map[string]float64) bool {
 	for k, v := range d1 {
@@ -119,36 +121,39 @@ func checkAreDiffTheSame(d1, d2 map[string]float64) bool {
 	return true
 }
 
-func getDiff(index int, index1 int, ch *ChangeLog) (map[string]float64, map[string]float64, map[string]float64) {
-	x, y, r := getValuesForChanges(ch.changesByTimeLog[index])
-	x1, y1, r1 := getValuesForChanges(ch.changesByTimeLog[index1])
-	dx := make(map[string]float64)
-	dy := make(map[string]float64)
+func checkAreDiffEqualZero(d1, d2 map[string]float64) bool {
+	for k, v := range d1 {
+		if math.Abs(d2[k]) > floatDelta || math.Abs(v) > floatDelta {
+			return false
+		}
+	}
+	return true
+}
+
+func getDiff(index int, index1 int, ch *ChangeLog) (map[string]float64, map[string]float64) {
+	l, r := getValuesForChanges(ch.changesByTimeLog[index])
+	l1, r1 := getValuesForChanges(ch.changesByTimeLog[index1])
+	dl := make(map[string]float64)
 	dr := make(map[string]float64)
 
-	for k, v := range x {
-		dx[k] = v - x1[k]
-	}
-	for k, v := range y {
-		dy[k] = v - y1[k]
+	for k, v := range l {
+		dl[k] = v - l1[k]
 	}
 	for k, v := range r {
 		dr[k] = v - r1[k]
 	}
-	return dx, dy, dr
+	return dl, dr
 }
 
-func getValuesForChanges(changeByTime *ChangeByTime) (map[string]float64, map[string]float64, map[string]float64) {
-	x := make(map[string]float64)
-	y := make(map[string]float64)
+func getValuesForChanges(changeByTime *ChangeByTime) (map[string]float64, map[string]float64) {
+	l := make(map[string]float64)
 	r := make(map[string]float64)
 	for _, changeByObject := range changeByTime.ChangesByObject {
 		key := changeByObject.ObjId + changeByObject.ObjType
-		x[key] = changeByObject.Pos.X
-		y[key] = changeByObject.Pos.Y
+		l[key] = changeByObject.length
 		r[key] = changeByObject.Angle
 	}
-	return x, y, r
+	return l, r
 }
 
 func PackChangesToCommand(changes []*ChangeByTime) *server.Command {
