@@ -171,23 +171,7 @@ window.onload = function() {
     }
 
     let saveCodeButton = document.getElementById('saveCode');
-    saveCodeButton.onclick = () => {
-        let sourceCode = sourceCodeEl.value;
-        localStorage.setItem('sourceCode', sourceCode);
-        fetch("save_source_code", {
-            method: "POST",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                userId: userId,
-                sourceCode: sourceCode
-            })
-        }).then(function (response) {
-            
-        })
-    };
+    saveCodeButton.onclick = saveCode;
 
     let runProgramButton = document.getElementById('runProgram');
     runProgramButton.onclick = runProgram;
@@ -195,7 +179,60 @@ window.onload = function() {
     let stopProgramButton = document.getElementById('stopProgram');
     stopProgramButton.onclick = stopProgram;
 
+    let autoSaveCheckbox = document.getElementById('autoSaveCheckbox');
+    autoSaveCheckbox.onchange = function () {
+        if (this.checked) {
+            localStorage.setItem('autoSave', "true")
+            document.getElementById('autoStartSpan').classList.remove('disabled');
+            autoStartCheckbox.disabled = '';
+        } else {
+            document.getElementById('autoStartSpan').classList.add('disabled');
+            autoStartCheckbox.disabled = 'disabled';
+            localStorage.removeItem('autoSave')
+        }
+    };
+
+    let autoStartCheckbox = document.getElementById('autoStartCheckbox');
+    autoStartCheckbox.onchange = function () {
+        if (this.checked) {
+            localStorage.setItem('autoStart', "true")
+        } else {
+            localStorage.removeItem('autoStart')
+        }
+    };
+
+    if (localStorage.getItem('autoSave')) {
+        autoSaveCheckbox.checked = true;
+        setTimeout(saveCode, 500);
+        if (localStorage.getItem('autoStart')) {
+            autoStartCheckbox.checked = true;
+            setTimeout(runProgram, 1500);
+        }
+    } else {
+        autoStartCheckbox.disabled = 'disabled';
+        document.getElementById('autoStartSpan').classList.add('disabled');
+    }
+
+
 };
+
+function saveCode() {
+    let sourceCode = document.getElementById('sourceCode').value;
+    localStorage.setItem('sourceCode', sourceCode);
+    fetch("save_source_code", {
+        method: "POST",
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            userId: userId,
+            sourceCode: sourceCode
+        })
+    }).then(function (response) {
+
+    })
+}
 
 function runProgram() {
     programFlow(1)
