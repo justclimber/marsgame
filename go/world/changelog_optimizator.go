@@ -1,12 +1,10 @@
 package world
 
 import (
-	"fmt"
-	"log"
 	"math"
 )
 
-// Optimize intermediate changelog for individual object if they can be interpolated (have const diffs fo 3 changes)
+// Optimize intermediate changelog for individual object if they can be interpolated (have const diffs at least for 3 changes)
 func (ch *ChangeLog) Optimize() {
 	changelogLen := len(ch.changesByTimeLog)
 	if changelogLen < 3 {
@@ -14,13 +12,11 @@ func (ch *ChangeLog) Optimize() {
 	}
 	i1, i2, ok := lookupForSameDiff(changelogLen-1, changelogLen-2, ch)
 	if ok {
-		log.Println("Optimized!")
 		ch.cutInterpolableChanges(i1, i2)
 	}
 }
 
 func (ch *ChangeLog) cutInterpolableChanges(i1, i2 int) {
-	fmt.Printf("Cut from %d, %d, len: %d\n", i2, i1, len(ch.changesByTimeLog))
 	ch.changesByTimeLog = append(ch.changesByTimeLog[:i2+1], ch.changesByTimeLog[i1:]...)
 }
 

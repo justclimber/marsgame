@@ -14,15 +14,10 @@ type Player struct {
 
 func NewPlayer(id string, client *server.Client, mech *Mech, w *World) *Player {
 	player := &Player{
-		id:     id,
-		client: client,
-		mech:   mech,
-		mainProgram: &Code{
-			id:       "main",
-			outputCh: make(chan *MechOutputVars),
-			worldP:   w,
-			mechP:    mech,
-		},
+		id:          id,
+		client:      client,
+		mech:        mech,
+		mainProgram: NewCode("main", w, mech),
 	}
 	return player
 }

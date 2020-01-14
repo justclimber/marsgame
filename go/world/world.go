@@ -54,7 +54,7 @@ func (w *World) Run() {
 	// endless loop here
 	for t := range ticker.C {
 		timeId := timeStampDif(serverStartTime, t)
-		log.Printf("Game tick %v\n", timeId)
+		//log.Printf("Game tick %v\n", timeId)
 
 		w.listenChannels()
 		changeByTime := NewChangeByTime(timeId)
@@ -87,6 +87,12 @@ func (w *World) listenChannels() {
 			log.Fatalf("Save code attempt for inexistant player [%s]", saveCode.UserId)
 		}
 		player.saveAstCode(saveCode.SourceCode)
+	case programFlowCmd := <-w.Server.ProgramFlowCh:
+		player, ok := w.players[programFlowCmd.UserId]
+		if !ok {
+			log.Fatalf("Save code attempt for inexistant player [%s]", programFlowCmd.UserId)
+		}
+		player.mainProgram.operateState(programFlowCmd.FlowCmd)
 	default:
 		// noop
 	}

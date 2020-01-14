@@ -1,6 +1,7 @@
 package world
 
 import (
+	"aakimov/marsgame/go/server"
 	"aakimov/marslang/ast"
 	"aakimov/marslang/interpereter"
 	"aakimov/marslang/lexer"
@@ -13,14 +14,32 @@ import (
 	"time"
 )
 
+type ProgramState int
+
+const (
+	Stopped ProgramState = iota
+	Running
+)
+
 type Code struct {
 	id         string
-	env        *object.Environment
+	state      ProgramState
 	mu         sync.Mutex
 	astProgram *ast.StatementsBlock
 	outputCh   chan *MechOutputVars
+	flowCh     chan ProgramState
 	worldP     *World
 	mechP      *Mech
+}
+
+func NewCode(id string, world *World, mech *Mech) *Code {
+	return &Code{
+		id:       "main",
+		outputCh: make(chan *MechOutputVars),
+		flowCh:   make(chan ProgramState),
+		worldP:   world,
+		mechP:    mech,
+	}
 }
 
 type MechOutputVars struct {
@@ -58,10 +77,10 @@ func (c *Code) Run() {
 
 	// endless loop here
 	for _ = range ticker.C {
-		log.Printf("Code run tick\n")
+		//log.Printf("Code run tick\n")
 		c.listenTheWorld()
-		if c.astProgram == nil {
-			// waiting for the fist program
+		if c.astProgram == nil || c.state != Running {
+			// waiting for the ast or for the launch
 			continue
 		}
 		env := object.NewEnvironment()
@@ -83,13 +102,32 @@ func (c *Code) Run() {
 }
 
 func (c *Code) listenTheWorld() {
-	// select for channels
+	select {
+	case c.state = <-c.flowCh:
+		if c.state == Stopped {
+			c.outputCh <- &MechOutputVars{
+				MThrottle: 0,
+				RThrottle: 0,
+			}
+		}
+	default:
+		// noop
+	}
 }
 
 func (c *Code) saveAst(ast *ast.StatementsBlock) {
 	c.mu.Lock()
 	c.astProgram = ast
 	c.mu.Unlock()
+}
+
+func (c *Code) operateState(cmd server.ProgramFlowType) {
+	switch cmd {
+	case server.StartProgram:
+		c.flowCh <- Running
+	case server.StopProgram:
+		c.flowCh <- Stopped
+	}
 }
 
 func ParseSourceCode(sourceCode string) (*ast.StatementsBlock, []byte) {

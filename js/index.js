@@ -138,14 +138,6 @@ function gameLoop(delta) {
     }
 }
 
-function resetVelocity() {
-    mech.vx = 0;
-    mech.vy = 0;
-    mech.vr = 0;
-    mech.throttle = 0;
-    mechWeaponCannon.vr = 0;
-}
-
 function getSpriteRotated(texture) {
     return new PIXI.Sprite(new PIXI.Texture(texture.baseTexture, null, null, null, 6));
 }
@@ -168,9 +160,6 @@ window.onload = function() {
             app.stage.addChild(mech);
             app.ticker.add(delta => gameLoop(delta));
     });
-
-    let stopMechButton = document.getElementById('stopMech');
-    stopMechButton.onclick = resetVelocity;
 
     let resetVarsButton = document.getElementById('resetVars');
     resetVarsButton.onclick = initMechVars;
@@ -199,7 +188,39 @@ window.onload = function() {
             
         })
     };
+
+    let runProgramButton = document.getElementById('runProgram');
+    runProgramButton.onclick = runProgram;
+
+    let stopProgramButton = document.getElementById('stopProgram');
+    stopProgramButton.onclick = stopProgram;
+
 };
+
+function runProgram() {
+    programFlow(1)
+}
+
+function stopProgram() {
+    programFlow(0)
+}
+
+function programFlow(flowCmd) {
+    fetch("program_flow", {
+        method: "POST",
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            userId: userId,
+            flowCmd: flowCmd
+        })
+    }).then(function (response) {
+
+    })
+}
+
 let userId = getUserId();
 let url = "ws://localhost/ws?id=" + userId;
 let socket = new WebSocket(url);
