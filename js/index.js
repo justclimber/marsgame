@@ -162,8 +162,8 @@ window.onload = function() {
             mechBase.anchor.set(0.5);
             mechWeaponCannon.anchor.set(0.5, 0.6);
             mech = new PIXI.Container();
-            mech.addChild(mechBase)
-            mech.addChild(mechWeaponCannon)
+            mech.addChild(mechBase);
+            mech.addChild(mechWeaponCannon);
             initMechVars();
             app.stage.addChild(mech);
             app.ticker.add(delta => gameLoop(delta));
@@ -175,8 +175,16 @@ window.onload = function() {
     let resetVarsButton = document.getElementById('resetVars');
     resetVarsButton.onclick = initMechVars;
 
+    let sourceCodeEl = document.getElementById('sourceCode');
+    let sourceCodeFromLocalStorage = localStorage.getItem('sourceCode');
+    if (sourceCodeFromLocalStorage && sourceCodeFromLocalStorage.length > 0) {
+        sourceCodeEl.value = sourceCodeFromLocalStorage;
+    }
+
     let saveCodeButton = document.getElementById('saveCode');
     saveCodeButton.onclick = () => {
+        let sourceCode = sourceCodeEl.value;
+        localStorage.setItem('sourceCode', sourceCode);
         fetch("save_source_code", {
             method: "POST",
             headers: {
@@ -185,7 +193,7 @@ window.onload = function() {
             },
             body: JSON.stringify({
                 userId: userId,
-                sourceCode: document.getElementById('sourceCode').value
+                sourceCode: sourceCode
             })
         }).then(function (response) {
             
