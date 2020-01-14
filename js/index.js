@@ -26,45 +26,6 @@ function initMechVars() {
     mechWeaponCannon.rotation = 0;
 }
 
-function parseResponse(result) {
-    console.log(JSON.stringify(result, null, 2))
-    let errorContainer = document.getElementById("errorsContainer");
-    if (result.error) {
-        let errorTextContainer = document.getElementById("errorsText");
-        errorTextContainer.innerHTML = result.error.replace(/\n/g, '<br/>');
-
-        errorContainer.style.display = 'block';
-    } else {
-        errorContainer.style.display = 'none';
-        updateMechVars(result)
-    }
-}
-
-function parseError(payload) {
-    let errorContainer = document.getElementById("errorsContainer");
-    let errorTextContainer = document.getElementById("errorsText");
-    errorTextContainer.innerHTML = payload.message.replace(/\n/g, '<br/>');
-    errorContainer.style.display = 'block';
-}
-
-function updateMechVars(result) {
-    if (result.vr) {
-        let vr = parseFloat(result.vr);
-        if (vr === vr) {
-            mech.vr = vr;
-        }
-    }
-    if (result.rotation) {
-        mech.rotation = fetchFloatOr0(result.rotation);
-    }
-    if (result.throttle) {
-        mech.throttle = fetchFloatOr0(result.throttle);
-    }
-    if (result.cannonVr) {
-        mechWeaponCannon.vr = fetchFloatOr0(result.cannonVr);
-    }
-}
-
 let changelogToRun = [];
 let timeShiftForPrediction = 2000;
 function parseChangelog(changelog) {
@@ -241,6 +202,13 @@ function saveCode() {
     }).then(function (response) {
 
     })
+}
+
+function parseError(payload) {
+    let errorContainer = document.getElementById("errorsContainer");
+    let errorTextContainer = document.getElementById("errorsText");
+    errorTextContainer.innerHTML = payload.message.replace(/\n/g, '<br/>');
+    errorContainer.style.display = 'block';
 }
 
 function runProgram() {
