@@ -53,14 +53,6 @@ function parseChangelog(changelog) {
     });
 }
 
-function fetchFloatOr0(value) {
-    let floatVal = parseFloat(value);
-    if (floatVal === floatVal) {
-        return floatVal;
-    } else {
-        return 0;
-    }
-}
 let timer = new Date();
 let currTimeId;
 function gameLoop(delta) {
