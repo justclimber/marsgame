@@ -9,8 +9,8 @@ const app = new PIXI.Application({
 let viewport;
 
 let mech, mechBase, mechWeaponCannon, terra;
-let xShift = 300;
-let yShift = 300;
+let xShift = 1000;
+let yShift = 1000;
 
 function initMechVars() {
     mech.scale.set(0.2, 0.2);
@@ -121,10 +121,10 @@ window.onload = function() {
             viewport.clampZoom({
                 minWidth: 300,
                 maxWidth: 3000,
-            });
-            viewport.bounce({
+            }).bounce({
                 time: 400
-            });
+            }).moveCenter(xShift, yShift);
+
             app.stage.addChild(viewport);
             viewport
                 .drag()
