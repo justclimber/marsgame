@@ -114,17 +114,16 @@ window.onload = function() {
         // the interaction module is important for wheel to work properly when renderer.view is placed or scaled
         interaction: app.renderer.plugins.interaction
     });
+    viewport.clampZoom({
+        minWidth: 300,
+        maxWidth: 3000,
+    }).bounce({
+        time: 400
+    }).moveCenter(xShift, yShift);
 
     app.loader
         .add('/images/spritesheet.json')
         .load((loader, resources) => {
-            viewport.clampZoom({
-                minWidth: 300,
-                maxWidth: 3000,
-            }).bounce({
-                time: 400
-            }).moveCenter(xShift, yShift);
-
             app.stage.addChild(viewport);
             viewport
                 .drag()
