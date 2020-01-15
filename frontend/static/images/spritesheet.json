@@ -20,11 +20,11 @@
 },
 "terra.jpg":
 {
-	"frame": {"x":512,"y":0,"w":256,"h":256},
+	"frame": {"x":512,"y":0,"w":128,"h":128},
 	"rotated": false,
 	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":256,"h":256},
-	"sourceSize": {"w":256,"h":256},
+	"spriteSourceSize": {"x":0,"y":0,"w":128,"h":128},
+	"sourceSize": {"w":128,"h":128},
 	"anchor": {"x":0.5,"y":0.5}
 }},
 "meta": {
@@ -32,8 +32,8 @@
 	"version": "1.0",
 	"image": "spritesheet.png",
 	"format": "RGBA8888",
-	"size": {"w":768,"h":256},
+	"size": {"w":640,"h":256},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:5c56259c377a44405fa533203614e474:fbf15dc384cdcc85cbb16443654a334d:729adc6043343cfda41c447ce8f464d6$"
+	"smartupdate": "$TexturePacker:SmartUpdate:af2b94dc082305fe71c25648452885fb:199e33bb5ded16159a0bacc9ace572e7:729adc6043343cfda41c447ce8f464d6$"
 }
 }
