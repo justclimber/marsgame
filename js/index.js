@@ -1,8 +1,12 @@
 import * as PIXI from 'pixi.js'
+import { Viewport } from 'pixi-viewport'
 
 const app = new PIXI.Application({
     backgroundColor: "0xffffff",
+    width: 880,
 });
+
+let viewport;
 
 let mech, mechBase, mechWeaponCannon, terra;
 let xShift = 300;
@@ -101,22 +105,47 @@ function gameLoop(delta) {
 window.onload = function() {
     document.getElementById('pixiDiv').appendChild(app.view);
 
+    viewport = new Viewport({
+        screenWidth: 880,
+        screenHeight: 600,
+        worldWidth: 3000,
+        worldHeight: 2000,
+
+        // the interaction module is important for wheel to work properly when renderer.view is placed or scaled
+        interaction: app.renderer.plugins.interaction
+    });
+
     app.loader
         .add('/images/spritesheet.json')
         .load((loader, resources) => {
+            viewport.clampZoom({
+                minWidth: 300,
+                maxWidth: 3000,
+            });
+            viewport.bounce({
+                time: 400
+            });
+            app.stage.addChild(viewport);
+            viewport
+                .drag()
+                .pinch()
+                .wheel()
+                .decelerate();
+
             let sheet = resources["/images/spritesheet.json"];
             mechBase = new PIXI.Sprite(sheet.textures['mech_base.png']);
             mechWeaponCannon = new PIXI.Sprite(sheet.textures['mech_weapon_cannon.png']);
             mechWeaponCannon = new PIXI.Sprite(sheet.textures['mech_weapon_cannon.png']);
-            terra = new PIXI.TilingSprite(sheet.textures['terra.jpg'], 1600, 1200);
-            app.stage.addChild(terra);
+            terra = new PIXI.TilingSprite(sheet.textures['terra.jpg'], 2800, 2000);
+            terra.anchor.set(0);
+            viewport.addChild(terra);
             mechBase.anchor.set(0.5);
             mechWeaponCannon.anchor.set(0.5, 0.6);
             mech = new PIXI.Container();
             mech.addChild(mechBase);
             mech.addChild(mechWeaponCannon);
             initMechVars();
-            app.stage.addChild(mech);
+            viewport.addChild(mech);
             app.ticker.add(delta => gameLoop(delta));
         });
 
