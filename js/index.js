@@ -102,9 +102,7 @@ function gameLoop(delta) {
     }
 }
 
-window.onload = function() {
-    document.getElementById('pixiDiv').appendChild(app.view);
-
+function viewportSetup() {
     viewport = new Viewport({
         screenWidth: 880,
         screenHeight: 600,
@@ -119,17 +117,22 @@ window.onload = function() {
         maxWidth: 3000,
     }).bounce({
         time: 400
-    }).moveCenter(xShift, yShift);
+    })
+        .moveCenter(xShift, yShift)
+        .drag()
+        .pinch()
+        .wheel()
+        .decelerate();
+}
+
+window.onload = function() {
+    document.getElementById('pixiDiv').appendChild(app.view);
+    viewportSetup();
 
     app.loader
         .add('/images/spritesheet.json')
         .load((loader, resources) => {
             app.stage.addChild(viewport);
-            viewport
-                .drag()
-                .pinch()
-                .wheel()
-                .decelerate();
 
             let sheet = resources["/images/spritesheet.json"];
             mechBase = new PIXI.Sprite(sheet.textures['mech_base.png']);
