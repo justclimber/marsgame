@@ -1,7 +1,7 @@
 package world
 
 import (
-	"aakimov/marsgame/go/physics"
+	"aakimov/marsgame/backend/physics"
 )
 
 const (

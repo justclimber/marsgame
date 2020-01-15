@@ -1,7 +1,7 @@
 package world
 
 import (
-	"aakimov/marsgame/go/server"
+	"aakimov/marsgame/backend/server"
 	"aakimov/marslang/ast"
 	"aakimov/marslang/interpereter"
 	"aakimov/marslang/lexer"

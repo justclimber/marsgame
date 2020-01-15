@@ -53,7 +53,7 @@ func (s *Server) programFlowCmdEndpoint(w http.ResponseWriter, r *http.Request) 
 
 func (s *Server) Setup() {
 	go s.ListenClients()
-	http.Handle("/", http.FileServer(http.Dir("./static")))
+	http.Handle("/", http.FileServer(http.Dir("./frontend/static")))
 	http.HandleFunc("/ws", s.wsEndpoint)
 	http.HandleFunc("/save_source_code", s.saveSourceCodeEndpoint)
 	http.HandleFunc("/program_flow", s.programFlowCmdEndpoint)
