@@ -13,7 +13,6 @@ let xShift = 1000;
 let yShift = 1000;
 
 function initMechVars() {
-    mech.scale.set(0.2, 0.2);
     mech.scale.y *= -1;
     mech.pivot.set(0.5);
     mech.x = xShift;
@@ -25,7 +24,8 @@ function initMechVars() {
     mech.rotation = 0;
 
     // смещаем башню немного, потому что она не по центру меха
-    mechWeaponCannon.y = 30;
+    mechWeaponCannon.y = 6;
+    mechWeaponCannon.x = 45;
     mechWeaponCannon.vr = 0;
     mechWeaponCannon.rotation = 0;
 }
@@ -125,6 +125,21 @@ function viewportSetup() {
         .decelerate();
 }
 
+function mechSetup(resources) {
+    let sheet = resources["/images/spritesheet.json"];
+    mechBase = new PIXI.Sprite(sheet.textures['mech_base_128.png']);
+    mechWeaponCannon = new PIXI.Sprite(sheet.textures['cannon_128.png']);
+    terra = new PIXI.TilingSprite(sheet.textures['terra_256.png'], 2800, 2000);
+    terra.anchor.set(0);
+    viewport.addChild(terra);
+    mechBase.anchor.set(0.5);
+    mechWeaponCannon.anchor.set(0.5, 0.6);
+    mech = new PIXI.Container();
+    mech.addChild(mechBase);
+    mech.addChild(mechWeaponCannon);
+    initMechVars();
+}
+
 window.onload = function() {
     document.getElementById('pixiDiv').appendChild(app.view);
     viewportSetup();
@@ -132,22 +147,10 @@ window.onload = function() {
     app.loader
         .add('/images/spritesheet.json')
         .load((loader, resources) => {
+            mechSetup(resources);
             app.stage.addChild(viewport);
-
-            let sheet = resources["/images/spritesheet.json"];
-            mechBase = new PIXI.Sprite(sheet.textures['mech_base.png']);
-            mechWeaponCannon = new PIXI.Sprite(sheet.textures['mech_weapon_cannon.png']);
-            mechWeaponCannon = new PIXI.Sprite(sheet.textures['mech_weapon_cannon.png']);
-            terra = new PIXI.TilingSprite(sheet.textures['terra.jpg'], 2800, 2000);
-            terra.anchor.set(0);
-            viewport.addChild(terra);
-            mechBase.anchor.set(0.5);
-            mechWeaponCannon.anchor.set(0.5, 0.6);
-            mech = new PIXI.Container();
-            mech.addChild(mechBase);
-            mech.addChild(mechWeaponCannon);
-            initMechVars();
             viewport.addChild(mech);
+
             app.ticker.add(delta => gameLoop(delta));
         });
 
