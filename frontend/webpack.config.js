@@ -13,4 +13,12 @@ module.exports = {
         path: path.resolve(__dirname, 'static'),
     },
     watch: true,
+    module: {
+        rules: [
+            {
+                test: /\.css$/i,
+                use: ['style-loader', 'css-loader'],
+            },
+        ],
+    },
 };

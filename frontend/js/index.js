@@ -1,5 +1,13 @@
 import * as PIXI from 'pixi.js'
 import { Viewport } from 'pixi-viewport'
+import * as CodeMirror from 'codemirror';
+
+import 'codemirror/lib/codemirror.css';
+import 'codemirror/theme/duotone-light.css';
+import 'codemirror/mode/go/go';
+import 'codemirror/addon/edit/closebrackets';
+import 'codemirror/addon/edit/matchbrackets';
+let themeName = 'duotone-light';
 
 const app = new PIXI.Application({
     backgroundColor: "0xffffff",
@@ -158,6 +166,17 @@ window.onload = function() {
     resetVarsButton.onclick = initMechVars;
 
     let sourceCodeEl = document.getElementById('sourceCode');
+    const editor = CodeMirror.fromTextArea(sourceCodeEl, {
+        lineNumbers: true,
+        theme: themeName,
+        matchBrackets: true,
+        closeBrackets: true,
+        indentUnit: 8,
+        tabSize: 4,
+        indentWithTabs: false,
+        mode: "text/x-go"
+    });
+
     let sourceCodeFromLocalStorage = localStorage.getItem('sourceCode');
     if (sourceCodeFromLocalStorage && sourceCodeFromLocalStorage.length > 0) {
         sourceCodeEl.value = sourceCodeFromLocalStorage;
