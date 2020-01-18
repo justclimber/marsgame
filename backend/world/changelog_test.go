@@ -4,14 +4,15 @@ import (
 	"aakimov/marsgame/backend/physics"
 	"encoding/json"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"testing"
 )
 
 func TestChangeLog_Marshal(t *testing.T) {
 	x := 0.
-	y := 0.
-	r := 0.
-	cr := 0.
+	y := 2.
+	r := 5.12312312
+	cr := 10.
 	l := 1.5
 
 	changelog := NewChangeLog()
@@ -31,7 +32,7 @@ func TestChangeLog_Marshal(t *testing.T) {
 
 	changelog.AddAndCheckSize(changeByTime)
 
-	_, err := json.Marshal(changelog.changesByTimeLog)
+	jsonOut, err := json.Marshal(changelog.changesByTimeLog)
 	assert.Nil(t, err)
-	//require.Equal(t, "asd", string(jsonOut))
+	require.Equal(t, "asd", string(jsonOut))
 }

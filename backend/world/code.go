@@ -47,7 +47,8 @@ func NewCode(id string, world *World, mech *Mech) *Code {
 type MechOutputVars struct {
 	MThrottle  float64
 	RThrottle  float64
-	СRThrottle float64
+	CRThrottle float64
+	Shoot      float64
 }
 
 type ErrorType int
@@ -67,7 +68,8 @@ func newMechOutputVarsFromEnv(env *object.Environment) *MechOutputVars {
 	return &MechOutputVars{
 		MThrottle:  getFloatVarFromEnv("mThr", env),
 		RThrottle:  getFloatVarFromEnv("mrThr", env),
-		СRThrottle: getFloatVarFromEnv("сrThr", env),
+		CRThrottle: getFloatVarFromEnv("crThr", env),
+		Shoot:      getFloatVarFromEnv("shoot", env),
 	}
 }
 
@@ -78,7 +80,7 @@ func getFloatVarFromEnv(varName string, env *object.Environment) float64 {
 	}
 	objFloat, ok := envObj.(*object.Float)
 	if !ok {
-		log.Fatalf("%s should be type float, %s given", varName, objFloat.Type())
+		log.Fatalf("%s should be type float, %s given", varName, envObj.Type())
 	}
 	return objFloat.Value
 }

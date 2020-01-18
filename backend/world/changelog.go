@@ -2,6 +2,8 @@ package world
 
 import (
 	"aakimov/marsgame/backend/physics"
+	"encoding/json"
+	"math"
 )
 
 const (
@@ -18,16 +20,16 @@ type ChangeLog struct {
 }
 
 type ChangeByTime struct {
-	TimeId          int64             `json:"timeId"`
-	ChangesByObject []*ChangeByObject `json:"changesByObject"`
+	TimeId          int64             `json:"tId"`
+	ChangesByObject []*ChangeByObject `json:"chObjs"`
 }
 
 type ChangeByObject struct {
-	ObjType     string         `json:"objType"`
-	ObjId       string         `json:"objId"`
-	Pos         *physics.Point `json:"pos"`
-	Angle       *float64       `json:"angle"`
-	CannonAngle *float64       `json:"cAngle"`
+	ObjType     string
+	ObjId       string
+	Pos         *physics.Point
+	Angle       *float64
+	CannonAngle *float64
 	length      *float64
 }
 
@@ -62,7 +64,34 @@ func (ch *ChangeLog) AddAndCheckSize(changeByTime *ChangeByTime) bool {
 	return len(ch.changesByTimeLog) >= ChangelogBufferSize
 }
 
-//func (ch *ChangeByObject) Marshal() []byte {
-//	out := make([]byte, 0)
-//	return out
-//}
+func (ch *ChangeByObject) MarshalJSON() ([]byte, error) {
+	var xp, yp *int
+	if ch.Pos != nil {
+		x, y := int(ch.Pos.X), int(ch.Pos.Y)
+		xp, yp = &x, &y
+	}
+	var angle, cannonAngle *float64
+	if ch.Angle != nil {
+		a := math.Round(*ch.Angle*100) / 100
+		angle = &a
+	}
+	if ch.CannonAngle != nil {
+		ca := math.Round(*ch.CannonAngle*100) / 100
+		cannonAngle = &ca
+	}
+	return json.Marshal(struct {
+		ObjType     string   `json:"t"`
+		ObjId       string   `json:"id"`
+		X           *int     `json:"x,omitempty"`
+		Y           *int     `json:"y,omitempty"`
+		Angle       *float64 `json:"a,omitempty"`
+		CannonAngle *float64 `json:"ca,omitempty"`
+	}{
+		ObjType:     ch.ObjType,
+		ObjId:       ch.ObjId,
+		X:           xp,
+		Y:           yp,
+		Angle:       angle,
+		CannonAngle: cannonAngle,
+	})
+}

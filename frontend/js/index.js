@@ -20,50 +20,32 @@ let mech, mechBase, mechWeaponCannon, terra;
 let xShift = 1000;
 let yShift = 1000;
 
-function initMechVars() {
-    mech.scale.y *= -1;
-    mech.pivot.set(0.5);
-    mech.x = xShift;
-    mech.y = yShift;
-    mech.vx = 0;
-    mech.vy = 0;
-    mech.vr = 0;
-    mech.throttle = 0;
-    mech.rotation = 0;
-
-    // смещаем башню немного, потому что она не по центру меха
-    mechWeaponCannon.y = 6;
-    mechWeaponCannon.x = 45;
-    mechWeaponCannon.vr = 0;
-    mechWeaponCannon.rotation = 0;
-}
-
 let changelogToRun = [];
 let timeShiftForPrediction = 2000;
 function parseChangelog(changelog) {
     // console.log(changelog);
     changelog.forEach(function (changeByTime) {
-        let changesByObject = changeByTime.changesByObject;
+        let changesByObject = changeByTime.chObjs;
         changesByObject.forEach(function (changeByObj) {
-            if (changeByObj.objId !== userId) {
+            if (changeByObj.id !== userId) {
                 return;
             }
-            let change = {timeId: changeByTime.timeId};
-            if (changeByObj.pos) {
-                change.x = changeByObj.pos.x + xShift;
-                change.y = changeByObj.pos.y + yShift;
+            let change = {timeId: changeByTime.tId};
+            if (changeByObj.x) {
+                change.x = changeByObj.x + xShift;
+                change.y = changeByObj.y + yShift;
             }
-            if (changeByObj.angle) {
-                change.rotation = changeByObj.angle;
+            if (changeByObj.a) {
+                change.rotation = changeByObj.a;
             }
-            if (changeByObj.cAngle) {
-                change.cannonRotation = changeByObj.cAngle;
+            if (changeByObj.ca) {
+                change.cannonRotation = changeByObj.ca;
             }
             changelogToRun.push(change);
         });
         if (!currTimeId) {
             // use time shift for more smooth prediction: we need changelogToRun always be not empty on run
-            currTimeId = changeByTime.timeId - timeShiftForPrediction;
+            currTimeId = changeByTime.tId - timeShiftForPrediction;
         }
     });
 }
@@ -74,6 +56,7 @@ function gameLoop(delta) {
     mech.x += mech.vx;
     mech.y += mech.vy;
     mech.rotation += mech.vr;
+    mechWeaponCannon.rotation += mechWeaponCannon.vr;
 
     let now = new Date();
     let timeDelta = now.getTime() - timer.getTime();
@@ -143,20 +126,38 @@ function viewportSetup() {
         .decelerate();
 }
 
-function mechSetup(resources) {
-    let sheet = resources["/images/spritesheet.json"];
+function mechSetup(resources, sheet) {
     mechBase = new PIXI.Sprite(sheet.textures['mech_base_128.png']);
     mechWeaponCannon = new PIXI.Sprite(sheet.textures['cannon_128.png']);
-    terra = new PIXI.TilingSprite(sheet.textures['terra_256.png'], 2800, 2000);
-    terra.anchor.set(0);
-    viewport.addChild(terra);
+
     mechBase.anchor.set(0.5);
-    // todo настроить
-    mechWeaponCannon.anchor.set(0.2, 0.6);
+
+    // смещаем башню немного, потому что она не по центру меха
+    mechWeaponCannon.y = 3;
+    mechWeaponCannon.x = 20
+    mechWeaponCannon.anchor.set(0.18, 0.5);
+
     mech = new PIXI.Container();
+    mech.scale.y *= -1;
+    mech.pivot.set(0.5);
+    mech.x = xShift;
+    mech.y = yShift;
+    mech.vx = 0;
+    mech.vy = 0;
+    mech.vr = 0;
+    mech.throttle = 0;
+    mech.rotation = 0;
+
+    mechWeaponCannon.vr = 0;
+    mechWeaponCannon.rotation = 0;
+
     mech.addChild(mechBase);
     mech.addChild(mechWeaponCannon);
-    initMechVars();
+}
+
+function mapSetup(resources, sheet) {
+    terra = new PIXI.TilingSprite(sheet.textures['terra_256.png'], 2800, 2000);
+    terra.anchor.set(0);
 }
 
 window.onload = function() {
@@ -166,8 +167,12 @@ window.onload = function() {
     app.loader
         .add('/images/spritesheet.json')
         .load((loader, resources) => {
-            mechSetup(resources);
+            let sheet = resources["/images/spritesheet.json"];
+            mapSetup(resources, sheet);
+            mechSetup(resources, sheet);
+
             app.stage.addChild(viewport);
+            viewport.addChild(terra);
             viewport.addChild(mech);
 
             app.ticker.add(delta => gameLoop(delta));
@@ -243,7 +248,6 @@ function saveCode() {
     document.getElementById("errorsContainer").style.display = 'none';
 
     let sourceCode = document.getElementById('sourceCode').value;
-    console.log(sourceCode);
     localStorage.setItem('sourceCode', sourceCode);
     fetch("save_source_code", {
         method: "POST",

@@ -37,12 +37,16 @@ func (p *Player) listen() {
 	for {
 		select {
 		case codeOutputs := <-p.mainProgram.outputCh:
-			log.Printf("Write code run result for player [%s]: mThr: %f, mrThr: %f, crThr: %f",
-				p.id, codeOutputs.MThrottle, codeOutputs.RThrottle, codeOutputs.СRThrottle)
+			log.Printf("Write code run result for player [%s]: mThr: %f, mrThr: %f, crThr: %f, shoot: %f",
+				p.id, codeOutputs.MThrottle, codeOutputs.RThrottle, codeOutputs.CRThrottle, codeOutputs.Shoot)
 			p.mech.mu.Lock()
 			p.mech.Throttle = codeOutputs.MThrottle
 			p.mech.RotateThrottle = codeOutputs.RThrottle
-			p.mech.Cannon.RotateThrottle = codeOutputs.СRThrottle
+			p.mech.Cannon.RotateThrottle = codeOutputs.CRThrottle
+			if codeOutputs.Shoot != 0 {
+				p.mech.Cannon.shoot.state = WillShoot
+				p.mech.Cannon.shoot.delay = int(codeOutputs.Shoot * 1000)
+			}
 			p.mech.mu.Unlock()
 		case codeError := <-p.mainProgram.errorCh:
 			p.client.PackAndSendCommand("error", codeError)
@@ -52,6 +56,17 @@ func (p *Player) listen() {
 	}
 }
 
+func abs(n int64) int64 {
+	y := n >> 63
+	return (n ^ y) - y
+}
+
+const nearTimeDelta = 50
+
+func areTimeIdNearlySame(t1, t2 int64) bool {
+	return abs(t1-t2) < nearTimeDelta
+}
+
 func (p *Player) run(world *World) *ChangeByObject {
 	mech := p.mech
 	changeByObject := ChangeByObject{
@@ -59,6 +74,14 @@ func (p *Player) run(world *World) *ChangeByObject {
 		ObjId:   p.id,
 	}
 	mech.mu.Lock()
+	if mech.Cannon.shoot.state == WillShoot {
+		mech.Cannon.shoot.state = Planned
+		mech.Cannon.shoot.willShootAt = world.timeId + int64(mech.Cannon.shoot.delay*1000)
+	}
+	if mech.Cannon.shoot.state == Planned && areTimeIdNearlySame(mech.Cannon.shoot.willShootAt, world.timeId) {
+		mech.Cannon.shoot.state = None
+		p.shoot(world)
+	}
 	if mech.RotateThrottle != 0 {
 		mech.Object.Angle += mech.RotateThrottle * MaxRotationValue
 		newAngle := mech.Object.Angle
@@ -82,4 +105,8 @@ func (p *Player) run(world *World) *ChangeByObject {
 		return &changeByObject
 	}
 	return nil
+}
+
+func (p *Player) shoot(world *World) {
+	// tbd
 }

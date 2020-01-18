@@ -18,6 +18,7 @@ type World struct {
 	players   map[string]*Player
 	objects   map[string]*Object
 	changeLog *ChangeLog
+	timeId    int64
 }
 
 func NewWorld(server *server.Server) World {
@@ -54,11 +55,11 @@ func (w *World) Run() {
 
 	// endless loop here
 	for t := range ticker.C {
-		timeId := timeStampDif(serverStartTime, t)
+		w.timeId = timeStampDif(serverStartTime, t)
 		//log.Printf("Game tick %v\n", timeId)
 
 		w.listenChannels()
-		changeByTime := NewChangeByTime(timeId)
+		changeByTime := NewChangeByTime(w.timeId)
 		for _, player := range w.players {
 			if ch := player.run(w); ch != nil {
 				changeByTime.Add(ch)
