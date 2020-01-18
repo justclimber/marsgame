@@ -11,6 +11,7 @@ const MaxMovingLength float64 = 7
 
 // max rotation per turn in radians
 const MaxRotationValue float64 = 0.5
+const MaxCannonRotationValue float64 = 0.8
 
 type World struct {
 	Server    *server.Server
@@ -59,12 +60,9 @@ func (w *World) Run() {
 		w.listenChannels()
 		changeByTime := NewChangeByTime(timeId)
 		for _, player := range w.players {
-			if ch := w.runPlayer(player); ch != nil {
+			if ch := player.run(w); ch != nil {
 				changeByTime.Add(ch)
 			}
-		}
-		for _, object := range w.objects {
-			w.runObject(object)
 		}
 		if changeByTime.IsNotEmpty() {
 			w.changeLog.AddToBuffer(changeByTime)
@@ -96,37 +94,6 @@ func (w *World) listenChannels() {
 	default:
 		// noop
 	}
-}
-
-func (w *World) runPlayer(player *Player) *ChangeByObject {
-	mech := player.mech
-	changeByObject := ChangeByObject{
-		ObjType: TypePlayer,
-		ObjId:   player.id,
-	}
-	mech.mu.Lock()
-	if mech.RotateThrottle != 0 {
-		mech.Object.Angle += mech.RotateThrottle * MaxRotationValue
-		newAngle := mech.Object.Angle
-		changeByObject.Angle = &newAngle
-	}
-	if mech.Throttle != 0 {
-		length := mech.Throttle * MaxMovingLength
-		mech.Object.Pos.MoveForward(mech.Object.Angle, length)
-		newPos := mech.Object.Pos
-		changeByObject.Pos = &newPos
-		changeByObject.length = &length
-	}
-	mech.mu.Unlock()
-
-	if mech.RotateThrottle != 0 || mech.Throttle != 0 {
-		return &changeByObject
-	}
-	return nil
-}
-
-func (w *World) runObject(object *Object) {
-
 }
 
 func (w *World) sendChangelogLoop() {

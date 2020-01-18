@@ -21,27 +21,18 @@ func (ch *ChangeLog) cutInterpolableChanges(i1, i2 int) {
 }
 
 func lookupForSameDiff(tailIndex int, index int, ch *ChangeLog) (int, int, bool) {
-	dl, dr := getDiff(tailIndex, index, ch)
-	dl1, dr1 := getDiff(tailIndex-1, index-1, ch)
+	dl, dr, dcr := getDiff(tailIndex, index, ch)
+	dl1, dr1, dcr1 := getDiff(tailIndex-1, index-1, ch)
 
-	if checkAreDiffEqualZero(dl, dl1) && checkAreDiffTheSame(dr, dr1) {
+	if checkAreDiffEqualZero(dl, dl1) && checkAreDiffTheSame(dr, dr1) && checkAreDiffTheSame(dcr, dcr1) {
 		if index > 2 {
 			_, index1, ok := lookupForSameDiff(tailIndex, index-2, ch)
 			if ok {
 				return tailIndex, index1, ok
 			}
-			//fmt.Println(tailIndex, index - 1)
-			//fmt.Println(len(ch.changesByTimeLog))
-			//fmt.Println(len(ch.changesByTimeLog[6:]))
-			//ch.cutInterpolableChanges(tailIndex, index - 1)
 			return 0, 0, false
-			//if index > 5 {
-			//	lookupForSameDiff(tailIndex - 2, index - 3, ch)
-			//}
 		}
-		//ch.cutInterpolableChanges(tailIndex, index - 1)
 		return tailIndex, index - 1, true
-		//return 0, 0, false
 	}
 	return 0, 0, false
 }
@@ -66,13 +57,14 @@ func checkAreDiffEqualZero(d1, d2 map[string]*float64) bool {
 	return true
 }
 
-func getDiff(index int, index1 int, ch *ChangeLog) (map[string]*float64, map[string]*float64) {
-	l, r := getValuesForChanges(ch.changesByTimeLog[index])
-	l1, r1 := getValuesForChanges(ch.changesByTimeLog[index1])
+func getDiff(index int, index1 int, ch *ChangeLog) (map[string]*float64, map[string]*float64, map[string]*float64) {
+	l, r, cr := getValuesForChanges(ch.changesByTimeLog[index])
+	l1, r1, cr1 := getValuesForChanges(ch.changesByTimeLog[index1])
 	dl := getDiffFor2Maps(l, l1)
 	dr := getDiffFor2Maps(r, r1)
+	dcr := getDiffFor2Maps(cr, cr1)
 
-	return dl, dr
+	return dl, dr, dcr
 }
 
 func getDiffFor2Maps(d1, d2 map[string]*float64) map[string]*float64 {
@@ -89,13 +81,15 @@ func getDiffFor2Maps(d1, d2 map[string]*float64) map[string]*float64 {
 	return result
 }
 
-func getValuesForChanges(changeByTime *ChangeByTime) (map[string]*float64, map[string]*float64) {
+func getValuesForChanges(changeByTime *ChangeByTime) (map[string]*float64, map[string]*float64, map[string]*float64) {
 	l := make(map[string]*float64)
 	r := make(map[string]*float64)
+	cr := make(map[string]*float64)
 	for _, changeByObject := range changeByTime.ChangesByObject {
 		key := changeByObject.ObjId + changeByObject.ObjType
 		l[key] = changeByObject.length
 		r[key] = changeByObject.Angle
+		cr[key] = changeByObject.CannonAngle
 	}
-	return l, r
+	return l, r, cr
 }

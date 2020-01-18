@@ -45,8 +45,9 @@ func NewCode(id string, world *World, mech *Mech) *Code {
 }
 
 type MechOutputVars struct {
-	MThrottle float64
-	RThrottle float64
+	MThrottle  float64
+	RThrottle  float64
+	СRThrottle float64
 }
 
 type ErrorType int
@@ -64,8 +65,9 @@ type Error struct {
 
 func newMechOutputVarsFromEnv(env *object.Environment) *MechOutputVars {
 	return &MechOutputVars{
-		MThrottle: getFloatVarFromEnv("mThrottle", env),
-		RThrottle: getFloatVarFromEnv("rThrottle", env),
+		MThrottle:  getFloatVarFromEnv("mThr", env),
+		RThrottle:  getFloatVarFromEnv("mrThr", env),
+		СRThrottle: getFloatVarFromEnv("сrThr", env),
 	}
 }
 
@@ -82,16 +84,18 @@ func getFloatVarFromEnv(varName string, env *object.Environment) float64 {
 }
 
 func (c *Code) loadMechVarsIntoEnv(env *object.Environment) {
-	env.Set("x", &object.Float{Value: c.mechP.Pos.X})
-	env.Set("y", &object.Float{Value: c.mechP.Pos.Y})
-	env.Set("angle", &object.Float{Value: c.mechP.Angle})
+	s := make(map[string]interface{})
+	s["x"] = c.mechP.Pos.X
+	s["y"] = c.mechP.Pos.Y
+	s["angle"] = c.mechP.Angle
+	s["cAngle"] = c.mechP.Cannon.Angle
+	env.CreateAndInjectStruct("Mech", "mech", s)
 }
 
 func (c *Code) Run() {
 	ticker := time.NewTicker(2 * time.Second)
 
-	// endless loop here
-	for _ = range ticker.C {
+	for range ticker.C {
 		//log.Printf("Code run tick\n")
 		c.listenTheWorld()
 		if c.astProgram == nil || c.state != Running {
@@ -136,6 +140,7 @@ func (c *Code) listenTheWorld() {
 }
 
 func (c *Code) saveAst(ast *ast.StatementsBlock) {
+	// todo переделать на каналы
 	c.mu.Lock()
 	c.astProgram = ast
 	c.mu.Unlock()
@@ -151,6 +156,7 @@ func (c *Code) operateState(cmd server.ProgramFlowType) {
 }
 
 func ParseSourceCode(sourceCode string) (*ast.StatementsBlock, []byte) {
+	// todo передалать на метод структуры, чтобы сразу парсил код и сохранял
 	log.Printf("Program to parse: %s\n", sourceCode)
 
 	l := lexer.New(sourceCode)

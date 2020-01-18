@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>MarsGame</title>
-    <link rel="stylesheet" href="https://unpkg.com/papercss@1.6.1/dist/paper.min.css">
+    <link rel="stylesheet" href="css/paper.min.css">
     <link rel="stylesheet" href="css/main.css">
     <link rel="icon" type="image/png" href="images/favicon.png">
 </head>
@@ -14,8 +14,7 @@
             <div class="form-group col-8 col margin-bottom-none padding-bottom-none">
                 <label for="sourceCode">Type your code here:</label>
                 <textarea id="sourceCode">
-mThrottle = 1.0
-rThrottle = -0.1
+сrThr = 1.0
 </textarea>
             </div>
             <div class="col-4 col">
@@ -30,8 +29,9 @@ rThrottle = -0.1
                 <div class="row">
                     <div>Output vars used:</div>
                     <ul>
-                        <li>mThrottle - movement (-1.0 .. 1.0)</li>
-                        <li>rThrottle - rotation (-1.0 .. 1.0)</li>
+                        <li>mThr -  mech throttle => movement (-1.0 .. 1.0)</li>
+                        <li>mrThr - mech rotation throttle => rotation (-1.0 .. 1.0)</li>
+                        <li>сrThr - cannon rotation throttle => rotation (-1.0 .. 1.0)</li>
                     </ul>
                 </div>
             </div>

@@ -23,11 +23,12 @@ type ChangeByTime struct {
 }
 
 type ChangeByObject struct {
-	ObjType string         `json:"objType"`
-	ObjId   string         `json:"objId"`
-	Pos     *physics.Point `json:"pos"`
-	Angle   *float64       `json:"angle"`
-	length  *float64
+	ObjType     string         `json:"objType"`
+	ObjId       string         `json:"objId"`
+	Pos         *physics.Point `json:"pos"`
+	Angle       *float64       `json:"angle"`
+	CannonAngle *float64       `json:"cAngle"`
+	length      *float64
 }
 
 func NewChangeByTime(timeId int64) *ChangeByTime {
@@ -60,3 +61,8 @@ func (ch *ChangeLog) AddAndCheckSize(changeByTime *ChangeByTime) bool {
 	ch.changesByTimeLog = append(ch.changesByTimeLog, changeByTime)
 	return len(ch.changesByTimeLog) >= ChangelogBufferSize
 }
+
+//func (ch *ChangeByObject) Marshal() []byte {
+//	out := make([]byte, 0)
+//	return out
+//}

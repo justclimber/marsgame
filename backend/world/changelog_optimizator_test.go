@@ -11,9 +11,11 @@ func TestChangeLog_OptimizeSimplePositiveCase(t *testing.T) {
 	dx := 3.
 	dy := 2.
 	dr := 1.
+	dcr := 1.
 	x := 0.
 	y := 0.
 	r := 0.
+	cr := 0.
 	l := 1.5
 
 	changelog := NewChangeLog()
@@ -23,8 +25,10 @@ func TestChangeLog_OptimizeSimplePositiveCase(t *testing.T) {
 		x = x + dx
 		y = y + dy
 		r = r + dr
+		cr = cr + dcr
 		newL := l
 		newR := r
+		newCR := cr
 
 		changeByObject := &ChangeByObject{
 			ObjType: TypePlayer,
@@ -33,8 +37,9 @@ func TestChangeLog_OptimizeSimplePositiveCase(t *testing.T) {
 				X: x,
 				Y: y,
 			},
-			Angle:  &newR,
-			length: &newL,
+			Angle:       &newR,
+			CannonAngle: &newCR,
+			length:      &newL,
 		}
 		changeByTime.Add(changeByObject)
 
@@ -51,9 +56,11 @@ func TestChangeLog_OptimizeSimpleNegative(t *testing.T) {
 	dx := 3.
 	dy := 2.
 	dr := 1.
+	dcr := 1.
 	x := 0.
 	y := 0.
 	r := 0.
+	cr := 0.
 	l := 1.5
 
 	changelog := NewChangeLog()
@@ -63,6 +70,7 @@ func TestChangeLog_OptimizeSimpleNegative(t *testing.T) {
 		x = x + dx
 		y = y + dy
 		r = r + dr
+		cr = cr + dcr
 
 		// make some diff shake here
 		if i == 1 {
@@ -70,6 +78,7 @@ func TestChangeLog_OptimizeSimpleNegative(t *testing.T) {
 		}
 		newL := l
 		newR := r
+		newCR := cr
 
 		changeByObject := &ChangeByObject{
 			ObjType: TypePlayer,
@@ -78,8 +87,9 @@ func TestChangeLog_OptimizeSimpleNegative(t *testing.T) {
 				X: x,
 				Y: y,
 			},
-			Angle:  &newR,
-			length: &newL,
+			Angle:       &newR,
+			CannonAngle: &newCR,
+			length:      &newL,
 		}
 		changeByTime.Add(changeByObject)
 
@@ -94,9 +104,11 @@ func TestChangeLog_OptimizePositiveMoreElements(t *testing.T) {
 	dx := 3.
 	dy := 2.
 	dr := 1.
+	dcr := 1.
 	x := 0.
 	y := 0.
 	r := 0.
+	cr := 0.
 	l := 1.5
 
 	changelog := NewChangeLog()
@@ -106,8 +118,10 @@ func TestChangeLog_OptimizePositiveMoreElements(t *testing.T) {
 		x = x + dx
 		y = y + dy
 		r = r + dr
+		cr = cr + dcr
 		newL := l
 		newR := r
+		newCR := cr
 
 		changeByObject := &ChangeByObject{
 			ObjType: TypePlayer,
@@ -116,8 +130,9 @@ func TestChangeLog_OptimizePositiveMoreElements(t *testing.T) {
 				X: x,
 				Y: y,
 			},
-			Angle:  &newR,
-			length: &newL,
+			Angle:       &newR,
+			CannonAngle: &newCR,
+			length:      &newL,
 		}
 		changeByTime.Add(changeByObject)
 

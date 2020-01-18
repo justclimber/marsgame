@@ -56,6 +56,9 @@ function parseChangelog(changelog) {
             if (changeByObj.angle) {
                 change.rotation = changeByObj.angle;
             }
+            if (changeByObj.cAngle) {
+                change.cannonRotation = changeByObj.cAngle;
+            }
             changelogToRun.push(change);
         });
         if (!currTimeId) {
@@ -90,6 +93,9 @@ function gameLoop(delta) {
                 if (change.rotation) {
                     mech.rotation = change.rotation;
                 }
+                if (change.cannonRotation) {
+                    mechWeaponCannon.rotation = change.cannonRotation;
+                }
 
                 // prediction for smooth moving
                 if (changelogToRun.length) {
@@ -99,6 +105,9 @@ function gameLoop(delta) {
                     mech.vx = !nextChange.x ? 0 : (nextChange.x - mech.x) / futureGameTicks;
                     mech.vy = !nextChange.y ? 0 : (nextChange.y - mech.y) / futureGameTicks;
                     mech.vr = !nextChange.rotation ? 0 : (nextChange.rotation - mech.rotation) / futureGameTicks;
+                    mechWeaponCannon.vr = !nextChange.cannonRotation
+                        ? 0
+                        : (nextChange.cannonRotation - mechWeaponCannon.rotation) / futureGameTicks;
                 }
             }
         } else {
@@ -106,6 +115,7 @@ function gameLoop(delta) {
             mech.vx = 0;
             mech.vy = 0;
             mech.vr = 0;
+            mechWeaponCannon.vr = 0;
         }
     }
 }
@@ -141,7 +151,8 @@ function mechSetup(resources) {
     terra.anchor.set(0);
     viewport.addChild(terra);
     mechBase.anchor.set(0.5);
-    mechWeaponCannon.anchor.set(0.5, 0.6);
+    // todo настроить
+    mechWeaponCannon.anchor.set(0.2, 0.6);
     mech = new PIXI.Container();
     mech.addChild(mechBase);
     mech.addChild(mechWeaponCannon);
@@ -166,16 +177,16 @@ window.onload = function() {
     resetVarsButton.onclick = initMechVars;
 
     let sourceCodeEl = document.getElementById('sourceCode');
-    const editor = CodeMirror.fromTextArea(sourceCodeEl, {
-        lineNumbers: true,
-        theme: themeName,
-        matchBrackets: true,
-        closeBrackets: true,
-        indentUnit: 8,
-        tabSize: 4,
-        indentWithTabs: false,
-        mode: "text/x-go"
-    });
+    // const editor = CodeMirror.fromTextArea(sourceCodeEl, {
+    //     lineNumbers: true,
+    //     theme: themeName,
+    //     matchBrackets: true,
+    //     closeBrackets: true,
+    //     indentUnit: 8,
+    //     tabSize: 4,
+    //     indentWithTabs: false,
+    //     mode: "text/x-go"
+    // });
 
     let sourceCodeFromLocalStorage = localStorage.getItem('sourceCode');
     if (sourceCodeFromLocalStorage && sourceCodeFromLocalStorage.length > 0) {
@@ -232,6 +243,7 @@ function saveCode() {
     document.getElementById("errorsContainer").style.display = 'none';
 
     let sourceCode = document.getElementById('sourceCode').value;
+    console.log(sourceCode);
     localStorage.setItem('sourceCode', sourceCode);
     fetch("save_source_code", {
         method: "POST",
