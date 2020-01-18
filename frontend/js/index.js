@@ -178,8 +178,8 @@ window.onload = function() {
             app.ticker.add(delta => gameLoop(delta));
         });
 
-    let resetVarsButton = document.getElementById('resetVars');
-    resetVarsButton.onclick = initMechVars;
+    // let resetVarsButton = document.getElementById('resetVars');
+    // resetVarsButton.onclick = initMechVars;
 
     let sourceCodeEl = document.getElementById('sourceCode');
     // const editor = CodeMirror.fromTextArea(sourceCodeEl, {
