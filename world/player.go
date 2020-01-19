@@ -1,7 +1,7 @@
 package world
 
 import (
-	"aakimov/marsgame/backend/server"
+	"aakimov/marsgame/server"
 	"log"
 )
 

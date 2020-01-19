@@ -1,6 +1,6 @@
 package world
 
-import "aakimov/marsgame/backend/physics"
+import "aakimov/marsgame/physics"
 
 type Object struct {
 	Pos    physics.Point

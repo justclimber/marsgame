@@ -1,8 +1,8 @@
 package main
 
 import (
-	"aakimov/marsgame/backend/server"
-	"aakimov/marsgame/backend/world"
+	"aakimov/marsgame/server"
+	"aakimov/marsgame/world"
 
 	"log"
 	"net/http"

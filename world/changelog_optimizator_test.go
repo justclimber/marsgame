@@ -1,7 +1,7 @@
 package world
 
 import (
-	"aakimov/marsgame/backend/physics"
+	"aakimov/marsgame/physics"
 	"fmt"
 	"github.com/stretchr/testify/require"
 	"testing"
