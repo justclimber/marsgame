@@ -29,4 +29,5 @@ func (s *Server) Setup() {
 	go s.ListenClients()
 	http.Handle("/", http.FileServer(http.Dir("./frontend/static")))
 	http.HandleFunc("/ws", s.wsEndpoint)
+	log.Fatal(http.ListenAndServe(":80", nil))
 }
