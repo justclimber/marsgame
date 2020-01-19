@@ -50,8 +50,6 @@ func (p *Player) listen() {
 			p.mech.mu.Unlock()
 		case codeError := <-p.mainProgram.errorCh:
 			p.client.PackAndSendCommand("error", codeError)
-		default:
-			// noop
 		}
 	}
 }

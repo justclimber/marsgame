@@ -38,18 +38,9 @@ func timeStampDif(t1, t2 time.Time) int64 {
 	return makeTimestamp(t2) - makeTimestamp(t1)
 }
 
-func (w *World) codeRun() {
-	// players are empty at start, so this block is for future
-	for _, player := range w.players {
-		go player.mainProgram.Run()
-		go player.listen()
-	}
-}
-
 func (w *World) Run() {
 	ticker := time.NewTicker(200 * time.Millisecond)
 	go w.sendChangelogLoop()
-	w.codeRun()
 
 	serverStartTime := time.Now()
 
@@ -109,8 +100,6 @@ func (w *World) sendChangelogLoop() {
 				}
 				w.changeLog.changesByTimeLog = make([]*ChangeByTime, 0, ChangelogBufferSize)
 			}
-		default:
-			// noop
 		}
 	}
 }

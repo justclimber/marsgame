@@ -48,8 +48,6 @@ func (c *Client) listenWrite() {
 		case <-c.doneCh:
 			c.doneCh <- true // for listenRead method
 			return
-		default:
-			// noop
 		}
 	}
 }
