@@ -35,7 +35,7 @@ func (s *Server) saveSourceCodeEndpoint(w http.ResponseWriter, r *http.Request) 
 	var sc saveCode
 	err := json.NewDecoder(r.Body).Decode(&sc)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("parsing error" + err.Error())
 	}
 
 	s.saveSourceCode(sc.UserId, sc.SourceCode)
