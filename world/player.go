@@ -61,8 +61,8 @@ func abs(n int64) int64 {
 
 const nearTimeDelta = 50
 
-func areTimeIdNearlySame(t1, t2 int64) bool {
-	return abs(t1-t2) < nearTimeDelta
+func areTimeIdNearlySameOrGrater(t1, t2 int64) bool {
+	return t1 > t2 || abs(t1-t2) < nearTimeDelta
 }
 
 func (p *Player) run(world *World) *ChangeByObject {
@@ -74,9 +74,9 @@ func (p *Player) run(world *World) *ChangeByObject {
 	mech.mu.Lock()
 	if mech.Cannon.shoot.state == WillShoot {
 		mech.Cannon.shoot.state = Planned
-		mech.Cannon.shoot.willShootAt = world.timeId + int64(mech.Cannon.shoot.delay*1000)
+		mech.Cannon.shoot.willShootAt = world.timeId + int64(mech.Cannon.shoot.delay)
 	}
-	if mech.Cannon.shoot.state == Planned && areTimeIdNearlySame(mech.Cannon.shoot.willShootAt, world.timeId) {
+	if mech.Cannon.shoot.state == Planned && areTimeIdNearlySameOrGrater(world.timeId, mech.Cannon.shoot.willShootAt) {
 		mech.Cannon.shoot.state = None
 		p.shoot(world)
 	}
@@ -106,5 +106,13 @@ func (p *Player) run(world *World) *ChangeByObject {
 }
 
 func (p *Player) shoot(world *World) {
-	// tbd
+	log.Println("Shoooooot!!!!")
+	world.newObjectsCh <- &Missile{
+		Object: Object{
+			Type:  TypeMissile,
+			Speed: MissileSpeed,
+			Pos:   p.mech.Pos,
+			Angle: p.mech.Angle,
+		},
+	}
 }

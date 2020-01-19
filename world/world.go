@@ -12,21 +12,25 @@ const MaxMovingLength float64 = 7
 // max rotation per turn in radians
 const MaxRotationValue float64 = 0.5
 const MaxCannonRotationValue float64 = 0.8
+const MissileSpeed = 20
 
 type World struct {
-	Server    *server.Server
-	players   map[string]*Player
-	objects   map[string]*Object
-	changeLog *ChangeLog
-	timeId    int64
+	Server       *server.Server
+	players      map[string]*Player
+	objects      map[int]IObject
+	changeLog    *ChangeLog
+	timeId       int64
+	objCount     int
+	newObjectsCh chan IObject
 }
 
 func NewWorld(server *server.Server) World {
 	return World{
-		Server:    server,
-		players:   make(map[string]*Player),
-		objects:   make(map[string]*Object),
-		changeLog: NewChangeLog(),
+		Server:       server,
+		players:      make(map[string]*Player),
+		objects:      make(map[int]IObject),
+		changeLog:    NewChangeLog(),
+		newObjectsCh: make(chan IObject, 10),
 	}
 }
 
@@ -56,6 +60,11 @@ func (w *World) Run() {
 				changeByTime.Add(ch)
 			}
 		}
+		for _, object := range w.objects {
+			if ch := object.run(w); ch != nil {
+				changeByTime.Add(ch)
+			}
+		}
 		if changeByTime.IsNotEmpty() {
 			w.changeLog.AddToBuffer(changeByTime)
 		}
@@ -63,28 +72,34 @@ func (w *World) Run() {
 }
 
 func (w *World) listenChannels() {
-	select {
-	case client := <-w.Server.NewClientCh:
-		player := NewPlayer(client.Id, client, NewMech(), w)
-		log.Printf("New player [%s] added to the game", player.id)
+	for {
+		select {
+		case client := <-w.Server.NewClientCh:
+			player := NewPlayer(client.Id, client, NewMech(), w)
+			log.Printf("New player [%s] added to the game", player.id)
 
-		w.players[player.id] = player
-		go player.mainProgram.Run()
-		go player.listen()
-	case saveCode := <-w.Server.SaveAstCodeCh:
-		player, ok := w.players[saveCode.UserId]
-		if !ok {
-			log.Fatalf("Save code attempt for inexistant player [%s]", saveCode.UserId)
+			w.players[player.id] = player
+			go player.mainProgram.Run()
+			go player.listen()
+		case saveCode := <-w.Server.SaveAstCodeCh:
+			player, ok := w.players[saveCode.UserId]
+			if !ok {
+				log.Fatalf("Save code attempt for inexistant player [%s]", saveCode.UserId)
+			}
+			player.saveAstCode(saveCode.SourceCode)
+		case programFlowCmd := <-w.Server.ProgramFlowCh:
+			player, ok := w.players[programFlowCmd.UserId]
+			if !ok {
+				log.Fatalf("Save code attempt for inexistant player [%s]", programFlowCmd.UserId)
+			}
+			player.mainProgram.operateState(programFlowCmd.FlowCmd)
+		case o := <-w.newObjectsCh:
+			w.objCount += 1
+			o.setId(w.objCount)
+			w.objects[w.objCount] = o
+		default:
+			return
 		}
-		player.saveAstCode(saveCode.SourceCode)
-	case programFlowCmd := <-w.Server.ProgramFlowCh:
-		player, ok := w.players[programFlowCmd.UserId]
-		if !ok {
-			log.Fatalf("Save code attempt for inexistant player [%s]", programFlowCmd.UserId)
-		}
-		player.mainProgram.operateState(programFlowCmd.FlowCmd)
-	default:
-		// noop
 	}
 }
 

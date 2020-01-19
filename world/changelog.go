@@ -6,11 +6,6 @@ import (
 	"math"
 )
 
-const (
-	TypePlayer = "player"
-	TypeObject = "object"
-)
-
 const ChangelogChannelBufferSize = 10
 const ChangelogBufferSize = 8
 
