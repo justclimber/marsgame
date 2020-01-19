@@ -30,11 +30,6 @@ func NewServer() *Server {
 	}
 }
 
-type TestStruct struct {
-	Abc       string
-	DataField string
-}
-
 func (s *Server) ListenClients() {
 	log.Println("Server start listening")
 
@@ -43,15 +38,6 @@ func (s *Server) ListenClients() {
 		case c := <-s.connectClientCh:
 			log.Printf("Client [%s] registered!", c.Id)
 			s.clients[c.Id] = c
-			s := TestStruct{
-				Abc:       "asdfsdfdsf",
-				DataField: "123123dsafsdfds",
-			}
-			sJson, _ := json.Marshal(s)
-			c.commands <- &Command{
-				Type:    "register",
-				Payload: string(sJson),
-			}
 
 		case c := <-s.leaveClientCh:
 			log.Printf("Client [%s] unconnected", c.Id)
