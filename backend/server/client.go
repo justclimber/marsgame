@@ -1,19 +1,20 @@
 package server
 
 import (
+	socketio "github.com/googollee/go-socket.io"
 	"github.com/gorilla/websocket"
 	"log"
 )
 
 type Client struct {
 	Id       string
-	ws       *websocket.Conn
+	ws       *socketio.Conn
 	server   *Server
 	commands chan *Command
 	doneCh   chan bool
 }
 
-func NewClient(id string, ws *websocket.Conn, server *Server) *Client {
+func NewClient(id string, ws *socketio.Conn, server *Server) *Client {
 	return &Client{
 		Id:       id,
 		ws:       ws,

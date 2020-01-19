@@ -1,10 +1,12 @@
 package server
 
 import (
+	"github.com/googollee/go-socket.io"
 	"log"
 )
 
 type Server struct {
+	wsServer        *socketio.Server
 	clients         map[string]*Client
 	connectClientCh chan *Client
 	leaveClientCh   chan *Client
