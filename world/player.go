@@ -112,7 +112,7 @@ func (p *Player) shoot(world *World) {
 			Type:  TypeMissile,
 			Speed: MissileSpeed,
 			Pos:   p.mech.Pos,
-			Angle: p.mech.Angle,
+			Angle: p.mech.Cannon.Angle,
 		},
 	}
 }

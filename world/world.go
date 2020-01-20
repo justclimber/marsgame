@@ -12,7 +12,7 @@ const MaxMovingLength float64 = 7
 // max rotation per turn in radians
 const MaxRotationValue float64 = 0.5
 const MaxCannonRotationValue float64 = 0.8
-const MissileSpeed = 20
+const MissileSpeed = 30
 
 type World struct {
 	Server       *server.Server
