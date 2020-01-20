@@ -1,6 +1,9 @@
 package world
 
-import "sync"
+import (
+	"aakimov/marsgame/physics"
+	"sync"
+)
 
 type Mech struct {
 	mu sync.Mutex
@@ -32,9 +35,12 @@ type Missile struct {
 	Object
 }
 
-func NewMech() *Mech {
+func NewMech(x, y float64) *Mech {
 	return &Mech{
-		Object: Object{},
+		Object: Object{Pos: physics.Point{
+			X: x,
+			Y: y,
+		}},
 		Cannon: &Cannon{
 			RotateThrottle: 0,
 			Angle:          0,

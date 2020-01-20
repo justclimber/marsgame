@@ -75,7 +75,7 @@ func (w *World) listenChannels() {
 	for {
 		select {
 		case client := <-w.Server.NewClientCh:
-			player := NewPlayer(client.Id, client, NewMech(), w)
+			player := NewPlayer(client.Id, client, w)
 			log.Printf("New player [%s] added to the game", player.id)
 
 			w.players[player.id] = player

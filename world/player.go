@@ -12,7 +12,8 @@ type Player struct {
 	mainProgram *Code
 }
 
-func NewPlayer(id string, client *server.Client, mech *Mech, w *World) *Player {
+func NewPlayer(id string, client *server.Client, w *World) *Player {
+	mech := NewMech(1000, 1000)
 	player := &Player{
 		id:          id,
 		client:      client,
@@ -112,7 +113,7 @@ func (p *Player) shoot(world *World) {
 			Type:  TypeMissile,
 			Speed: MissileSpeed,
 			Pos:   p.mech.Pos,
-			Angle: p.mech.Cannon.Angle,
+			Angle: p.mech.Cannon.Angle + p.mech.Angle,
 		},
 	}
 }

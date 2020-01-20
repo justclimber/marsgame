@@ -40,6 +40,7 @@ func (o *Object) run(world *World) *ChangeByObject {
 		newSpeed := o.Speed
 		changeByObject.Pos = &newPos
 		changeByObject.length = &newSpeed
+		changeByObject.Angle = &o.Angle
 	}
 	o.mu.Unlock()
 
