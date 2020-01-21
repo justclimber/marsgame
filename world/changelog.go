@@ -25,6 +25,7 @@ type ChangeByObject struct {
 	Pos         *physics.Point
 	Angle       *float64
 	CannonAngle *float64
+	Delete      bool
 	length      *float64
 }
 
@@ -74,6 +75,10 @@ func (ch *ChangeByObject) MarshalJSON() ([]byte, error) {
 		ca := math.Round(*ch.CannonAngle*100) / 100
 		cannonAngle = &ca
 	}
+	var dp *bool
+	if ch.Delete {
+		dp = &ch.Delete
+	}
 	return json.Marshal(struct {
 		ObjType     string   `json:"t"`
 		ObjId       string   `json:"id"`
@@ -81,6 +86,7 @@ func (ch *ChangeByObject) MarshalJSON() ([]byte, error) {
 		Y           *int     `json:"y,omitempty"`
 		Angle       *float64 `json:"a,omitempty"`
 		CannonAngle *float64 `json:"ca,omitempty"`
+		Delete      *bool    `json:"d,omitempty"`
 	}{
 		ObjType:     ch.ObjType,
 		ObjId:       ch.ObjId,
@@ -88,5 +94,6 @@ func (ch *ChangeByObject) MarshalJSON() ([]byte, error) {
 		Y:           yp,
 		Angle:       angle,
 		CannonAngle: cannonAngle,
+		Delete:      dp,
 	})
 }

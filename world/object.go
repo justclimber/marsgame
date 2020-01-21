@@ -29,25 +29,29 @@ type Object struct {
 }
 
 func (o *Object) run(world *World) *ChangeByObject {
-	changeByObject := ChangeByObject{
+	if o.Speed == 0 {
+		return nil
+	}
+
+	ch := &ChangeByObject{
 		ObjType: o.Type,
 		ObjId:   strconv.Itoa(o.Id),
 	}
-	o.mu.Lock()
-	if o.Speed != 0 {
-		o.Pos.MoveForward(o.Angle, o.Speed)
-		newPos := o.Pos
-		newSpeed := o.Speed
-		changeByObject.Pos = &newPos
-		changeByObject.length = &newSpeed
-		changeByObject.Angle = &o.Angle
-	}
-	o.mu.Unlock()
 
-	if o.Speed != 0 {
-		return &changeByObject
+	o.mu.Lock()
+	defer o.mu.Unlock()
+
+	o.Pos.MoveForward(o.Angle, o.Speed)
+	if o.Pos.CheckIfOutOfBounds(0, 0, float64(world.width), float64(world.height)) {
+		ch.Delete = true
+		return ch
 	}
-	return nil
+	newPos := o.Pos
+	newSpeed := o.Speed
+	ch.Pos = &newPos
+	ch.length = &newSpeed
+	ch.Angle = &o.Angle
+	return ch
 }
 
 func (o *Object) setId(id int) {

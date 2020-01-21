@@ -12,7 +12,7 @@ const MaxMovingLength float64 = 7
 // max rotation per turn in radians
 const MaxRotationValue float64 = 0.5
 const MaxCannonRotationValue float64 = 0.8
-const MissileSpeed = 30
+const MissileSpeed = 50
 
 type World struct {
 	Server       *server.Server
@@ -22,6 +22,8 @@ type World struct {
 	timeId       int64
 	objCount     int
 	newObjectsCh chan IObject
+	width        int
+	height       int
 }
 
 func NewWorld(server *server.Server) World {
@@ -31,6 +33,8 @@ func NewWorld(server *server.Server) World {
 		objects:      make(map[int]IObject),
 		changeLog:    NewChangeLog(),
 		newObjectsCh: make(chan IObject, 10),
+		width:        3000,
+		height:       2000,
 	}
 }
 
@@ -60,9 +64,12 @@ func (w *World) Run() {
 				changeByTime.Add(ch)
 			}
 		}
-		for _, object := range w.objects {
+		for id, object := range w.objects {
 			if ch := object.run(w); ch != nil {
 				changeByTime.Add(ch)
+				if ch.Delete {
+					delete(w.objects, id)
+				}
 			}
 		}
 		if changeByTime.IsNotEmpty() {

@@ -110,6 +110,8 @@ func (p *Player) shoot(world *World) {
 	log.Println("Shoooooot!!!!")
 	missileAngle := p.mech.Cannon.Angle + p.mech.Angle
 	missilePos := p.mech.Pos
+
+	//move missile a bit of forward far away from mech center
 	missilePos.MoveForward(missileAngle, 100.)
 	world.newObjectsCh <- &Missile{
 		Object: Object{
