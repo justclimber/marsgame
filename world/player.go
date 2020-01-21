@@ -108,12 +108,15 @@ func (p *Player) run(world *World) *ChangeByObject {
 
 func (p *Player) shoot(world *World) {
 	log.Println("Shoooooot!!!!")
+	missileAngle := p.mech.Cannon.Angle + p.mech.Angle
+	missilePos := p.mech.Pos
+	missilePos.MoveForward(missileAngle, 100.)
 	world.newObjectsCh <- &Missile{
 		Object: Object{
 			Type:  TypeMissile,
 			Speed: MissileSpeed,
-			Pos:   p.mech.Pos,
-			Angle: p.mech.Cannon.Angle + p.mech.Angle,
+			Pos:   missilePos,
+			Angle: missileAngle,
 		},
 	}
 }
