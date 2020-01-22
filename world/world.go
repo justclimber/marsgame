@@ -2,8 +2,12 @@ package world
 
 import (
 	"aakimov/marsgame/helpers"
+	"aakimov/marsgame/physics"
 	"aakimov/marsgame/server"
 	"log"
+	"math/rand"
+	"strconv"
+	"sync"
 	"time"
 )
 
@@ -41,6 +45,42 @@ func NewWorld(server *server.Server) World {
 		runSpeedMs:     200,
 		codeRunSpeedMs: 2000,
 	}
+}
+
+const RandObjNum = 10
+
+func (w *World) MakeRandomObjects() {
+	for i := 0; i < RandObjNum; i++ {
+		x := float64(rand.Int31n(int32(w.width - 100)))
+		y := float64(rand.Int31n(int32(w.height - 100)))
+		w.objCount += 1
+		newObj := &Object{
+			Id:    w.objCount,
+			Type:  TypeRock,
+			mu:    sync.Mutex{},
+			Pos:   physics.Point{X: x, Y: y},
+			Width: 50,
+		}
+		w.objects[w.objCount] = newObj
+	}
+}
+
+func (w *World) sendWorldInit(p *Player) {
+	changeByTime := NewChangeByTime(0)
+	for i := 1; i <= w.objCount; i++ {
+		o := w.objects[i]
+		pos := o.getPos()
+		changeByTime.Add(&ChangeByObject{
+			ObjType: o.getType(),
+			ObjId:   strconv.Itoa(o.getId()),
+			Pos:     &pos,
+		})
+	}
+	ch := NewChangeLog()
+	ch.AddAndCheckSize(changeByTime)
+
+	command := server.PackStructToCommand("worldInit", ch.changesByTimeLog)
+	p.client.SendCommand(command)
 }
 
 func (w *World) Run() {
@@ -83,6 +123,7 @@ func (w *World) listenChannels() {
 			log.Printf("New player [%s] added to the game", player.id)
 
 			w.players[player.id] = player
+			w.sendWorldInit(player)
 			go player.mainProgram.Run()
 			go player.listen()
 		case saveCode := <-w.Server.SaveAstCodeCh:

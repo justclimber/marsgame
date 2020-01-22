@@ -10,11 +10,15 @@ const (
 	TypeObject  = "object"
 	TypePlayer  = "player"
 	TypeMissile = "missile"
+	TypeRock    = "rock"
 )
 
 type IObject interface {
 	run(world *World) *ChangeByObject
 	setId(id int)
+	getId() int
+	getType() string
+	getPos() physics.Point
 }
 
 type Object struct {
@@ -56,4 +60,15 @@ func (o *Object) run(world *World) *ChangeByObject {
 
 func (o *Object) setId(id int) {
 	o.Id = id
+}
+
+func (o *Object) getPos() physics.Point {
+	return o.Pos
+}
+
+func (o *Object) getType() string {
+	return o.Type
+}
+func (o *Object) getId() int {
+	return o.Id
 }
