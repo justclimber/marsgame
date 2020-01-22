@@ -1,6 +1,7 @@
 package world
 
 import (
+	"aakimov/marsgame/helpers"
 	"aakimov/marsgame/server"
 	"log"
 	"time"
@@ -38,14 +39,6 @@ func NewWorld(server *server.Server) World {
 	}
 }
 
-func makeTimestamp(t time.Time) int64 {
-	return t.UnixNano() / int64(time.Millisecond)
-}
-
-func timeStampDif(t1, t2 time.Time) int64 {
-	return makeTimestamp(t2) - makeTimestamp(t1)
-}
-
 func (w *World) Run() {
 	ticker := time.NewTicker(200 * time.Millisecond)
 	go w.sendChangelogLoop()
@@ -54,7 +47,7 @@ func (w *World) Run() {
 
 	// endless loop here
 	for t := range ticker.C {
-		w.timeId = timeStampDif(serverStartTime, t)
+		w.timeId = helpers.TimeStampDif(serverStartTime, t)
 		//log.Printf("Game tick %v\n", timeId)
 
 		w.listenChannels()

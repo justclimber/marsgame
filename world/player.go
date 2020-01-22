@@ -1,6 +1,7 @@
 package world
 
 import (
+	"aakimov/marsgame/helpers"
 	"aakimov/marsgame/server"
 	"log"
 )
@@ -55,15 +56,10 @@ func (p *Player) listen() {
 	}
 }
 
-func abs(n int64) int64 {
-	y := n >> 63
-	return (n ^ y) - y
-}
-
 const nearTimeDelta = 50
 
 func areTimeIdNearlySameOrGrater(t1, t2 int64) bool {
-	return t1 > t2 || abs(t1-t2) < nearTimeDelta
+	return t1 > t2 || helpers.AbsInt64(t1-t2) < nearTimeDelta
 }
 
 func (p *Player) run(world *World) *ChangeByObject {
