@@ -31,16 +31,18 @@ type Code struct {
 	outputCh   chan *MechOutputVars
 	flowCh     chan ProgramState
 	errorCh    chan *Error
+	runSpeedMs time.Duration
 }
 
-func NewCode(id string, world *World, mech *Mech) *Code {
+func NewCode(id string, world *World, mech *Mech, runSpeedMs time.Duration) *Code {
 	return &Code{
-		id:       "main",
-		worldP:   world,
-		mechP:    mech,
-		outputCh: make(chan *MechOutputVars),
-		flowCh:   make(chan ProgramState),
-		errorCh:  make(chan *Error),
+		id:         "main",
+		worldP:     world,
+		mechP:      mech,
+		outputCh:   make(chan *MechOutputVars),
+		flowCh:     make(chan ProgramState),
+		errorCh:    make(chan *Error),
+		runSpeedMs: runSpeedMs,
 	}
 }
 
@@ -95,7 +97,7 @@ func (c *Code) loadMechVarsIntoEnv(env *object.Environment) {
 }
 
 func (c *Code) Run() {
-	ticker := time.NewTicker(2 * time.Second)
+	ticker := time.NewTicker(c.runSpeedMs * time.Millisecond)
 
 	for range ticker.C {
 		//log.Printf("Code run tick\n")

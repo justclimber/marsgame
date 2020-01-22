@@ -16,31 +16,35 @@ const MaxCannonRotationValue float64 = 0.8
 const MissileSpeed = 50
 
 type World struct {
-	Server       *server.Server
-	players      map[string]*Player
-	objects      map[int]IObject
-	changeLog    *ChangeLog
-	timeId       int64
-	objCount     int
-	newObjectsCh chan IObject
-	width        int
-	height       int
+	Server         *server.Server
+	players        map[string]*Player
+	objects        map[int]IObject
+	changeLog      *ChangeLog
+	timeId         int64
+	objCount       int
+	newObjectsCh   chan IObject
+	width          int
+	height         int
+	runSpeedMs     time.Duration
+	codeRunSpeedMs time.Duration
 }
 
 func NewWorld(server *server.Server) World {
 	return World{
-		Server:       server,
-		players:      make(map[string]*Player),
-		objects:      make(map[int]IObject),
-		changeLog:    NewChangeLog(),
-		newObjectsCh: make(chan IObject, 10),
-		width:        3000,
-		height:       2000,
+		Server:         server,
+		players:        make(map[string]*Player),
+		objects:        make(map[int]IObject),
+		changeLog:      NewChangeLog(),
+		newObjectsCh:   make(chan IObject, 10),
+		width:          3000,
+		height:         2000,
+		runSpeedMs:     200,
+		codeRunSpeedMs: 2000,
 	}
 }
 
 func (w *World) Run() {
-	ticker := time.NewTicker(200 * time.Millisecond)
+	ticker := time.NewTicker(w.runSpeedMs * time.Millisecond)
 	go w.sendChangelogLoop()
 
 	serverStartTime := time.Now()
@@ -75,7 +79,7 @@ func (w *World) listenChannels() {
 	for {
 		select {
 		case client := <-w.Server.NewClientCh:
-			player := NewPlayer(client.Id, client, w)
+			player := NewPlayer(client.Id, client, w, w.codeRunSpeedMs)
 			log.Printf("New player [%s] added to the game", player.id)
 
 			w.players[player.id] = player

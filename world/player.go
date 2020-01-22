@@ -4,6 +4,7 @@ import (
 	"aakimov/marsgame/helpers"
 	"aakimov/marsgame/server"
 	"log"
+	"time"
 )
 
 type Player struct {
@@ -13,13 +14,13 @@ type Player struct {
 	mainProgram *Code
 }
 
-func NewPlayer(id string, client *server.Client, w *World) *Player {
+func NewPlayer(id string, client *server.Client, w *World, runSpeedMs time.Duration) *Player {
 	mech := NewMech(1000, 1000)
 	player := &Player{
 		id:          id,
 		client:      client,
 		mech:        mech,
-		mainProgram: NewCode("main", w, mech),
+		mainProgram: NewCode("main", w, mech, runSpeedMs),
 	}
 	return player
 }
