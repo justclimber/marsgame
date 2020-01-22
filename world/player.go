@@ -112,10 +112,11 @@ func (p *Player) shoot(world *World) {
 	missilePos.MoveForward(missileAngle, 100.)
 	world.newObjectsCh <- &Missile{
 		Object: Object{
-			Type:  TypeMissile,
-			Speed: MissileSpeed,
-			Pos:   missilePos,
-			Angle: missileAngle,
+			Type:            TypeMissile,
+			Speed:           MissileSpeed,
+			Pos:             missilePos,
+			Angle:           missileAngle,
+			CollisionRadius: 20,
 		},
 	}
 }

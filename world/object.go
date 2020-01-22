@@ -1,7 +1,6 @@
 package world
 
 import (
-	"aakimov/marsgame/physics"
 	"strconv"
 	"sync"
 )
@@ -18,22 +17,27 @@ type IObject interface {
 	setId(id int)
 	getId() int
 	getType() string
-	getPos() physics.Point
+	getPos() Point
+	getMoveDone() *Vector
+	isCollideWith(o1 IObject) bool
+	getCollisionRadius() int
 }
 
 type Object struct {
-	Id         int
-	Type       string
-	mu         sync.Mutex
-	Pos        physics.Point
-	Width      int
-	Angle      float64
-	Speed      float64
-	AngleSpeed float64
+	Id              int
+	Type            string
+	mu              sync.Mutex
+	Pos             Point
+	CollisionRadius int
+	Angle           float64
+	Speed           float64
+	AngleSpeed      float64
+	MoveDone        *Vector
 }
 
 func (o *Object) run(world *World) *ChangeByObject {
 	if o.Speed == 0 {
+		o.MoveDone = nil
 		return nil
 	}
 
@@ -45,8 +49,8 @@ func (o *Object) run(world *World) *ChangeByObject {
 	o.mu.Lock()
 	defer o.mu.Unlock()
 
-	o.Pos.MoveForward(o.Angle, o.Speed)
-	if o.Pos.CheckIfOutOfBounds(0, 0, float64(world.width), float64(world.height)) {
+	o.MoveDone = o.Pos.MoveForward(o.Angle, o.Speed)
+	if o.Pos.checkIfOutOfBounds(0, 0, float64(world.width), float64(world.height)) {
 		ch.Delete = true
 		return ch
 	}
@@ -58,17 +62,9 @@ func (o *Object) run(world *World) *ChangeByObject {
 	return ch
 }
 
-func (o *Object) setId(id int) {
-	o.Id = id
-}
-
-func (o *Object) getPos() physics.Point {
-	return o.Pos
-}
-
-func (o *Object) getType() string {
-	return o.Type
-}
-func (o *Object) getId() int {
-	return o.Id
-}
+func (o *Object) getId() int              { return o.Id }
+func (o *Object) setId(id int)            { o.Id = id }
+func (o *Object) getPos() Point           { return o.Pos }
+func (o *Object) getType() string         { return o.Type }
+func (o *Object) getMoveDone() *Vector    { return o.MoveDone }
+func (o *Object) getCollisionRadius() int { return o.CollisionRadius }

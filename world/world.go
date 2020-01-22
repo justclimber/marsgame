@@ -2,7 +2,6 @@ package world
 
 import (
 	"aakimov/marsgame/helpers"
-	"aakimov/marsgame/physics"
 	"aakimov/marsgame/server"
 	"log"
 	"math/rand"
@@ -55,11 +54,11 @@ func (w *World) MakeRandomObjects() {
 		y := float64(rand.Int31n(int32(w.height - 100)))
 		w.objCount += 1
 		newObj := &Object{
-			Id:    w.objCount,
-			Type:  TypeRock,
-			mu:    sync.Mutex{},
-			Pos:   physics.Point{X: x, Y: y},
-			Width: 50,
+			Id:              w.objCount,
+			Type:            TypeRock,
+			mu:              sync.Mutex{},
+			Pos:             Point{x: x, y: y},
+			CollisionRadius: 50,
 		}
 		w.objects[w.objCount] = newObj
 	}
@@ -103,12 +102,22 @@ func (w *World) Run() {
 		}
 		for id, object := range w.objects {
 			if ch := object.run(w); ch != nil {
+				for id1, object1 := range w.objects {
+					if id1 == id {
+						continue
+					}
+					if object.isCollideWith(object1) && object.getType() == TypeMissile {
+						ch.Delete = true
+						break
+					}
+				}
 				changeByTime.Add(ch)
 				if ch.Delete {
 					delete(w.objects, id)
 				}
 			}
 		}
+
 		if changeByTime.IsNotEmpty() {
 			w.changeLog.AddToBuffer(changeByTime)
 		}

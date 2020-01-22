@@ -1,7 +1,6 @@
 package world
 
 import (
-	"aakimov/marsgame/physics"
 	"encoding/json"
 	"math"
 )
@@ -22,7 +21,7 @@ type ChangeByTime struct {
 type ChangeByObject struct {
 	ObjType     string
 	ObjId       string
-	Pos         *physics.Point
+	Pos         *Point
 	Angle       *float64
 	CannonAngle *float64
 	Delete      bool
@@ -63,7 +62,7 @@ func (ch *ChangeLog) AddAndCheckSize(changeByTime *ChangeByTime) bool {
 func (ch *ChangeByObject) MarshalJSON() ([]byte, error) {
 	var xp, yp *int
 	if ch.Pos != nil {
-		x, y := int(ch.Pos.X), int(ch.Pos.Y)
+		x, y := int(ch.Pos.x), int(ch.Pos.y)
 		xp, yp = &x, &y
 	}
 	var angle, cannonAngle *float64

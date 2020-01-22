@@ -89,8 +89,8 @@ func getFloatVarFromEnv(varName string, env *object.Environment) float64 {
 
 func (c *Code) loadMechVarsIntoEnv(env *object.Environment) {
 	s := make(map[string]interface{})
-	s["x"] = c.mechP.Pos.X
-	s["y"] = c.mechP.Pos.Y
+	s["x"] = c.mechP.Pos.x
+	s["y"] = c.mechP.Pos.y
 	s["angle"] = c.mechP.Angle
 	s["cAngle"] = c.mechP.Cannon.Angle
 	env.CreateAndInjectStruct("Mech", "mech", s)
