@@ -96,6 +96,24 @@ func (c *Code) loadMechVarsIntoEnv(env *object.Environment) {
 	env.CreateAndInjectStruct("Mech", "mech", s)
 }
 
+func (c *Code) loadWorldObjectsIntoEnv(env *object.Environment) {
+	a := make([]object.AbstractStruct, 0)
+	for _, o := range c.worldP.objects {
+		if o.getType() == TypeMissile {
+			// for the time being load only static objects
+			continue
+		}
+		f := make(map[string]interface{})
+		// todo need support of strings in marslang
+		//f["type"] = o.getType()
+		f["x"] = o.getPos().x
+		f["y"] = o.getPos().y
+		f["angle"] = o.getAngle()
+		a = append(a, object.AbstractStruct{Fields: f})
+	}
+	env.CreateAndInjectArrayOfStructs("Object", "objects", a)
+}
+
 func (c *Code) Run() {
 	ticker := time.NewTicker(c.runSpeedMs * time.Millisecond)
 
@@ -108,6 +126,7 @@ func (c *Code) Run() {
 		}
 		env := object.NewEnvironment()
 		c.loadMechVarsIntoEnv(env)
+		c.loadWorldObjectsIntoEnv(env)
 
 		c.mu.Lock()
 		astProgram := c.astProgram

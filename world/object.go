@@ -18,6 +18,7 @@ type IObject interface {
 	getId() int
 	getType() string
 	getPos() Point
+	getAngle() float64
 	getMoveDone() *Vector
 	isCollideWith(o1 IObject) bool
 	getCollisionRadius() int
@@ -65,6 +66,7 @@ func (o *Object) run(world *World) *ChangeByObject {
 func (o *Object) getId() int              { return o.Id }
 func (o *Object) setId(id int)            { o.Id = id }
 func (o *Object) getPos() Point           { return o.Pos }
+func (o *Object) getAngle() float64       { return o.Angle }
 func (o *Object) getType() string         { return o.Type }
 func (o *Object) getMoveDone() *Vector    { return o.MoveDone }
 func (o *Object) getCollisionRadius() int { return o.CollisionRadius }
