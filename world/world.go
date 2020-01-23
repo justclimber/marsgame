@@ -58,7 +58,7 @@ func (w *World) MakeRandomObjects() {
 			Type:            TypeRock,
 			mu:              sync.Mutex{},
 			Pos:             Point{x: x, y: y},
-			CollisionRadius: 50,
+			CollisionRadius: 100,
 		}
 		w.objects[w.objCount] = newObj
 	}
