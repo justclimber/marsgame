@@ -73,35 +73,19 @@ type ProgramFlow struct {
 	FlowCmd ProgramFlowType `json:"flowCmd"`
 }
 
-func (s *Server) programFlowCmd(clientId string, flow ProgramFlowType) {
-	_, ok := s.clients[clientId]
-	if !ok {
-		log.Fatalf("Save code attempt for inexistant client [%s]", clientId)
-	}
-	s.ProgramFlowCh <- &ProgramFlow{
-		UserId:  clientId,
-		FlowCmd: flow,
-	}
-}
-
-func (s *Server) saveSourceCode(clientId, sourceCode string) {
-	_, ok := s.clients[clientId]
-	if !ok {
-		log.Fatalf("Save code attempt for inexistant client [%s]", clientId)
-	}
-	s.SaveAstCodeCh <- &SaveAstCode{
-		UserId:     clientId,
-		SourceCode: sourceCode,
-	}
-}
-
 func (s *Server) HandleCommand(client *Client, command *Command) {
 	switch command.Type {
 	case "saveCode":
-		s.saveSourceCode(client.Id, command.Payload)
+		s.SaveAstCodeCh <- &SaveAstCode{
+			UserId:     client.Id,
+			SourceCode: command.Payload,
+		}
 	case "programFlow":
 		flowAsInt, _ := strconv.Atoi(command.Payload)
-		s.programFlowCmd(client.Id, ProgramFlowType(flowAsInt))
+		s.ProgramFlowCh <- &ProgramFlow{
+			UserId:  client.Id,
+			FlowCmd: ProgramFlowType(flowAsInt),
+		}
 	default:
 		log.Printf("Unknown command %s", command.ToSting())
 	}
