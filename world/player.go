@@ -30,9 +30,7 @@ func (p *Player) setBaseParams() {
 }
 
 func (p *Player) saveAstCode(sourceCode string) {
-	astCode, _ := ParseSourceCode(sourceCode)
-	p.mainProgram.saveAst(astCode)
-	log.Println("New ast code saved")
+	p.mainProgram.saveCode(sourceCode)
 }
 
 func (p *Player) listen() {
@@ -52,7 +50,7 @@ func (p *Player) listen() {
 			}
 			p.mech.mu.Unlock()
 		case codeError := <-p.mainProgram.errorCh:
-			p.client.PackAndSendCommand("error", codeError)
+			p.client.PackAndSendCommand("codeError", codeError)
 		}
 	}
 }

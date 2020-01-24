@@ -8,7 +8,6 @@ import (
 	"aakimov/marslang/object"
 	"aakimov/marslang/parser"
 
-	"encoding/json"
 	"log"
 	"sync"
 	"time"
@@ -29,6 +28,7 @@ type Code struct {
 	worldP     *World
 	mechP      *Mech
 	outputCh   chan *MechOutputVars
+	codeSaveCh chan *ast.StatementsBlock
 	flowCh     chan ProgramState
 	errorCh    chan *Error
 	runSpeedMs time.Duration
@@ -40,6 +40,7 @@ func NewCode(id string, world *World, mech *Mech, runSpeedMs time.Duration) *Cod
 		worldP:     world,
 		mechP:      mech,
 		outputCh:   make(chan *MechOutputVars),
+		codeSaveCh: make(chan *ast.StatementsBlock),
 		flowCh:     make(chan ProgramState),
 		errorCh:    make(chan *Error),
 		runSpeedMs: runSpeedMs,
@@ -128,11 +129,7 @@ func (c *Code) Run() {
 		c.loadMechVarsIntoEnv(env)
 		c.loadWorldObjectsIntoEnv(env)
 
-		c.mu.Lock()
-		astProgram := c.astProgram
-		c.mu.Unlock()
-
-		_, err := interpereter.Exec(astProgram, env)
+		_, err := interpereter.Exec(c.astProgram, env)
 		if err != nil {
 			c.state = Stopped
 			c.errorCh <- &Error{
@@ -140,6 +137,7 @@ func (c *Code) Run() {
 				Message:   err.Error(),
 			}
 			log.Printf("Runtime error: %s", err.Error())
+			continue
 		}
 
 		c.outputCh <- newMechOutputVarsFromEnv(env)
@@ -157,16 +155,35 @@ func (c *Code) listenTheWorld() {
 				RThrottle: 0,
 			}
 		}
+	case c.astProgram = <-c.codeSaveCh:
+		log.Println("Code saved")
 	default:
 		// noop
 	}
 }
 
-func (c *Code) saveAst(ast *ast.StatementsBlock) {
-	// todo переделать на каналы
-	c.mu.Lock()
-	c.astProgram = ast
-	c.mu.Unlock()
+func (c *Code) saveCode(sourceCode string) {
+	l := lexer.New(sourceCode)
+	p, err := parser.New(l)
+	if err != nil {
+		c.errorCh <- &Error{
+			ErrorType: Lexing,
+			Message:   err.Error(),
+		}
+		log.Printf("Lexing error: %s", err.Error())
+		return
+	}
+	astProgram, err := p.Parse()
+	if err != nil {
+		c.errorCh <- &Error{
+			ErrorType: Parsing,
+			Message:   err.Error(),
+		}
+		log.Printf("Parsing error: %s", err.Error())
+		return
+	}
+	log.Println("Code parsed")
+	c.codeSaveCh <- astProgram
 }
 
 func (c *Code) operateState(cmd server.ProgramFlowType) {
@@ -176,34 +193,4 @@ func (c *Code) operateState(cmd server.ProgramFlowType) {
 	case server.StopProgram:
 		c.flowCh <- Stopped
 	}
-}
-
-func ParseSourceCode(sourceCode string) (*ast.StatementsBlock, []byte) {
-	// todo передалать на метод структуры, чтобы сразу парсил код и сохранял
-	log.Printf("Program to parse: %s\n", sourceCode)
-
-	l := lexer.New(sourceCode)
-	p, err := parser.New(l)
-	if err != nil {
-		return nil, respondWithError(err.Error(), "Lexing")
-	}
-	astProgram, err := p.Parse()
-	if err != nil {
-		return nil, respondWithError(err.Error(), "Parsing")
-	}
-
-	return astProgram, nil
-}
-
-func respondWithError(msg, prefix string) []byte {
-	log.Printf("%s error: %s\n", prefix, msg)
-	return errorToJson(msg)
-}
-
-func errorToJson(msg string) []byte {
-	errJson := make(map[string]string)
-	errJson["error"] = msg
-	errBytes, _ := json.Marshal(errJson)
-
-	return errBytes
 }
