@@ -51,6 +51,8 @@ func (p *Player) listen() {
 			p.mech.mu.Unlock()
 		case codeError := <-p.mainProgram.errorCh:
 			p.client.PackAndSendCommand("codeError", codeError)
+		case io4Client := <-p.mainProgram.io4ClientCh:
+			p.client.PackAndSendCommand("codeInputOutput", io4Client)
 		}
 	}
 }

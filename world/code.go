@@ -7,6 +7,7 @@ import (
 	"aakimov/marslang/lexer"
 	"aakimov/marslang/object"
 	"aakimov/marslang/parser"
+	"fmt"
 
 	"log"
 	"sync"
@@ -21,30 +22,37 @@ const (
 )
 
 type Code struct {
-	id         string
-	state      ProgramState
-	mu         sync.Mutex
-	astProgram *ast.StatementsBlock
-	worldP     *World
-	mechP      *Mech
-	outputCh   chan *MechOutputVars
-	codeSaveCh chan *ast.StatementsBlock
-	flowCh     chan ProgramState
-	errorCh    chan *Error
-	runSpeedMs time.Duration
+	id          string
+	state       ProgramState
+	mu          sync.Mutex
+	astProgram  *ast.StatementsBlock
+	worldP      *World
+	mechP       *Mech
+	outputCh    chan *MechOutputVars
+	io4ClientCh chan *IO4Client
+	codeSaveCh  chan *ast.StatementsBlock
+	flowCh      chan ProgramState
+	errorCh     chan *Error
+	runSpeedMs  time.Duration
 }
 
 func NewCode(id string, world *World, mech *Mech, runSpeedMs time.Duration) *Code {
 	return &Code{
-		id:         "main",
-		worldP:     world,
-		mechP:      mech,
-		outputCh:   make(chan *MechOutputVars),
-		codeSaveCh: make(chan *ast.StatementsBlock),
-		flowCh:     make(chan ProgramState),
-		errorCh:    make(chan *Error),
-		runSpeedMs: runSpeedMs,
+		id:          "main",
+		worldP:      world,
+		mechP:       mech,
+		outputCh:    make(chan *MechOutputVars),
+		codeSaveCh:  make(chan *ast.StatementsBlock),
+		io4ClientCh: make(chan *IO4Client),
+		flowCh:      make(chan ProgramState),
+		errorCh:     make(chan *Error),
+		runSpeedMs:  runSpeedMs,
 	}
+}
+
+type IO4Client struct {
+	Input  []string
+	Output []string
 }
 
 type MechOutputVars struct {
@@ -52,6 +60,15 @@ type MechOutputVars struct {
 	RThrottle  float64
 	CRThrottle float64
 	Shoot      float64
+}
+
+func (m *MechOutputVars) toStrings() []string {
+	result := make([]string, 0)
+	result = append(result, fmt.Sprintf("mThr = %.2f", m.MThrottle))
+	result = append(result, fmt.Sprintf("mrThr = %.2f", m.RThrottle))
+	result = append(result, fmt.Sprintf("crThr = %.2f", m.CRThrottle))
+	result = append(result, fmt.Sprintf("shoot = %.2f", m.Shoot))
+	return result
 }
 
 type ErrorType int
@@ -140,7 +157,9 @@ func (c *Code) Run() {
 			continue
 		}
 
-		c.outputCh <- newMechOutputVarsFromEnv(env)
+		output := newMechOutputVarsFromEnv(env)
+		c.io4ClientCh <- c.makeIO4Client(env, output)
+		c.outputCh <- output
 
 		env.Print()
 	}
@@ -159,6 +178,13 @@ func (c *Code) listenTheWorld() {
 		log.Println("Code saved")
 	default:
 		// noop
+	}
+}
+
+func (c *Code) makeIO4Client(env *object.Environment, out *MechOutputVars) *IO4Client {
+	return &IO4Client{
+		Input:  env.ToStrings(),
+		Output: out.toStrings(),
 	}
 }
 
