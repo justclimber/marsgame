@@ -104,7 +104,6 @@ func (p *Player) run(world *World) *ChangeByObject {
 }
 
 func (p *Player) shoot(world *World) {
-	log.Println("Shoooooot!!!!")
 	missileAngle := p.mech.Cannon.Angle + p.mech.Angle
 	missilePos := p.mech.Pos
 

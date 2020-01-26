@@ -14,7 +14,7 @@ import (
 const MaxMovingLength float64 = 7
 
 // max rotation per turn in radians
-const MaxRotationValue float64 = 0.5
+const MaxRotationValue float64 = 0.1
 const MaxCannonRotationValue float64 = 0.8
 const MissileSpeed = 50
 
@@ -41,17 +41,19 @@ func NewWorld(server *server.Server) World {
 		newObjectsCh:   make(chan IObject, 10),
 		width:          3000,
 		height:         2000,
-		runSpeedMs:     200,
-		codeRunSpeedMs: 2000,
+		runSpeedMs:     100,
+		codeRunSpeedMs: 1000,
 	}
 }
 
-const RandObjNum = 10
+const RandObjNum = 3
 
 func (w *World) MakeRandomObjects() {
 	for i := 0; i < RandObjNum; i++ {
-		x := float64(rand.Int31n(int32(w.width - 100)))
-		y := float64(rand.Int31n(int32(w.height - 100)))
+		x := float64(rand.Int31n(int32(w.width-800))) + 200.
+		y := float64(rand.Int31n(int32(w.height-500))) + 200.
+		//x := 1500.
+		//y := 1500.
 		w.objCount += 1
 		newObj := &Object{
 			Id:              w.objCount,

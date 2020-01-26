@@ -8,8 +8,8 @@ import (
 	"aakimov/marslang/object"
 	"aakimov/marslang/parser"
 	"fmt"
-
 	"log"
+	"sort"
 	"sync"
 	"time"
 )
@@ -157,11 +157,8 @@ func (c *Code) Run() {
 			continue
 		}
 
-		output := newMechOutputVarsFromEnv(env)
-		c.io4ClientCh <- c.makeIO4Client(env, output)
-		c.outputCh <- output
-
-		env.Print()
+		c.io4ClientCh <- c.makeIO4Client(env)
+		c.outputCh <- newMechOutputVarsFromEnv(env)
 	}
 }
 
@@ -181,10 +178,23 @@ func (c *Code) listenTheWorld() {
 	}
 }
 
-func (c *Code) makeIO4Client(env *object.Environment, out *MechOutputVars) *IO4Client {
+func (c *Code) makeIO4Client(env *object.Environment) *IO4Client {
+	inputKey := map[string]bool{"mech": true, "objects": true}
+	input := make([]string, 0)
+	output := make([]string, 0)
+	for k, v := range env.Store() {
+		vStr := fmt.Sprintf("%s: %s\n", k, v.Inspect())
+		if _, ok := inputKey[k]; ok {
+			input = append(input, vStr)
+		} else {
+			output = append(output, vStr)
+		}
+	}
+	sort.Strings(input)
+	sort.Strings(output)
 	return &IO4Client{
-		Input:  env.ToStrings(),
-		Output: out.toStrings(),
+		Input:  input,
+		Output: output,
 	}
 }
 
