@@ -19,13 +19,14 @@ type ChangeByTime struct {
 }
 
 type ChangeByObject struct {
-	ObjType     string
-	ObjId       string
-	Pos         *Point
-	Angle       *float64
-	CannonAngle *float64
-	Delete      bool
-	length      *float64
+	ObjType       string
+	ObjId         string
+	Pos           *Point
+	Angle         *float64
+	CannonAngle   *float64
+	Delete        bool
+	DeleteOtherId string
+	length        *float64
 }
 
 func NewChangeByTime(timeId int64) *ChangeByTime {
@@ -79,20 +80,22 @@ func (ch *ChangeByObject) MarshalJSON() ([]byte, error) {
 		dp = &ch.Delete
 	}
 	return json.Marshal(struct {
-		ObjType     string   `json:"t"`
-		ObjId       string   `json:"id"`
-		X           *int     `json:"x,omitempty"`
-		Y           *int     `json:"y,omitempty"`
-		Angle       *float64 `json:"a,omitempty"`
-		CannonAngle *float64 `json:"ca,omitempty"`
-		Delete      *bool    `json:"d,omitempty"`
+		ObjType       string   `json:"t"`
+		ObjId         string   `json:"id"`
+		X             *int     `json:"x,omitempty"`
+		Y             *int     `json:"y,omitempty"`
+		Angle         *float64 `json:"a,omitempty"`
+		CannonAngle   *float64 `json:"ca,omitempty"`
+		Delete        *bool    `json:"d,omitempty"`
+		DeleteOtherId string   `json:"did,omitempty"`
 	}{
-		ObjType:     ch.ObjType,
-		ObjId:       ch.ObjId,
-		X:           xp,
-		Y:           yp,
-		Angle:       angle,
-		CannonAngle: cannonAngle,
-		Delete:      dp,
+		ObjType:       ch.ObjType,
+		ObjId:         ch.ObjId,
+		X:             xp,
+		Y:             yp,
+		Angle:         angle,
+		CannonAngle:   cannonAngle,
+		Delete:        dp,
+		DeleteOtherId: ch.DeleteOtherId,
 	})
 }

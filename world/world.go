@@ -110,6 +110,8 @@ func (w *World) Run() {
 					}
 					if object.isCollideWith(object1) && object.getType() == TypeMissile {
 						ch.Delete = true
+						ch.DeleteOtherId = strconv.Itoa(object1.getId())
+						delete(w.objects, object1.getId())
 						break
 					}
 				}
