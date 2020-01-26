@@ -9,6 +9,7 @@ import (
 	"aakimov/marslang/parser"
 	"fmt"
 	"log"
+	"math"
 	"sort"
 	"sync"
 	"time"
@@ -132,6 +133,10 @@ func (c *Code) loadWorldObjectsIntoEnv(env *object.Environment) {
 	env.CreateAndInjectArrayOfStructs("Object", "objects", a)
 }
 
+func (c *Code) loadMiscIntoEnv(env *object.Environment) {
+	env.Set("PI", &object.Float{Value: math.Pi})
+}
+
 func (c *Code) Run() {
 	ticker := time.NewTicker(c.runSpeedMs * time.Millisecond)
 
@@ -145,6 +150,7 @@ func (c *Code) Run() {
 		env := object.NewEnvironment()
 		c.loadMechVarsIntoEnv(env)
 		c.loadWorldObjectsIntoEnv(env)
+		c.loadMiscIntoEnv(env)
 
 		_, err := interpereter.Exec(c.astProgram, env)
 		if err != nil {
@@ -179,12 +185,12 @@ func (c *Code) listenTheWorld() {
 }
 
 func (c *Code) makeIO4Client(env *object.Environment) *IO4Client {
-	inputKey := map[string]bool{"mech": true, "objects": true}
+	inputKeys := map[string]bool{"mech": true, "objects": true, "PI": true}
 	input := make([]string, 0)
 	output := make([]string, 0)
 	for k, v := range env.Store() {
 		vStr := fmt.Sprintf("%s: %s\n", k, v.Inspect())
-		if _, ok := inputKey[k]; ok {
+		if _, ok := inputKeys[k]; ok {
 			input = append(input, vStr)
 		} else {
 			output = append(output, vStr)

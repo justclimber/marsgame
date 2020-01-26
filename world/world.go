@@ -46,7 +46,7 @@ func NewWorld(server *server.Server) World {
 	}
 }
 
-const RandObjNum = 3
+const RandObjNum = 10
 
 func (w *World) MakeRandomObjects() {
 	for i := 0; i < RandObjNum; i++ {
