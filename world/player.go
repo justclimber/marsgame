@@ -4,6 +4,7 @@ import (
 	"aakimov/marsgame/helpers"
 	"aakimov/marsgame/server"
 	"log"
+	"math"
 	"time"
 )
 
@@ -80,6 +81,11 @@ func (p *Player) run(world *World) *ChangeByObject {
 	}
 	if mech.RotateThrottle != 0 {
 		mech.Object.Angle += mech.RotateThrottle * MaxRotationValue
+		if mech.Object.Angle > 2*math.Pi {
+			mech.Object.Angle = mech.Object.Angle - 2*math.Pi
+		} else if mech.Object.Angle < 0 {
+			mech.Object.Angle = 2*math.Pi + mech.Object.Angle
+		}
 		newAngle := mech.Object.Angle
 		changeByObject.Angle = &newAngle
 	}
