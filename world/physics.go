@@ -19,7 +19,7 @@ func (p *Point) distanceTo(p2 *Point) float64 {
 func distance(p1, p2 *Point) float64 {
 	dx := p1.x - p2.x
 	dy := p1.y - p2.y
-	ds := (dx * dx) + (dy * dy)
+	ds := dx*dx + dy*dy
 
 	return math.Sqrt(ds)
 }
