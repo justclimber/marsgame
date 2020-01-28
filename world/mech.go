@@ -1,21 +1,17 @@
 package world
 
-import (
-	"sync"
-)
-
 type Mech struct {
-	mu sync.Mutex
 	Object
-	Cannon         *Cannon
-	Throttle       float64
-	RotateThrottle float64
+	cannon         *Cannon
+	throttle       float64
+	rotateThrottle float64
+	generator      Generator
 }
 
 type Cannon struct {
 	shoot          Shoot
-	RotateThrottle float64
-	Angle          float64
+	rotateThrottle float64
+	angle          float64
 }
 
 const (
@@ -40,11 +36,17 @@ func NewMech(x, y float64) *Mech {
 			x: x,
 			y: y,
 		}},
-		Cannon: &Cannon{
-			RotateThrottle: 0,
-			Angle:          0,
+		cannon: &Cannon{
+			rotateThrottle: 0,
+			angle:          0,
 		},
-		Throttle:       0,
-		RotateThrottle: 0,
+		throttle:       0,
+		rotateThrottle: 0,
+		generator: Generator{
+			increment: 80,
+			rateMs:    200,
+			value:     2000,
+			maxValue:  20000,
+		},
 	}
 }

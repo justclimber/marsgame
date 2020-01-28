@@ -6,7 +6,6 @@ import (
 	"log"
 	"math/rand"
 	"strconv"
-	"sync"
 	"time"
 )
 
@@ -58,7 +57,6 @@ func (w *World) MakeRandomObjects() {
 		newObj := &Object{
 			Id:              w.objCount,
 			Type:            TypeRock,
-			mu:              sync.Mutex{},
 			Pos:             Point{x: x, y: y},
 			CollisionRadius: 100,
 		}
@@ -137,7 +135,7 @@ func (w *World) listenChannels() {
 
 			w.players[player.id] = player
 			w.sendWorldInit(player)
-			go player.mainProgram.Run()
+			go player.runProgram()
 			go player.listen()
 		case saveCode := <-w.Server.SaveAstCodeCh:
 			player, ok := w.players[saveCode.UserId]
@@ -150,7 +148,7 @@ func (w *World) listenChannels() {
 			if !ok {
 				log.Fatalf("Save code attempt for inexistant player [%s]", programFlowCmd.UserId)
 			}
-			player.mainProgram.operateState(programFlowCmd.FlowCmd)
+			player.operateState(programFlowCmd.FlowCmd)
 		case o := <-w.newObjectsCh:
 			w.objCount += 1
 			o.setId(w.objCount)

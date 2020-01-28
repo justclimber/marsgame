@@ -25,9 +25,9 @@ type IObject interface {
 }
 
 type Object struct {
-	Id              int
-	Type            string
-	mu              sync.Mutex
+	Id   int
+	Type string
+	sync.Mutex
 	Pos             Point
 	CollisionRadius int
 	Angle           float64
@@ -47,8 +47,8 @@ func (o *Object) run(world *World) *ChangeByObject {
 		ObjId:   strconv.Itoa(o.Id),
 	}
 
-	o.mu.Lock()
-	defer o.mu.Unlock()
+	o.Lock()
+	defer o.Unlock()
 
 	o.MoveDone = o.Pos.MoveForward(o.Angle, o.Speed)
 	if o.Pos.checkIfOutOfBounds(0, 0, float64(world.width), float64(world.height)) {
