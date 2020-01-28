@@ -35,6 +35,7 @@ type Code struct {
 	flowCh      chan ProgramState
 	errorCh     chan *Error
 	runSpeedMs  time.Duration
+	energy      int
 }
 
 func NewCode(id string, world *World, mech *Mech, runSpeedMs time.Duration) *Code {
@@ -48,12 +49,15 @@ func NewCode(id string, world *World, mech *Mech, runSpeedMs time.Duration) *Cod
 		flowCh:      make(chan ProgramState),
 		errorCh:     make(chan *Error),
 		runSpeedMs:  runSpeedMs,
+		energy:      10000,
 	}
 }
 
 type IO4Client struct {
 	Input  []string
 	Output []string
+	Cost   int
+	Energy int
 }
 
 type MechOutputVars struct {
@@ -140,6 +144,10 @@ func (c *Code) loadMiscIntoEnv(env *object.Environment) {
 func (c *Code) Run() {
 	ticker := time.NewTicker(c.runSpeedMs * time.Millisecond)
 
+	executor := interpereter.NewExecAstVisitor()
+	executor.SetExecCallback(c.consumeEnergy)
+	lastEnergy := c.energy
+	env := object.NewEnvironment()
 	for range ticker.C {
 		//log.Printf("Code run tick\n")
 		c.listenTheWorld()
@@ -147,12 +155,12 @@ func (c *Code) Run() {
 			// waiting for the ast or for the launch
 			continue
 		}
-		env := object.NewEnvironment()
+
 		c.loadMechVarsIntoEnv(env)
 		c.loadWorldObjectsIntoEnv(env)
 		c.loadMiscIntoEnv(env)
 
-		_, err := interpereter.Exec(c.astProgram, env)
+		err := executor.ExecAst(c.astProgram, env)
 		if err != nil {
 			c.state = Stopped
 			c.errorCh <- &Error{
@@ -162,10 +170,39 @@ func (c *Code) Run() {
 			log.Printf("Runtime error: %s", err.Error())
 			continue
 		}
+		cost := lastEnergy - c.energy
+		lastEnergy = c.energy
 
-		c.io4ClientCh <- c.makeIO4Client(env)
+		c.io4ClientCh <- c.makeIO4Client(env, cost, c.energy)
 		c.outputCh <- newMechOutputVarsFromEnv(env)
 	}
+}
+
+var energyByOperationMap = map[interpereter.OperationType]int{
+	interpereter.Assignment:      20,
+	interpereter.Return:          15,
+	interpereter.IfStmt:          15,
+	interpereter.Switch:          15,
+	interpereter.Unary:           4,
+	interpereter.BinExpr:         20,
+	interpereter.Struct:          25,
+	interpereter.StructFieldCall: 8,
+	interpereter.NumInt:          3,
+	interpereter.NumFloat:        4,
+	interpereter.Boolean:         2,
+	interpereter.Array:           6,
+	interpereter.ArrayIndex:      4,
+	interpereter.Identifier:      6,
+	interpereter.Function:        15,
+	interpereter.FunctionCall:    10,
+}
+
+func (c *Code) consumeEnergy(operation interpereter.OperationType) {
+	energyCost, ok := energyByOperationMap[operation]
+	if !ok {
+		log.Fatalf("Unknown operation for energy calculation: %v", operation)
+	}
+	c.energy -= energyCost
 }
 
 func (c *Code) listenTheWorld() {
@@ -184,7 +221,7 @@ func (c *Code) listenTheWorld() {
 	}
 }
 
-func (c *Code) makeIO4Client(env *object.Environment) *IO4Client {
+func (c *Code) makeIO4Client(env *object.Environment, cost, energy int) *IO4Client {
 	inputKeys := map[string]bool{"mech": true, "objects": true, "PI": true}
 	input := make([]string, 0)
 	output := make([]string, 0)
@@ -201,6 +238,8 @@ func (c *Code) makeIO4Client(env *object.Environment) *IO4Client {
 	return &IO4Client{
 		Input:  input,
 		Output: output,
+		Cost:   cost,
+		Energy: energy,
 	}
 }
 
