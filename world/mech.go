@@ -43,7 +43,7 @@ func NewMech(x, y float64) *Mech {
 		throttle:       0,
 		rotateThrottle: 0,
 		generator: Generator{
-			increment: 80,
+			increment: 120,
 			rateMs:    200,
 			value:     2000,
 			maxValue:  20000,

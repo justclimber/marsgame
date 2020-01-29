@@ -46,7 +46,8 @@ func calculateMovement(p Point, v Vector, d Vector, power, m float64, dt time.Du
 	tractionForce := calcTractionForce(d, power)
 	airResistForce := calcAirResistForce(v)
 	frictionForce := calcFrictionForce(d, m)
-	force := tractionForce.add(airResistForce).add(frictionForce)
+	force := tractionForce.add(airResistForce)
+	force = force.add(frictionForce)
 
 	accelerate := calcAccelerate(force, m)
 	vNew := applyAccelerateToVelocity(v, accelerate, dt)

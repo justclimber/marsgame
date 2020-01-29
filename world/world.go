@@ -3,6 +3,7 @@ package world
 import (
 	"aakimov/marsgame/helpers"
 	"aakimov/marsgame/server"
+	"encoding/json"
 	"log"
 	"math/rand"
 	"strconv"
@@ -45,7 +46,13 @@ func NewWorld(server *server.Server) World {
 	}
 }
 
-const RandObjNum = 10
+const RandObjNum = 3
+
+func prettyPrint(msg string, objs map[int]IObject) {
+	str, _ := json.MarshalIndent(objs, "", "   ")
+	log.Println(msg, string(str))
+	//for k, v := range objs
+}
 
 func (w *World) MakeRandomObjects() {
 	for i := 0; i < RandObjNum; i++ {

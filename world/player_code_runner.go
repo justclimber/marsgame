@@ -76,8 +76,6 @@ func (p *Player) runProgram() {
 
 	go p.mech.generator.start()
 
-	env := object.NewEnvironment()
-
 	ticker := time.NewTicker(p.runSpeedMs * time.Millisecond)
 	for range ticker.C {
 		//log.Printf("Code runProgram tick\n")
@@ -86,7 +84,7 @@ func (p *Player) runProgram() {
 			// waiting for the ast or for the launch
 			continue
 		}
-
+		env := object.NewEnvironment()
 		code.bootstrap(p, env)
 
 		err := executor.ExecAst(code.astProgram, env)
