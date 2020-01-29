@@ -33,8 +33,8 @@ func TestChangeLog_OptimizeSimplePositiveCase(t *testing.T) {
 			ObjType: TypePlayer,
 			ObjId:   "11",
 			Pos: &Point{
-				x: x,
-				y: y,
+				X: x,
+				Y: y,
 			},
 			Angle:       &newR,
 			CannonAngle: &newCR,
@@ -83,8 +83,8 @@ func TestChangeLog_OptimizeSimpleNegative(t *testing.T) {
 			ObjType: TypePlayer,
 			ObjId:   "11",
 			Pos: &Point{
-				x: x,
-				y: y,
+				X: x,
+				Y: y,
 			},
 			Angle:       &newR,
 			CannonAngle: &newCR,
@@ -126,8 +126,8 @@ func TestChangeLog_OptimizePositiveMoreElements(t *testing.T) {
 			ObjType: TypePlayer,
 			ObjId:   "11",
 			Pos: &Point{
-				x: x,
-				y: y,
+				X: x,
+				Y: y,
 			},
 			Angle:       &newR,
 			CannonAngle: &newCR,

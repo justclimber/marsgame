@@ -46,25 +46,24 @@ func NewWorld(server *server.Server) World {
 	}
 }
 
-const RandObjNum = 3
+const RandObjNum = 10
 
-func prettyPrint(msg string, objs map[int]IObject) {
-	str, _ := json.MarshalIndent(objs, "", "   ")
+func prettyPrint(msg string, obj interface{}) {
+	str, _ := json.MarshalIndent(obj, "", "   ")
 	log.Println(msg, string(str))
-	//for k, v := range objs
 }
 
 func (w *World) MakeRandomObjects() {
 	for i := 0; i < RandObjNum; i++ {
 		x := float64(rand.Int31n(int32(w.width-800))) + 200.
 		y := float64(rand.Int31n(int32(w.height-500))) + 200.
-		//x := 1500.
-		//y := 1500.
+		//X := 1500.
+		//Y := 1500.
 		w.objCount += 1
 		newObj := &Object{
 			Id:              w.objCount,
 			Type:            TypeRock,
-			Pos:             Point{x: x, y: y},
+			Pos:             Point{X: x, Y: y},
 			CollisionRadius: 100,
 		}
 		w.objects[w.objCount] = newObj
@@ -94,16 +93,20 @@ func (w *World) Run() {
 	go w.sendChangelogLoop()
 
 	serverStartTime := time.Now()
+	lastTime := serverStartTime
 
+	//log.Printf("start %v\n", serverStartTime)
 	// endless loop here
 	for t := range ticker.C {
 		w.timeId = helpers.TimeStampDif(serverStartTime, t)
-		//log.Printf("Game tick %v\n", timeId)
+		timeDelta := time.Since(lastTime)
+		lastTime = t
+		//log.Printf("Game tick %v\n", t)
 
 		w.listenChannels()
 		changeByTime := NewChangeByTime(w.timeId)
 		for _, player := range w.players {
-			if ch := player.run(w); ch != nil {
+			if ch := player.run(timeDelta); ch != nil {
 				changeByTime.Add(ch)
 			}
 		}

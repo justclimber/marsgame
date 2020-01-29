@@ -19,13 +19,13 @@ type Server struct {
 func NewServer() *Server {
 	return &Server{
 		clients:         make(map[string]*Client),
-		connectClientCh: make(chan *Client),
-		leaveClientCh:   make(chan *Client),
-		NewClientCh:     make(chan *Client),
+		connectClientCh: make(chan *Client, 10),
+		leaveClientCh:   make(chan *Client, 10),
+		NewClientCh:     make(chan *Client, 10),
 		doneCh:          make(chan bool),
 		errCh:           make(chan error),
-		SaveAstCodeCh:   make(chan *SaveAstCode),
-		ProgramFlowCh:   make(chan *ProgramFlow),
+		SaveAstCodeCh:   make(chan *SaveAstCode, 10),
+		ProgramFlowCh:   make(chan *ProgramFlow, 10),
 	}
 }
 

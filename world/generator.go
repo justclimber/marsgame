@@ -31,6 +31,7 @@ func (g *Generator) consume(value int) {
 
 	if needWait {
 		ticker := time.NewTicker(g.rateMs * time.Millisecond)
+		defer ticker.Stop()
 		stop := make(chan bool, 1)
 		for {
 			select {
@@ -39,7 +40,6 @@ func (g *Generator) consume(value int) {
 				if g.value > 0 {
 					log.Println("cpu trhottling", g.value)
 					stop <- true
-					ticker.Stop()
 				}
 				g.gmu.Unlock()
 			case <-stop:

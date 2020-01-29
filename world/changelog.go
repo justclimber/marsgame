@@ -63,7 +63,7 @@ func (ch *ChangeLog) AddAndCheckSize(changeByTime *ChangeByTime) bool {
 func (ch *ChangeByObject) MarshalJSON() ([]byte, error) {
 	var xp, yp *int
 	if ch.Pos != nil {
-		x, y := int(ch.Pos.x), int(ch.Pos.y)
+		x, y := int(ch.Pos.X), int(ch.Pos.Y)
 		xp, yp = &x, &y
 	}
 	var angle, cannonAngle *float64

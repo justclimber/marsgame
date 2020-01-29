@@ -32,10 +32,16 @@ type Missile struct {
 
 func NewMech(x, y float64) *Mech {
 	return &Mech{
-		Object: Object{Pos: Point{
-			x: x,
-			y: y,
-		}},
+		Object: NewObject(
+			1,
+			"player",
+			Point{x, y},
+			100,
+			0,
+			0,
+			0,
+			1000,
+		),
 		cannon: &Cannon{
 			rotateThrottle: 0,
 			angle:          0,

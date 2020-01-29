@@ -33,7 +33,25 @@ type Object struct {
 	Angle           float64
 	Speed           float64
 	AngleSpeed      float64
+	Weight          float64
 	MoveDone        *Vector
+	Velocity        *Vector
+	Direction       *Vector
+}
+
+func NewObject(id int, typeObj string, p Point, colRadius int, angle, speed, aspeed, weight float64) Object {
+	return Object{
+		Id:              id,
+		Type:            typeObj,
+		Pos:             p,
+		CollisionRadius: colRadius,
+		Angle:           angle,
+		Speed:           speed,
+		AngleSpeed:      aspeed,
+		Weight:          weight,
+		Velocity:        &Vector{},
+		Direction:       makeNormalVectorByAngle(angle),
+	}
 }
 
 func (o *Object) run(world *World) *ChangeByObject {

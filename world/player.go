@@ -32,11 +32,11 @@ func NewPlayer(id string, client *server.Client, w *World, runSpeedMs time.Durat
 		mech:        mech,
 		mainProgram: NewCode("main", w, mech, runSpeedMs),
 		runSpeedMs:  runSpeedMs,
-		outputCh:    make(chan *MechOutputVars),
-		codeSaveCh:  make(chan *ast.StatementsBlock),
-		io4ClientCh: make(chan *IO4Client),
-		flowCh:      make(chan ProgramState),
-		errorCh:     make(chan *Error),
+		outputCh:    make(chan *MechOutputVars, 1),
+		codeSaveCh:  make(chan *ast.StatementsBlock, 1),
+		io4ClientCh: make(chan *IO4Client, 1),
+		flowCh:      make(chan ProgramState, 1),
+		errorCh:     make(chan *Error, 10),
 	}
 	return player
 }

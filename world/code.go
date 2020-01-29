@@ -37,8 +37,8 @@ func (c *Code) bootstrap(p *Player, env *object.Environment) {
 
 func (c *Code) loadMechVarsIntoEnv(m *Mech, env *object.Environment) {
 	s := make(map[string]interface{})
-	s["x"] = m.Pos.x
-	s["y"] = m.Pos.y
+	s["x"] = m.Pos.X
+	s["y"] = m.Pos.Y
 	s["angle"] = m.Angle
 	s["cAngle"] = m.cannon.angle
 	env.CreateAndInjectStruct("Mech", "mech", s)
@@ -54,8 +54,8 @@ func (c *Code) loadWorldObjectsIntoEnv(w *World, env *object.Environment) {
 		f := make(map[string]interface{})
 		// todo need support of strings in marslang
 		//f["type"] = o.getType()
-		f["x"] = o.getPos().x
-		f["y"] = o.getPos().y
+		f["x"] = o.getPos().X
+		f["y"] = o.getPos().Y
 		f["angle"] = o.getAngle()
 		a = append(a, object.AbstractStruct{Fields: f})
 	}
