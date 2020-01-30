@@ -31,7 +31,7 @@ func TestChangeLog_OptimizeSimplePositiveCase(t *testing.T) {
 
 		changeByObject := &ChangeByObject{
 			ObjType: TypePlayer,
-			ObjId:   "11",
+			ObjId:   11,
 			Pos: &Point{
 				X: x,
 				Y: y,
@@ -81,7 +81,7 @@ func TestChangeLog_OptimizeSimpleNegative(t *testing.T) {
 
 		changeByObject := &ChangeByObject{
 			ObjType: TypePlayer,
-			ObjId:   "11",
+			ObjId:   11,
 			Pos: &Point{
 				X: x,
 				Y: y,
@@ -124,7 +124,7 @@ func TestChangeLog_OptimizePositiveMoreElements(t *testing.T) {
 
 		changeByObject := &ChangeByObject{
 			ObjType: TypePlayer,
-			ObjId:   "11",
+			ObjId:   11,
 			Pos: &Point{
 				X: x,
 				Y: y,

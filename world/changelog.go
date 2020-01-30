@@ -20,12 +20,12 @@ type ChangeByTime struct {
 
 type ChangeByObject struct {
 	ObjType       string
-	ObjId         string
+	ObjId         int
 	Pos           *Point
 	Angle         *float64
 	CannonAngle   *float64
 	Delete        bool
-	DeleteOtherId string
+	DeleteOtherId int
 	length        *float64
 }
 
@@ -81,13 +81,13 @@ func (ch *ChangeByObject) MarshalJSON() ([]byte, error) {
 	}
 	return json.Marshal(struct {
 		ObjType       string   `json:"t"`
-		ObjId         string   `json:"id"`
+		ObjId         int      `json:"id"`
 		X             *int     `json:"x,omitempty"`
 		Y             *int     `json:"y,omitempty"`
 		Angle         *float64 `json:"a,omitempty"`
 		CannonAngle   *float64 `json:"ca,omitempty"`
 		Delete        *bool    `json:"d,omitempty"`
-		DeleteOtherId string   `json:"did,omitempty"`
+		DeleteOtherId int      `json:"did,omitempty"`
 	}{
 		ObjType:       ch.ObjType,
 		ObjId:         ch.ObjId,

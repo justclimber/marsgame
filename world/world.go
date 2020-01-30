@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"log"
 	"math/rand"
-	"strconv"
 	"time"
 )
 
@@ -20,7 +19,7 @@ const MissileSpeed = 50
 
 type World struct {
 	Server         *server.Server
-	players        map[string]*Player
+	players        map[int]*Player
 	objects        map[int]IObject
 	changeLog      *ChangeLog
 	timeId         int64
@@ -35,7 +34,7 @@ type World struct {
 func NewWorld(server *server.Server) World {
 	return World{
 		Server:         server,
-		players:        make(map[string]*Player),
+		players:        make(map[int]*Player),
 		objects:        make(map[int]IObject),
 		changeLog:      NewChangeLog(),
 		newObjectsCh:   make(chan IObject, 10),
@@ -77,7 +76,7 @@ func (w *World) sendWorldInit(p *Player) {
 		pos := o.getPos()
 		changeByTime.Add(&ChangeByObject{
 			ObjType: o.getType(),
-			ObjId:   strconv.Itoa(o.getId()),
+			ObjId:   o.getId(),
 			Pos:     &pos,
 		})
 	}
@@ -118,7 +117,7 @@ func (w *World) Run() {
 					}
 					if object.isCollideWith(object1) && object.getType() == TypeMissile {
 						ch.Delete = true
-						ch.DeleteOtherId = strconv.Itoa(object1.getId())
+						ch.DeleteOtherId = object1.getId()
 						delete(w.objects, object1.getId())
 						break
 					}
@@ -141,7 +140,7 @@ func (w *World) listenChannels() {
 		select {
 		case client := <-w.Server.NewClientCh:
 			player := NewPlayer(client.Id, client, w, w.codeRunSpeedMs)
-			log.Printf("New player [%s] added to the game", player.id)
+			log.Printf("New player [%d] added to the game", player.id)
 
 			w.players[player.id] = player
 			w.sendWorldInit(player)
@@ -150,13 +149,13 @@ func (w *World) listenChannels() {
 		case saveCode := <-w.Server.SaveAstCodeCh:
 			player, ok := w.players[saveCode.UserId]
 			if !ok {
-				log.Fatalf("Save code attempt for inexistant player [%s]", saveCode.UserId)
+				log.Fatalf("Save code attempt for inexistant player [%d]", saveCode.UserId)
 			}
 			player.saveAstCode(saveCode.SourceCode)
 		case programFlowCmd := <-w.Server.ProgramFlowCh:
 			player, ok := w.players[programFlowCmd.UserId]
 			if !ok {
-				log.Fatalf("Save code attempt for inexistant player [%s]", programFlowCmd.UserId)
+				log.Fatalf("Save code attempt for inexistant player [%d]", programFlowCmd.UserId)
 			}
 			player.operateState(programFlowCmd.FlowCmd)
 		case o := <-w.newObjectsCh:

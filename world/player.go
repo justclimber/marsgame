@@ -10,7 +10,7 @@ import (
 )
 
 type Player struct {
-	id          string
+	id          int
 	world       *World
 	client      *server.Client
 	mech        *Mech
@@ -23,7 +23,7 @@ type Player struct {
 	errorCh     chan *Error
 }
 
-func NewPlayer(id string, client *server.Client, w *World, runSpeedMs time.Duration) *Player {
+func NewPlayer(id int, client *server.Client, w *World, runSpeedMs time.Duration) *Player {
 	mech := NewMech(1000, 1000)
 	player := &Player{
 		id:          id,
@@ -70,7 +70,7 @@ func (p *Player) saveAstCode(sourceCode string) {
 }
 
 func (p *Player) listen() {
-	log.Printf("Player [%s] listening started", p.id)
+	log.Printf("Player [%d] listening started", p.id)
 	for {
 		select {
 		case codeOutputs := <-p.outputCh:

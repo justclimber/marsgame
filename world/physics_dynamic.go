@@ -58,14 +58,14 @@ func calcMovementObject(obj *Object, power float64, dt time.Duration) (*Point, *
 	accelerate := calcAccelerate(force, obj.Weight)
 	vNew := applyAccelerateToVelocity(obj.Velocity, accelerate, dt)
 
-	m1 := make(map[string]interface{})
-	m1["tractionForce"] = tractionForce.X
-	m1["airResistForce"] = airResistForce.X
-	m1["frictionForce"] = frictionForce.X
-	m1["force"] = force.X
-	m1["velocity"] = vNew.X
-	m1["accelerate"] = accelerate.X
-	prettyPrint("output", m1)
+	//m1 := make(map[string]interface{})
+	//m1["tractionForce"] = tractionForce.X
+	//m1["airResistForce"] = airResistForce.X
+	//m1["frictionForce"] = frictionForce.X
+	//m1["force"] = force.X
+	//m1["velocity"] = vNew.X
+	//m1["accelerate"] = accelerate.X
+	//prettyPrint("output", m1)
 
 	// сила трения на малых скоростях может привести к отризательной скорости, убираем это
 	if obj.Direction.multiplyOnVector(vNew) < 0 {

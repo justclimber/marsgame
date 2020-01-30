@@ -18,7 +18,7 @@ func TestChangeLog_Marshal(t *testing.T) {
 	changeByTime := NewChangeByTime(int64(1))
 	changeByObject := &ChangeByObject{
 		ObjType: TypePlayer,
-		ObjId:   "11",
+		ObjId:   11,
 		Pos: &Point{
 			X: x,
 			Y: y,
@@ -33,5 +33,5 @@ func TestChangeLog_Marshal(t *testing.T) {
 
 	jsonOut, err := json.Marshal(changelog.changesByTimeLog)
 	assert.Nil(t, err)
-	require.Equal(t, `[{"tId":1,"chObjs":[{"t":"player","id":"11","x":0,"y":2,"a":5.12,"ca":10}]}]`, string(jsonOut))
+	require.Equal(t, `[{"tId":1,"chObjs":[{"t":"player","id":11,"x":0,"y":2,"a":5.12,"ca":10}]}]`, string(jsonOut))
 }

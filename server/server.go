@@ -6,7 +6,7 @@ import (
 )
 
 type Server struct {
-	clients         map[string]*Client
+	clients         map[int]*Client
 	connectClientCh chan *Client
 	leaveClientCh   chan *Client
 	doneCh          chan bool
@@ -18,7 +18,7 @@ type Server struct {
 
 func NewServer() *Server {
 	return &Server{
-		clients:         make(map[string]*Client),
+		clients:         make(map[int]*Client),
 		connectClientCh: make(chan *Client, 10),
 		leaveClientCh:   make(chan *Client, 10),
 		NewClientCh:     make(chan *Client, 10),
@@ -35,11 +35,11 @@ func (s *Server) ListenClients() {
 	for {
 		select {
 		case c := <-s.connectClientCh:
-			log.Printf("Client [%s] registered!", c.Id)
+			log.Printf("Client [%d] registered!", c.Id)
 			s.clients[c.Id] = c
 
 		case c := <-s.leaveClientCh:
-			log.Printf("Client [%s] unconnected", c.Id)
+			log.Printf("Client [%d] unconnected", c.Id)
 			delete(s.clients, c.Id)
 
 		case err := <-s.errCh:
@@ -57,7 +57,7 @@ func (s *Server) connectClient(client *Client) {
 }
 
 type SaveAstCode struct {
-	UserId     string
+	UserId     int
 	SourceCode string
 }
 
@@ -69,7 +69,7 @@ const (
 )
 
 type ProgramFlow struct {
-	UserId  string          `json:"userId"`
+	UserId  int             `json:"userId"`
 	FlowCmd ProgramFlowType `json:"flowCmd"`
 }
 

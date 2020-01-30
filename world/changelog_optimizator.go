@@ -2,6 +2,7 @@ package world
 
 import (
 	"math"
+	"strconv"
 )
 
 // Optimize intermediate changelog for individual object if they can be interpolated (have const diffs at least for 3 changes)
@@ -86,7 +87,7 @@ func getValuesForChanges(changeByTime *ChangeByTime) (map[string]*float64, map[s
 	r := make(map[string]*float64)
 	cr := make(map[string]*float64)
 	for _, changeByObject := range changeByTime.ChangesByObject {
-		key := changeByObject.ObjId + changeByObject.ObjType
+		key := strconv.Itoa(changeByObject.ObjId) + " " + changeByObject.ObjType
 		l[key] = changeByObject.length
 		r[key] = changeByObject.Angle
 		cr[key] = changeByObject.CannonAngle

@@ -6,14 +6,14 @@ import (
 )
 
 type Client struct {
-	Id       string
+	Id       int
 	ws       *websocket.Conn
 	server   *Server
 	commands chan *Command
 	doneCh   chan bool
 }
 
-func NewClient(id string, ws *websocket.Conn, server *Server) *Client {
+func NewClient(id int, ws *websocket.Conn, server *Server) *Client {
 	return &Client{
 		Id:       id,
 		ws:       ws,

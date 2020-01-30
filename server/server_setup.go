@@ -4,6 +4,7 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 var upgrader = websocket.Upgrader{
@@ -12,7 +13,7 @@ var upgrader = websocket.Upgrader{
 }
 
 func (s *Server) wsEndpoint(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
+	idStr := r.URL.Query().Get("id")
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -20,6 +21,10 @@ func (s *Server) wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Println("Client open ws connection")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		log.Println(err)
+	}
 	client := NewClient(id, ws, s)
 	s.connectClient(client)
 	client.Listen()

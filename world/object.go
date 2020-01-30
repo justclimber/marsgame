@@ -1,7 +1,6 @@
 package world
 
 import (
-	"strconv"
 	"sync"
 )
 
@@ -62,7 +61,7 @@ func (o *Object) run(world *World) *ChangeByObject {
 
 	ch := &ChangeByObject{
 		ObjType: o.Type,
-		ObjId:   strconv.Itoa(o.Id),
+		ObjId:   o.Id,
 	}
 
 	o.Lock()
