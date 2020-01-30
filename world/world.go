@@ -54,8 +54,12 @@ func prettyPrint(msg string, obj interface{}) {
 
 func (w *World) MakeRandomObjects() {
 	for i := 0; i < RandObjNum; i++ {
-		x := float64(rand.Int31n(int32(w.width-800))) + 200.
-		y := float64(rand.Int31n(int32(w.height-500))) + 200.
+		x := 1000.
+		y := x
+		for x > 700 && x < 1300 && y > 700 && y < 1300 {
+			x = float64(rand.Int31n(int32(w.width-800))) + 200.
+			y = float64(rand.Int31n(int32(w.height-500))) + 200.
+		}
 		//X := 1500.
 		//Y := 1500.
 		w.objCount += 1
