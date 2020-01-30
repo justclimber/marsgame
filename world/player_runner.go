@@ -32,7 +32,7 @@ func (p *Player) run(timeDelta time.Duration) *ChangeByObject {
 		newAngle := mech.Object.Angle
 		changeByObject.Angle = &newAngle
 		mech.Object.Direction = makeNormalVectorByAngle(newAngle)
-		mech.Object.Velocity = makeNormalVectorByAngle(newAngle).multiplyOnScalar(mech.Object.Velocity.len())
+		mech.Object.Velocity = mech.Object.Direction.multiplyOnScalar(mech.Object.Velocity.len())
 	}
 	if mech.throttle != 0 || mech.Velocity.len() != 0 {
 		newPos, newVelocity := calcMovementObject(&mech.Object, mech.throttle*maxPower, timeDelta)
