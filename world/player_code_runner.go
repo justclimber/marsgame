@@ -129,7 +129,7 @@ func (p *Player) consumeEnergy(operation interpereter.OperationType) {
 	if !ok {
 		log.Fatalf("Unknown operation for energy calculation: %v", operation)
 	}
-	p.mech.generator.consume(energyCost)
+	p.mech.generator.consumeWithThrottling(energyCost)
 	p.mainProgram.codeExecCost += energyCost
 }
 
