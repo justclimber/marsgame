@@ -45,7 +45,8 @@ func NewWorld(server *server.Server) World {
 	}
 }
 
-const RandObjNum = 10
+const RandRocksNum = 5
+const RandEnemyMechNum = 4
 
 func prettyPrint(msg string, obj interface{}) {
 	str, _ := json.MarshalIndent(obj, "", "   ")
@@ -53,15 +54,13 @@ func prettyPrint(msg string, obj interface{}) {
 }
 
 func (w *World) MakeRandomObjects() {
-	for i := 0; i < RandObjNum; i++ {
+	for i := 0; i < RandRocksNum; i++ {
 		x := 1000.
 		y := x
 		for x > 700 && x < 1300 && y > 700 && y < 1300 {
 			x = float64(rand.Int31n(int32(w.width-800))) + 200.
 			y = float64(rand.Int31n(int32(w.height-500))) + 200.
 		}
-		//X := 1500.
-		//Y := 1500.
 		w.objCount += 1
 		newObj := &Object{
 			Id:              w.objCount,
@@ -71,12 +70,29 @@ func (w *World) MakeRandomObjects() {
 		}
 		w.objects[w.objCount] = newObj
 	}
+	for i := 0; i < RandEnemyMechNum; i++ {
+		x := 1000.
+		y := x
+		for x > 700 && x < 1300 && y > 700 && y < 1300 {
+			x = float64(rand.Int31n(int32(w.width-800))) + 200.
+			y = float64(rand.Int31n(int32(w.height-500))) + 200.
+		}
+		w.objCount += 1
+		newObj := &Object{
+			Id:              w.objCount,
+			Type:            TypeEnemyMech,
+			Pos:             Point{X: x, Y: y},
+			CollisionRadius: 100,
+			Speed:           rand.Float64()*50 + 5.,
+			AngleSpeed:      rand.Float64()*1.2 - 0.7,
+		}
+		w.objects[w.objCount] = newObj
+	}
 }
 
 func (w *World) sendWorldInit(p *Player) {
 	changeByTime := NewChangeByTime(0)
-	for i := 1; i <= w.objCount; i++ {
-		o := w.objects[i]
+	for _, o := range w.objects {
 		pos := o.getPos()
 		changeByTime.Add(&ChangeByObject{
 			ObjType: o.getType(),

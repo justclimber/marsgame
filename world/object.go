@@ -1,14 +1,16 @@
 package world
 
 import (
+	"math"
 	"sync"
 )
 
 const (
-	TypeObject  = "object"
-	TypePlayer  = "player"
-	TypeMissile = "missile"
-	TypeRock    = "rock"
+	TypeObject    = "object"
+	TypePlayer    = "player"
+	TypeMissile   = "missile"
+	TypeRock      = "rock"
+	TypeEnemyMech = "enemy_mech"
 )
 
 type IObject interface {
@@ -67,6 +69,15 @@ func (o *Object) run(world *World) *ChangeByObject {
 	o.Lock()
 	defer o.Unlock()
 
+	if o.AngleSpeed != 0 {
+		o.Angle += o.AngleSpeed
+		if o.Angle > 2*math.Pi {
+			o.Angle = o.Angle - 2*math.Pi
+		} else if o.Angle < 0 {
+			o.Angle = 2*math.Pi + o.Angle
+		}
+	}
+
 	o.MoveDone = o.Pos.MoveForward(o.Angle, o.Speed)
 	if o.Pos.checkIfOutOfBounds(0, 0, float64(world.width), float64(world.height)) {
 		ch.Delete = true
@@ -74,9 +85,10 @@ func (o *Object) run(world *World) *ChangeByObject {
 	}
 	newPos := o.Pos
 	newSpeed := o.Speed
+	newAngle := o.Angle
 	ch.Pos = &newPos
 	ch.length = &newSpeed
-	ch.Angle = &o.Angle
+	ch.Angle = &newAngle
 	return ch
 }
 
