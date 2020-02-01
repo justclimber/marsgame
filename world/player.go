@@ -24,7 +24,7 @@ type Player struct {
 }
 
 func NewPlayer(id int, client *server.Client, w *World, runSpeedMs time.Duration) *Player {
-	mech := NewMech(1000, 1000)
+	mech := NewMech(10000, 10000)
 	player := &Player{
 		id:          id,
 		world:       w,

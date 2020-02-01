@@ -16,6 +16,7 @@ const MaxMovingLength float64 = 7
 const MaxRotationValue float64 = 0.1
 const MaxCannonRotationValue float64 = 0.8
 const MissileSpeed = 50
+const WorldWide = 30000
 
 type World struct {
 	Server         *server.Server
@@ -38,15 +39,15 @@ func NewWorld(server *server.Server) World {
 		objects:        make(map[int]IObject),
 		changeLog:      NewChangeLog(),
 		newObjectsCh:   make(chan IObject, 10),
-		width:          3000,
-		height:         2000,
+		width:          WorldWide,
+		height:         WorldWide,
 		runSpeedMs:     100,
 		codeRunSpeedMs: 1000,
 	}
 }
 
-const RandRocksNum = 5
-const RandEnemyMechNum = 4
+const RandRocksNum = 50
+const RandEnemyMechNum = 10
 
 func prettyPrint(msg string, obj interface{}) {
 	str, _ := json.MarshalIndent(obj, "", "   ")
@@ -55,11 +56,11 @@ func prettyPrint(msg string, obj interface{}) {
 
 func (w *World) MakeRandomObjects() {
 	for i := 0; i < RandRocksNum; i++ {
-		x := 1000.
+		x := 10000.
 		y := x
-		for x > 700 && x < 1300 && y > 700 && y < 1300 {
-			x = float64(rand.Int31n(int32(w.width-800))) + 200.
-			y = float64(rand.Int31n(int32(w.height-500))) + 200.
+		for x > 9800 && x < 10200 && y > 9800 && y < 10200 {
+			x = float64(rand.Int31n(8000)) + 6000.
+			y = float64(rand.Int31n(8000)) + 6000.
 		}
 		w.objCount += 1
 		newObj := &Object{
@@ -71,11 +72,11 @@ func (w *World) MakeRandomObjects() {
 		w.objects[w.objCount] = newObj
 	}
 	for i := 0; i < RandEnemyMechNum; i++ {
-		x := 1000.
+		x := 10000.
 		y := x
-		for x > 700 && x < 1300 && y > 700 && y < 1300 {
-			x = float64(rand.Int31n(int32(w.width-800))) + 200.
-			y = float64(rand.Int31n(int32(w.height-500))) + 200.
+		for x > 9800 && x < 10200 && y > 9800 && y < 10200 {
+			x = float64(rand.Int31n(8000)) + 6000.
+			y = float64(rand.Int31n(8000)) + 6000.
 		}
 		w.objCount += 1
 		newObj := &Object{
