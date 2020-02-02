@@ -43,7 +43,7 @@ func NewWorld(server *server.Server) World {
 	}
 }
 
-const RandRocksNum = 500
+const RandRocksNum = 50
 const RandEnemyMechNum = 10
 
 func (w *World) MakeRandomObjects() {
