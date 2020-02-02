@@ -8,7 +8,7 @@ import (
 func TestDistance(t *testing.T) {
 	p1 := &Point{X: 1, Y: 0}
 	p2 := &Point{X: 10, Y: 0}
-	require.Equal(t, 9., distance(p1, p2))
+	require.Equal(t, 9., distancePoints(p1, p2))
 }
 
 func TestAreObjsCollideFalse(t *testing.T) {
@@ -39,6 +39,6 @@ func BenchmarkDistance(b *testing.B) {
 	p1 := &Point{X: 10.12, Y: 20.45}
 	p2 := &Point{X: 53.12, Y: 21.45}
 	for i := 0; i < b.N; i++ {
-		_ = distance(p1, p2)
+		_ = distancePoints(p1, p2)
 	}
 }

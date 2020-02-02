@@ -73,6 +73,7 @@ func (p *Player) runProgram() {
 
 	executor := interpereter.NewExecAstVisitor()
 	executor.SetExecCallback(p.consumeEnergy)
+	code.SetupMarsGameBuiltinFunctions(executor)
 
 	go p.mech.generator.start()
 
