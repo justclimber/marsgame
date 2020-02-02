@@ -67,9 +67,17 @@ func (c *Code) loadMiscIntoEnv(env *object.Environment) {
 	env.Set("PI", &object.Float{Value: math.Pi})
 }
 
+const (
+	bDistance string = "distance"
+	bAngle    string = "angle"
+	bNearest  string = "nearest"
+)
+
 func (c *Code) SetupMarsGameBuiltinFunctions(executor *interpereter.ExecAstVisitor) {
 	builtins := make(map[string]*object.Builtin)
-	builtins["distance"] = &object.Builtin{
+	builtins[bDistance] = &object.Builtin{
+		Name:       bDistance,
+		ReturnType: object.FloatObj,
 		Fn: func(args ...object.Object) (object.Object, error) {
 			if len(args) != 4 {
 				return nil, interpereter.BuiltinFuncError("wrong number of arguments. got=%d, want 2", len(args))
@@ -83,9 +91,10 @@ func (c *Code) SetupMarsGameBuiltinFunctions(executor *interpereter.ExecAstVisit
 			y2 := args[3].(*object.Float).Value
 			return &object.Float{Value: distance(x1, y1, x2, y2)}, nil
 		},
-		ReturnType: object.FloatObj,
 	}
-	builtins["angle"] = &object.Builtin{
+	builtins[bAngle] = &object.Builtin{
+		Name:       bAngle,
+		ReturnType: object.FloatObj,
 		Fn: func(args ...object.Object) (object.Object, error) {
 			if len(args) != 4 {
 				return nil, interpereter.BuiltinFuncError("wrong number of arguments. got=%d, want 2", len(args))
@@ -99,9 +108,10 @@ func (c *Code) SetupMarsGameBuiltinFunctions(executor *interpereter.ExecAstVisit
 			y2 := args[3].(*object.Float).Value
 			return &object.Float{Value: angle(x1, y1, x2, y2)}, nil
 		},
-		ReturnType: object.FloatObj,
 	}
-	builtins["nearest"] = &object.Builtin{
+	builtins[bNearest] = &object.Builtin{
+		Name:       bNearest,
+		ReturnType: "Object",
 		Fn: func(args ...object.Object) (object.Object, error) {
 			if len(args) != 2 {
 				return nil, interpereter.BuiltinFuncError("wrong number of arguments. got=%d, want 2", len(args))
@@ -133,7 +143,6 @@ func (c *Code) SetupMarsGameBuiltinFunctions(executor *interpereter.ExecAstVisit
 			}
 			return arrayOfStruct.Elements[minIndex], nil
 		},
-		ReturnType: "Object",
 	}
 	executor.AddBuiltinFunctions(builtins)
 }

@@ -125,10 +125,25 @@ var energyByOperationMap = map[interpereter.OperationType]int{
 	interpereter.FunctionCall:    10,
 }
 
-func (p *Player) consumeEnergy(operation interpereter.OperationType) {
-	energyCost, ok := energyByOperationMap[operation]
+var energyByBuiltinFunctionMap = map[string]int{
+	bDistance: 60,
+	bAngle:    50,
+	bNearest:  200,
+	"print":   10,
+}
+
+func (p *Player) consumeEnergy(operation interpereter.Operation) {
+	var ok bool
+	var energyCost int
+
+	if operation.Type == interpereter.Builtin {
+		energyCost, ok = energyByBuiltinFunctionMap[operation.FuncName]
+	} else {
+		energyCost, ok = energyByOperationMap[operation.Type]
+	}
+
 	if !ok {
-		log.Fatalf("Unknown operation for energy calculation: %v", operation)
+		log.Fatalf("Unknown operation for energy calculation: %+v\n", operation)
 	}
 	p.mech.generator.consumeWithThrottling(energyCost)
 	p.mainProgram.codeExecCost += energyCost
