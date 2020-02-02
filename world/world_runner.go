@@ -4,6 +4,7 @@ import (
 	"aakimov/marsgame/helpers"
 	"aakimov/marsgame/server"
 	"log"
+	"math/rand"
 	"time"
 )
 
@@ -59,7 +60,10 @@ func (w *World) listenChannels() {
 	for {
 		select {
 		case client := <-w.Server.NewClientCh:
-			player := NewPlayer(client.Id, client, w, w.codeRunSpeedMs)
+			x := float64(rand.Int31n(1000)) + 9500.
+			y := float64(rand.Int31n(1000)) + 9500.
+			mech := NewMech(x, y)
+			player := NewPlayer(client.Id, client, w, mech, w.codeRunSpeedMs)
 			log.Printf("New player [%d] added to the game", player.id)
 
 			w.players[player.id] = player

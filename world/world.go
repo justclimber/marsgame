@@ -43,7 +43,7 @@ func NewWorld(server *server.Server) World {
 	}
 }
 
-const RandRocksNum = 50
+const RandRocksNum = 500
 const RandEnemyMechNum = 10
 
 func (w *World) MakeRandomObjects() {
@@ -85,6 +85,14 @@ func (w *World) MakeRandomObjects() {
 
 func (w *World) sendWorldInit(p *Player) {
 	changeByTime := NewChangeByTime(0)
+	for _, p := range w.players {
+		changeByTime.Add(&ChangeByObject{
+			ObjType: TypePlayer,
+			ObjId:   p.id,
+			Pos:     &p.mech.Pos,
+			Angle:   &p.mech.Angle,
+		})
+	}
 	for _, o := range w.objects {
 		pos := o.getPos()
 		changeByTime.Add(&ChangeByObject{

@@ -23,14 +23,13 @@ type Player struct {
 	errorCh     chan *Error
 }
 
-func NewPlayer(id int, client *server.Client, w *World, runSpeedMs time.Duration) *Player {
-	mech := NewMech(10000, 10000)
+func NewPlayer(id int, client *server.Client, w *World, m *Mech, runSpeedMs time.Duration) *Player {
 	player := &Player{
 		id:          id,
 		world:       w,
 		client:      client,
-		mech:        mech,
-		mainProgram: NewCode("main", w, mech, runSpeedMs),
+		mech:        m,
+		mainProgram: NewCode("main", w, m, runSpeedMs),
 		runSpeedMs:  runSpeedMs,
 		outputCh:    make(chan *MechOutputVars, 1),
 		codeSaveCh:  make(chan *ast.StatementsBlock, 1),
