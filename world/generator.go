@@ -89,7 +89,7 @@ func (g *Generator) consumeXelons() int {
 	if g.xelons > 0 {
 		g.xelons -= 1
 	}
-	return g.xelons
+	return 1
 }
 
 func (g *Generator) start() {

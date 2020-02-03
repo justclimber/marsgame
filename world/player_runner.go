@@ -91,7 +91,9 @@ func (p *Player) collisions(ch *ChangeByObject) {
 		if object.getType() != TypeMissile && p.mech.isCollideWith(object) {
 			ch.DeleteOtherId = id
 			delete(p.world.objects, id)
-			p.pickupXelon()
+			if object.getType() == TypeXelon {
+				p.pickupXelon()
+			}
 			break
 		}
 	}
