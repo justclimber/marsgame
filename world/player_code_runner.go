@@ -106,33 +106,31 @@ func (p *Player) runProgram() {
 	}
 }
 
-var energyByOperationMap = map[interpereter.OperationType]int{
-	interpereter.Assignment:      20,
-	interpereter.Return:          15,
-	interpereter.IfStmt:          15,
-	interpereter.Switch:          15,
-	interpereter.Unary:           4,
-	interpereter.BinExpr:         20,
-	interpereter.Struct:          25,
-	interpereter.StructFieldCall: 8,
-	interpereter.NumInt:          3,
-	interpereter.NumFloat:        4,
-	interpereter.Boolean:         2,
-	interpereter.Array:           6,
-	interpereter.ArrayIndex:      4,
-	interpereter.Identifier:      6,
-	interpereter.Function:        15,
-	interpereter.FunctionCall:    10,
-}
-
-var energyByBuiltinFunctionMap = map[string]int{
-	bDistance: 60,
-	bAngle:    50,
-	bNearest:  200,
-	"print":   10,
-}
-
 func (p *Player) consumeEnergy(operation interpereter.Operation) {
+	var energyByOperationMap = map[interpereter.OperationType]int{
+		interpereter.Assignment:      20,
+		interpereter.Return:          15,
+		interpereter.IfStmt:          15,
+		interpereter.Switch:          15,
+		interpereter.Unary:           4,
+		interpereter.BinExpr:         20,
+		interpereter.Struct:          25,
+		interpereter.StructFieldCall: 8,
+		interpereter.NumInt:          3,
+		interpereter.NumFloat:        4,
+		interpereter.Boolean:         2,
+		interpereter.Array:           6,
+		interpereter.ArrayIndex:      4,
+		interpereter.Identifier:      6,
+		interpereter.Function:        15,
+		interpereter.FunctionCall:    10,
+	}
+	var energyByBuiltinFunctionMap = map[string]int{
+		bDistance: 60,
+		bAngle:    50,
+		bNearest:  200,
+		"print":   10,
+	}
 	var ok bool
 	var energyCost int
 

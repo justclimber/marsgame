@@ -7,24 +7,25 @@ import (
 )
 
 type Generator struct {
-	gmu       sync.Mutex
-	value     int
-	maxValue  int
-	increment int
-	rateMs    time.Duration
+	sync.Mutex
+	value      int
+	maxValue   int
+	xelons     int
+	efficiency int
+	rateMs     time.Duration
 }
 
 func (g *Generator) geValue() int {
-	g.gmu.Lock()
-	defer g.gmu.Unlock()
+	g.Lock()
+	defer g.Unlock()
 	return g.value
 }
 
 // если запрашиваемой энергии не хватает - не потребляем и возвращаем false
 // в противном случае - потребляем и возвращаем true
 func (g *Generator) consumeIfHas(value int) bool {
-	g.gmu.Lock()
-	defer g.gmu.Unlock()
+	g.Lock()
+	defer g.Unlock()
 
 	if g.value-value < 0 {
 		return false
@@ -35,8 +36,8 @@ func (g *Generator) consumeIfHas(value int) bool {
 
 // если запрашиваемой энергии не хватает - возвращаем в процентах, на сколько ее хватило
 func (g *Generator) consumeWithPartlyUsage(value int) float64 {
-	g.gmu.Lock()
-	defer g.gmu.Unlock()
+	g.Lock()
+	defer g.Unlock()
 
 	g.value -= value
 	if g.value <= 0 {
@@ -51,12 +52,12 @@ func (g *Generator) consumeWithPartlyUsage(value int) float64 {
 // и только после того как смогли потребить эту энергию - выходим из метода
 func (g *Generator) consumeWithThrottling(value int) {
 	needWait := false
-	g.gmu.Lock()
+	g.Lock()
 	g.value -= value
 	if g.value <= 0 {
 		needWait = true
 	}
-	g.gmu.Unlock()
+	g.Unlock()
 
 	if needWait {
 		ticker := time.NewTicker(g.rateMs * time.Millisecond)
@@ -65,12 +66,12 @@ func (g *Generator) consumeWithThrottling(value int) {
 		for {
 			select {
 			case <-ticker.C:
-				g.gmu.Lock()
+				g.Lock()
 				if g.value > 0 {
 					log.Println("cpu trhottling", g.value)
 					stop <- true
 				}
-				g.gmu.Unlock()
+				g.Unlock()
 			case <-stop:
 				return
 			}
@@ -78,14 +79,29 @@ func (g *Generator) consumeWithThrottling(value int) {
 	}
 }
 
+func (g *Generator) increaseXelons(incr int) {
+	g.Lock()
+	defer g.Unlock()
+	g.xelons += incr
+}
+
+func (g *Generator) consumeXelons() int {
+	if g.xelons > 0 {
+		g.xelons -= 1
+	}
+	return g.xelons
+}
+
 func (g *Generator) start() {
 	ticker := time.NewTicker(g.rateMs * time.Millisecond)
 	for range ticker.C {
-		g.gmu.Lock()
-		g.value += g.increment
+		g.Lock()
 		if g.value > g.maxValue {
 			g.value = g.maxValue
+		} else {
+			g.value += g.consumeXelons() * g.efficiency
 		}
-		g.gmu.Unlock()
+		log.Println(g.xelons)
+		g.Unlock()
 	}
 }

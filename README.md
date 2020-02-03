@@ -14,25 +14,29 @@ if angleTo > PI {
    angleTo = angleTo - 2. * PI
 }
 
-switch {
-case angleTo > 1.:
+switch angleTo {
+case > 1.:
    mrThr = 1.
-case angleTo < -1.:
+case < -1.:
    mrThr = -1.
 default:
    mrThr = angleTo
 }
 
 distance = distance(mech.x, mech.y, obj.x, obj.y)
+if obj.type == 3 {
+   mThr = 1.
+   return 1
+}
 if distance > 200. {
    mThr = distance / 1000.
    if mThr > 1. {
       mThr = 1.
    }
 }
-
-if mrThr * mrThr * distance < 70. {
+if toShoot = mrThr * mrThr * distance < 70. {
    shoot = 0.1
    return 1
 }
+
 ```

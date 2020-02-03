@@ -49,10 +49,11 @@ func NewMech(x, y float64) *Mech {
 		throttle:       0,
 		rotateThrottle: 0,
 		generator: Generator{
-			increment: 900,
-			rateMs:    100,
-			value:     20000,
-			maxValue:  40000,
+			efficiency: 900,
+			rateMs:     100,
+			value:      20000,
+			maxValue:   40000,
+			xelons:     1000,
 		},
 	}
 }

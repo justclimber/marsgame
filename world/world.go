@@ -47,7 +47,7 @@ const RandRocksNum = 50
 const RandXelonsNum = 40
 const RandEnemyMechNum = 10
 
-func (w *World) MakeRandomObjectsByType(objType string, count int) {
+func (w *World) MakeRandomObjectsByType(objType string, count int, f func(*Object)) {
 	for i := 0; i < count; i++ {
 		x := 10000.
 		y := x
@@ -62,31 +62,20 @@ func (w *World) MakeRandomObjectsByType(objType string, count int) {
 			Pos:             Point{X: x, Y: y},
 			CollisionRadius: 100,
 		}
+		if f != nil {
+			f(newObj)
+		}
 		w.objects[w.objCount] = newObj
 	}
 }
 
 func (w *World) MakeRandomObjects() {
-	w.MakeRandomObjectsByType(TypeRock, RandRocksNum)
-	w.MakeRandomObjectsByType(TypeXelon, RandXelonsNum)
-	for i := 0; i < RandEnemyMechNum; i++ {
-		x := 10000.
-		y := x
-		for x > 9800 && x < 10200 && y > 9800 && y < 10200 {
-			x = float64(rand.Int31n(8000)) + 6000.
-			y = float64(rand.Int31n(8000)) + 6000.
-		}
-		w.objCount += 1
-		newObj := &Object{
-			Id:              w.objCount,
-			Type:            TypeEnemyMech,
-			Pos:             Point{X: x, Y: y},
-			CollisionRadius: 100,
-			Speed:           rand.Float64()*50 + 5.,
-			AngleSpeed:      rand.Float64()*1.2 - 0.7,
-		}
-		w.objects[w.objCount] = newObj
-	}
+	w.MakeRandomObjectsByType(TypeRock, RandRocksNum, nil)
+	w.MakeRandomObjectsByType(TypeXelon, RandXelonsNum, nil)
+	w.MakeRandomObjectsByType(TypeEnemyMech, RandEnemyMechNum, func(obj *Object) {
+		obj.Speed = rand.Float64()*50 + 5.
+		obj.AngleSpeed = rand.Float64()*1.2 - 0.7
+	})
 }
 
 func (w *World) sendWorldInit(p *Player) {

@@ -46,6 +46,13 @@ func (c *Code) loadMechVarsIntoEnv(m *Mech, env *object.Environment) {
 }
 
 func (c *Code) loadWorldObjectsIntoEnv(w *World, env *object.Environment) {
+	var objTypeToIntMap = map[string]int{
+		TypePlayer:    0,
+		TypeEnemyMech: 1,
+		TypeRock:      2,
+		TypeXelon:     3,
+		TypeMissile:   4,
+	}
 	a := make([]object.AbstractStruct, 0)
 	for _, o := range w.objects {
 		if o.getType() == TypeMissile {
@@ -53,8 +60,7 @@ func (c *Code) loadWorldObjectsIntoEnv(w *World, env *object.Environment) {
 			continue
 		}
 		f := make(map[string]interface{})
-		// todo need support of strings in marslang
-		//f["type"] = o.getType()
+		f["type"] = objTypeToIntMap[o.getType()]
 		f["x"] = o.getPos().X
 		f["y"] = o.getPos().Y
 		f["angle"] = o.getAngle()
