@@ -11,6 +11,7 @@ const (
 	TypeMissile   = "missile"
 	TypeRock      = "rock"
 	TypeEnemyMech = "enemy_mech"
+	TypeXelon     = "xelon"
 )
 
 type IObject interface {

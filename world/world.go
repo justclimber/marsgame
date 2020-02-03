@@ -44,10 +44,11 @@ func NewWorld(server *server.Server) World {
 }
 
 const RandRocksNum = 50
+const RandXelonsNum = 40
 const RandEnemyMechNum = 10
 
-func (w *World) MakeRandomObjects() {
-	for i := 0; i < RandRocksNum; i++ {
+func (w *World) MakeRandomObjectsByType(objType string, count int) {
+	for i := 0; i < count; i++ {
 		x := 10000.
 		y := x
 		for x > 9800 && x < 10200 && y > 9800 && y < 10200 {
@@ -57,12 +58,17 @@ func (w *World) MakeRandomObjects() {
 		w.objCount += 1
 		newObj := &Object{
 			Id:              w.objCount,
-			Type:            TypeRock,
+			Type:            objType,
 			Pos:             Point{X: x, Y: y},
 			CollisionRadius: 100,
 		}
 		w.objects[w.objCount] = newObj
 	}
+}
+
+func (w *World) MakeRandomObjects() {
+	w.MakeRandomObjectsByType(TypeRock, RandRocksNum)
+	w.MakeRandomObjectsByType(TypeXelon, RandXelonsNum)
 	for i := 0; i < RandEnemyMechNum; i++ {
 		x := 10000.
 		y := x
