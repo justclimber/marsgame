@@ -74,9 +74,10 @@ func (c *Code) loadMiscIntoEnv(env *object.Environment) {
 }
 
 const (
-	bDistance string = "distance"
-	bAngle    string = "angle"
-	bNearest  string = "nearest"
+	bDistance      string = "distance"
+	bAngle         string = "angle"
+	bNearest       string = "nearest"
+	bNearestByType string = "nearestByType"
 )
 
 func (c *Code) SetupMarsGameBuiltinFunctions(executor *interpereter.ExecAstVisitor) {
@@ -134,6 +135,48 @@ func (c *Code) SetupMarsGameBuiltinFunctions(executor *interpereter.ExecAstVisit
 			minIndex := -1
 			for i := 0; i < len(arrayOfStruct.Elements); i++ {
 				obj, _ := arrayOfStruct.Elements[i].(*object.Struct)
+				objX := obj.Fields["x"].(*object.Float).Value
+				objY := obj.Fields["y"].(*object.Float).Value
+				mechX := mech.Fields["x"].(*object.Float).Value
+				mechY := mech.Fields["y"].(*object.Float).Value
+				dist := distance(mechX, mechY, objX, objY)
+				if dist < minDist {
+					minDist = dist
+					minIndex = i
+				}
+			}
+			if minIndex == -1 {
+				return nil, interpereter.BuiltinFuncError("nearest on empty array")
+			}
+			return arrayOfStruct.Elements[minIndex], nil
+		},
+	}
+	builtins[bNearestByType] = &object.Builtin{
+		Name:       bNearestByType,
+		ReturnType: "Object",
+		Fn: func(args ...object.Object) (object.Object, error) {
+			if len(args) != 3 {
+				return nil, interpereter.BuiltinFuncError("wrong number of arguments. got=%d, want 3", len(args))
+			}
+			if err := interpereter.CheckArgType("Mech", args[0]); err != nil {
+				return nil, err
+			}
+			if err := interpereter.CheckArgType("Object[]", args[1]); err != nil {
+				return nil, err
+			}
+			if err := interpereter.CheckArgType("int", args[2]); err != nil {
+				return nil, err
+			}
+			mech := args[0].(*object.Struct)
+			arrayOfStruct, _ := args[1].(*object.Array)
+			objType := args[3].(*object.Integer).Value
+			minDist := 99999999999.
+			minIndex := -1
+			for i := 0; i < len(arrayOfStruct.Elements); i++ {
+				obj, _ := arrayOfStruct.Elements[i].(*object.Struct)
+				if obj.Fields["type"].(*object.Integer).Value != objType {
+					continue
+				}
 				objX := obj.Fields["x"].(*object.Float).Value
 				objY := obj.Fields["y"].(*object.Float).Value
 				mechX := mech.Fields["x"].(*object.Float).Value
