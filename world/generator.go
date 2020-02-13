@@ -101,7 +101,7 @@ func (g *Generator) start() {
 		} else {
 			g.value += g.consumeXelons() * g.efficiency
 		}
-		log.Println(g.xelons)
+		//log.Println(g.xelons)
 		g.Unlock()
 	}
 }

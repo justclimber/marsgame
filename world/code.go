@@ -4,6 +4,7 @@ import (
 	"aakimov/marslang/ast"
 	"aakimov/marslang/interpereter"
 	"aakimov/marslang/object"
+	"log"
 	"math"
 	"sync"
 	"time"
@@ -54,16 +55,6 @@ func (c *Code) loadWorldObjectsIntoEnv(w *World, env *object.Environment) {
 		TypeMissile:   4,
 	}
 	a := make([]object.AbstractStruct, 0)
-	if len(w.objects) == 0 {
-		f := make(map[string]interface{})
-		f["type"] = 0
-		f["x"] = 0.
-		f["y"] = 0.
-		f["angle"] = 0.
-		a = append(a, object.AbstractStruct{Fields: f})
-		env.CreateAndInjectEmptyArrayOfStructs("Object", "objects", a)
-		return
-	}
 	for _, o := range w.objects {
 		if o.getType() == TypeMissile {
 			// for the time being load only static objects
@@ -75,6 +66,17 @@ func (c *Code) loadWorldObjectsIntoEnv(w *World, env *object.Environment) {
 		f["y"] = o.getPos().Y
 		f["angle"] = o.getAngle()
 		a = append(a, object.AbstractStruct{Fields: f})
+	}
+	if len(a) == 0 {
+		f := make(map[string]interface{})
+		f["type"] = 0
+		f["x"] = 0.
+		f["y"] = 0.
+		f["angle"] = 0.
+		a = append(a, object.AbstractStruct{Fields: f})
+		env.CreateAndInjectEmptyArrayOfStructs("Object", "objects", a)
+		log.Println("EpmtyObjectsLoaded")
+		return
 	}
 	env.CreateAndInjectArrayOfStructs("Object", "objects", a)
 }
@@ -95,7 +97,7 @@ func (c *Code) SetupMarsGameBuiltinFunctions(executor *interpereter.ExecAstVisit
 	builtins[bDistance] = &object.Builtin{
 		Name:       bDistance,
 		ReturnType: object.FloatObj,
-		Fn: func(args ...object.Object) (object.Object, error) {
+		Fn: func(env *object.Environment, args ...object.Object) (object.Object, error) {
 			if len(args) != 4 {
 				return nil, interpereter.BuiltinFuncError("wrong number of arguments. got=%d, want 2", len(args))
 			}
@@ -112,7 +114,7 @@ func (c *Code) SetupMarsGameBuiltinFunctions(executor *interpereter.ExecAstVisit
 	builtins[bAngle] = &object.Builtin{
 		Name:       bAngle,
 		ReturnType: object.FloatObj,
-		Fn: func(args ...object.Object) (object.Object, error) {
+		Fn: func(env *object.Environment, args ...object.Object) (object.Object, error) {
 			if len(args) != 4 {
 				return nil, interpereter.BuiltinFuncError("wrong number of arguments. got=%d, want 2", len(args))
 			}
@@ -129,7 +131,7 @@ func (c *Code) SetupMarsGameBuiltinFunctions(executor *interpereter.ExecAstVisit
 	builtins[bNearest] = &object.Builtin{
 		Name:       bNearest,
 		ReturnType: "Object",
-		Fn: func(args ...object.Object) (object.Object, error) {
+		Fn: func(env *object.Environment, args ...object.Object) (object.Object, error) {
 			if len(args) != 2 {
 				return nil, interpereter.BuiltinFuncError("wrong number of arguments. got=%d, want 2", len(args))
 			}
@@ -141,6 +143,13 @@ func (c *Code) SetupMarsGameBuiltinFunctions(executor *interpereter.ExecAstVisit
 			}
 			mech := args[0].(*object.Struct)
 			arrayOfStruct, _ := args[1].(*object.Array)
+			def, ok := env.GetStructDefinition("Object")
+			if !ok {
+				return nil, interpereter.BuiltinFuncError("Why no Object struct defined??")
+			}
+			if arrayOfStruct.Empty {
+				return object.NewEmptyStruct(def), nil
+			}
 			minDist := 99999999999.
 			minIndex := -1
 			for i := 0; i < len(arrayOfStruct.Elements); i++ {
@@ -155,16 +164,13 @@ func (c *Code) SetupMarsGameBuiltinFunctions(executor *interpereter.ExecAstVisit
 					minIndex = i
 				}
 			}
-			if minIndex == -1 {
-				return nil, interpereter.BuiltinFuncError("nearest on empty array")
-			}
 			return arrayOfStruct.Elements[minIndex], nil
 		},
 	}
 	builtins[bNearestByType] = &object.Builtin{
 		Name:       bNearestByType,
 		ReturnType: "Object",
-		Fn: func(args ...object.Object) (object.Object, error) {
+		Fn: func(env *object.Environment, args ...object.Object) (object.Object, error) {
 			if len(args) != 3 {
 				return nil, interpereter.BuiltinFuncError("wrong number of arguments. got=%d, want 3", len(args))
 			}
@@ -179,7 +185,14 @@ func (c *Code) SetupMarsGameBuiltinFunctions(executor *interpereter.ExecAstVisit
 			}
 			mech := args[0].(*object.Struct)
 			arrayOfStruct, _ := args[1].(*object.Array)
-			objType := args[3].(*object.Integer).Value
+			def, ok := env.GetStructDefinition("Object")
+			if !ok {
+				return nil, interpereter.BuiltinFuncError("Why no Object struct defined??")
+			}
+			if arrayOfStruct.Empty {
+				return object.NewEmptyStruct(def), nil
+			}
+			objType := args[2].(*object.Integer).Value
 			minDist := 99999999999.
 			minIndex := -1
 			for i := 0; i < len(arrayOfStruct.Elements); i++ {
@@ -198,7 +211,7 @@ func (c *Code) SetupMarsGameBuiltinFunctions(executor *interpereter.ExecAstVisit
 				}
 			}
 			if minIndex == -1 {
-				return nil, interpereter.BuiltinFuncError("nearest on empty array")
+				return object.NewEmptyStruct(def), nil
 			}
 			return arrayOfStruct.Elements[minIndex], nil
 		},
