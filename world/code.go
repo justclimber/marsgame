@@ -54,6 +54,16 @@ func (c *Code) loadWorldObjectsIntoEnv(w *World, env *object.Environment) {
 		TypeMissile:   4,
 	}
 	a := make([]object.AbstractStruct, 0)
+	if len(w.objects) == 0 {
+		f := make(map[string]interface{})
+		f["type"] = 0
+		f["x"] = 0.
+		f["y"] = 0.
+		f["angle"] = 0.
+		a = append(a, object.AbstractStruct{Fields: f})
+		env.CreateAndInjectEmptyArrayOfStructs("Object", "objects", a)
+		return
+	}
 	for _, o := range w.objects {
 		if o.getType() == TypeMissile {
 			// for the time being load only static objects
