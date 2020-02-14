@@ -11,7 +11,7 @@ const MaxMovingLength float64 = 7
 
 // max rotation per turn in radians
 const MaxRotationValue float64 = 0.1
-const MaxCannonRotationValue float64 = 0.8
+const MaxCannonRotationValue float64 = 0.11
 const MissileSpeed = 50
 const WorldWide = 30000
 

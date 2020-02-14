@@ -29,7 +29,7 @@ func NewPlayer(id int, client *server.Client, w *World, m *Mech, runSpeedMs time
 		world:       w,
 		client:      client,
 		mech:        m,
-		mainProgram: NewCode("main", w, m, runSpeedMs),
+		mainProgram: NewCode("main"),
 		runSpeedMs:  runSpeedMs,
 		outputCh:    make(chan *MechOutputVars, 1),
 		codeSaveCh:  make(chan *ast.StatementsBlock, 1),

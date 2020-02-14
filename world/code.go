@@ -4,10 +4,8 @@ import (
 	"aakimov/marslang/ast"
 	"aakimov/marslang/interpereter"
 	"aakimov/marslang/object"
-	"log"
 	"math"
 	"sync"
-	"time"
 )
 
 type ProgramState int
@@ -18,16 +16,56 @@ const (
 )
 
 type Code struct {
-	id           string
-	state        ProgramState
-	mu           sync.Mutex
-	astProgram   *ast.StatementsBlock
-	codeExecCost int
+	id               string
+	state            ProgramState
+	mu               sync.Mutex
+	astProgram       *ast.StatementsBlock
+	codeExecCost     int
+	objTargetsByType ObjTargetsByType
 }
 
-func NewCode(id string, world *World, mech *Mech, runSpeedMs time.Duration) *Code {
+type ObjTargets []*object.Struct
+type ObjTargetsByType struct {
+	targets map[int]ObjTargets
+}
+
+func (o *ObjTargetsByType) Add(targetType int, obj *object.Struct) {
+	_, exist := o.targets[targetType]
+	if !exist {
+		o.targets[targetType] = make([]*object.Struct, 0)
+	}
+	o.targets[targetType] = append(o.targets[targetType], obj)
+}
+
+func (o *ObjTargetsByType) GetFirst(targetType int, def *object.StructDefinition) *object.Struct {
+	targetsTyped, exist := o.targets[targetType]
+	if !exist || len(targetsTyped) == 0 {
+		return object.NewEmptyStruct(def)
+	}
+	return targetsTyped[0]
+}
+
+func (o *ObjTargetsByType) actualize(check map[int]bool) {
+	for k, v := range o.targets {
+		newTargets := make([]*object.Struct, 0)
+		for _, vv := range v {
+			id := vv.Fields["id"].(*object.Integer).Value
+			if _, exist := check[int(id)]; exist {
+				newTargets = append(newTargets, vv)
+			}
+		}
+		if len(newTargets) == 0 {
+			delete(o.targets, k)
+		} else if len(newTargets) != len(o.targets[k]) {
+			o.targets[k] = newTargets
+		}
+	}
+}
+
+func NewCode(id string) *Code {
 	return &Code{
-		id: "main",
+		id:               id,
+		objTargetsByType: ObjTargetsByType{targets: make(map[int]ObjTargets)},
 	}
 }
 
@@ -55,27 +93,33 @@ func (c *Code) loadWorldObjectsIntoEnv(w *World, env *object.Environment) {
 		TypeMissile:   4,
 	}
 	a := make([]object.AbstractStruct, 0)
+	check := make(map[int]bool)
 	for _, o := range w.objects {
 		if o.getType() == TypeMissile {
 			// for the time being load only static objects
 			continue
 		}
+		check[o.getId()] = true
 		f := make(map[string]interface{})
+		f["id"] = o.getId()
 		f["type"] = objTypeToIntMap[o.getType()]
 		f["x"] = o.getPos().X
 		f["y"] = o.getPos().Y
 		f["angle"] = o.getAngle()
 		a = append(a, object.AbstractStruct{Fields: f})
 	}
+
+	c.objTargetsByType.actualize(check)
+
 	if len(a) == 0 {
 		f := make(map[string]interface{})
+		f["id"] = 0
 		f["type"] = 0
 		f["x"] = 0.
 		f["y"] = 0.
 		f["angle"] = 0.
 		a = append(a, object.AbstractStruct{Fields: f})
 		env.CreateAndInjectEmptyArrayOfStructs("Object", "objects", a)
-		log.Println("EpmtyObjectsLoaded")
 		return
 	}
 	env.CreateAndInjectArrayOfStructs("Object", "objects", a)
@@ -86,10 +130,13 @@ func (c *Code) loadMiscIntoEnv(env *object.Environment) {
 }
 
 const (
-	bDistance      string = "distance"
-	bAngle         string = "angle"
-	bNearest       string = "nearest"
-	bNearestByType string = "nearestByType"
+	bDistance          string = "distance"
+	bAngle             string = "angle"
+	bNearest           string = "nearest"
+	bNearestByType     string = "nearestByType"
+	bAddTarget         string = "addTarget"
+	bGetFirstTarget    string = "getFirstTarget"
+	bRemoveFirstTarget string = "removeFirstTarget"
 )
 
 func (c *Code) SetupMarsGameBuiltinFunctions(executor *interpereter.ExecAstVisitor) {
@@ -214,6 +261,45 @@ func (c *Code) SetupMarsGameBuiltinFunctions(executor *interpereter.ExecAstVisit
 				return object.NewEmptyStruct(def), nil
 			}
 			return arrayOfStruct.Elements[minIndex], nil
+		},
+	}
+	builtins[bAddTarget] = &object.Builtin{
+		Name:       bAddTarget,
+		ReturnType: "void",
+		Fn: func(env *object.Environment, args ...object.Object) (object.Object, error) {
+			if len(args) != 2 {
+				return nil, interpereter.BuiltinFuncError("wrong number of arguments. got=%d, want 2", len(args))
+			}
+			if err := interpereter.CheckArgType("Object", args[0]); err != nil {
+				return nil, err
+			}
+			if err := interpereter.CheckArgType("int", args[1]); err != nil {
+				return nil, err
+			}
+			objStruct, _ := args[0].(*object.Struct)
+			targetType := int(args[1].(*object.Integer).Value)
+			c.objTargetsByType.Add(targetType, objStruct)
+
+			return &object.Void{}, nil
+		},
+	}
+	builtins[bGetFirstTarget] = &object.Builtin{
+		Name:       bGetFirstTarget,
+		ReturnType: "Object",
+		Fn: func(env *object.Environment, args ...object.Object) (object.Object, error) {
+			if len(args) != 1 {
+				return nil, interpereter.BuiltinFuncError("wrong number of arguments. got=%d, want 1", len(args))
+			}
+			if err := interpereter.CheckArgType("int", args[0]); err != nil {
+				return nil, err
+			}
+			def, ok := env.GetStructDefinition("Object")
+			if !ok {
+				return nil, interpereter.BuiltinFuncError("Why no Object struct defined??")
+			}
+			targetType := int(args[0].(*object.Integer).Value)
+
+			return c.objTargetsByType.GetFirst(targetType, def), nil
 		},
 	}
 	executor.AddBuiltinFunctions(builtins)

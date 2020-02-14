@@ -126,11 +126,14 @@ func (p *Player) consumeEnergy(operation interpereter.Operation) {
 		interpereter.FunctionCall:    10,
 	}
 	var energyByBuiltinFunctionMap = map[string]int{
-		bDistance:      60,
-		bAngle:         50,
-		bNearest:       200,
-		bNearestByType: 250,
-		"print":        10,
+		bDistance:          60,
+		bAngle:             50,
+		bNearest:           300,
+		bNearestByType:     350,
+		bAddTarget:         30,
+		bGetFirstTarget:    30,
+		bRemoveFirstTarget: 20,
+		"print":            10,
 	}
 	var ok bool
 	var energyCost int
