@@ -43,12 +43,15 @@ func NewWorld(server *server.Server) World {
 	}
 }
 
-const RandRocksNum = 50
-const RandXelonsNum = 40
-const RandEnemyMechNum = 10
+type RandomObjSeed struct {
+	objType         string
+	count           int
+	collisionRadius int
+	extraCallback   func(*Object)
+}
 
-func (w *World) MakeRandomObjectsByType(objType string, count int, f func(*Object)) {
-	for i := 0; i < count; i++ {
+func (w *World) MakeRandomObjectsByType(seed RandomObjSeed) {
+	for i := 0; i < seed.count; i++ {
 		x := 10000.
 		y := x
 		for x > 9800 && x < 10200 && y > 9800 && y < 10200 {
@@ -58,24 +61,24 @@ func (w *World) MakeRandomObjectsByType(objType string, count int, f func(*Objec
 		w.objCount += 1
 		newObj := &Object{
 			Id:              w.objCount,
-			Type:            objType,
+			Type:            seed.objType,
 			Pos:             Point{X: x, Y: y},
-			CollisionRadius: 100,
+			CollisionRadius: seed.collisionRadius,
 		}
-		if f != nil {
-			f(newObj)
+		if seed.extraCallback != nil {
+			seed.extraCallback(newObj)
 		}
 		w.objects[w.objCount] = newObj
 	}
 }
 
 func (w *World) MakeRandomObjects() {
-	w.MakeRandomObjectsByType(TypeRock, RandRocksNum, nil)
-	w.MakeRandomObjectsByType(TypeXelon, RandXelonsNum, nil)
-	w.MakeRandomObjectsByType(TypeEnemyMech, RandEnemyMechNum, func(obj *Object) {
+	w.MakeRandomObjectsByType(RandomObjSeed{TypeRock, 50, 100, nil})
+	w.MakeRandomObjectsByType(RandomObjSeed{TypeXelon, 50, 50, nil})
+	w.MakeRandomObjectsByType(RandomObjSeed{TypeEnemyMech, 10, 100, func(obj *Object) {
 		obj.Speed = rand.Float64()*50 + 5.
 		obj.AngleSpeed = rand.Float64()*1.2 - 0.7
-	})
+	}})
 }
 
 func (w *World) sendWorldInit(p *Player) {
