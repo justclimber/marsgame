@@ -69,22 +69,48 @@ func NewCode(id string) *Code {
 	}
 }
 
-func (c *Code) bootstrap(p *Player, env *object.Environment) {
-	c.loadMechVarsIntoEnv(p.mech, env)
-	c.loadWorldObjectsIntoEnv(p.world, env)
+func (c *Code) bootstrap(p *Player, structs map[string]*object.StructDefinition, env *object.Environment) {
+	c.copyStructDefinitionsToEnv(structs, env)
+	c.loadMechVarsIntoEnv(p.mech, structs, env)
+	c.loadWorldObjectsIntoEnv(p.world, structs, env)
 	c.loadMiscIntoEnv(env)
 }
 
-func (c *Code) loadMechVarsIntoEnv(m *Mech, env *object.Environment) {
-	s := make(map[string]interface{})
-	s["x"] = m.Pos.X
-	s["y"] = m.Pos.Y
-	s["angle"] = m.Angle
-	s["cAngle"] = m.cannon.angle
-	env.CreateAndInjectStruct("Mech", "mech", s)
+func (c *Code) getStructDefinitions() map[string]*object.StructDefinition {
+	return map[string]*object.StructDefinition{
+		"Mech": {"Mech", map[string]string{
+			"x":      object.FloatObj,
+			"y":      object.FloatObj,
+			"angle":  object.FloatObj,
+			"cAngle": object.FloatObj,
+		}},
+		"Object": {"Object", map[string]string{
+			"id":    object.IntegerObj,
+			"type":  object.IntegerObj,
+			"x":     object.FloatObj,
+			"y":     object.FloatObj,
+			"angle": object.FloatObj,
+		}},
+	}
 }
 
-func (c *Code) loadWorldObjectsIntoEnv(w *World, env *object.Environment) {
+func (c *Code) copyStructDefinitionsToEnv(structs map[string]*object.StructDefinition, env *object.Environment) {
+	for _, v := range structs {
+		_ = env.RegisterStructDefinition(v)
+	}
+}
+
+func (c *Code) loadMechVarsIntoEnv(m *Mech, structs map[string]*object.StructDefinition, env *object.Environment) {
+	s := env.LoadVarsInStruct(structs["Mech"], map[string]interface{}{
+		"x":      m.Pos.X,
+		"y":      m.Pos.Y,
+		"angle":  m.Angle,
+		"cAngle": m.cannon.angle,
+	})
+	env.Set("mech", s)
+}
+
+func (c *Code) loadWorldObjectsIntoEnv(w *World, structs map[string]*object.StructDefinition, env *object.Environment) {
 	var objTypeToIntMap = map[string]int{
 		TypePlayer:    0,
 		TypeEnemyMech: 1,
@@ -92,7 +118,7 @@ func (c *Code) loadWorldObjectsIntoEnv(w *World, env *object.Environment) {
 		TypeXelon:     3,
 		TypeMissile:   4,
 	}
-	a := make([]object.AbstractStruct, 0)
+	elements := make([]object.Object, 0)
 	check := make(map[int]bool)
 	for _, o := range w.objects {
 		if o.getType() == TypeMissile {
@@ -100,29 +126,25 @@ func (c *Code) loadWorldObjectsIntoEnv(w *World, env *object.Environment) {
 			continue
 		}
 		check[o.getId()] = true
-		f := make(map[string]interface{})
-		f["id"] = o.getId()
-		f["type"] = objTypeToIntMap[o.getType()]
-		f["x"] = o.getPos().X
-		f["y"] = o.getPos().Y
-		f["angle"] = o.getAngle()
-		a = append(a, object.AbstractStruct{Fields: f})
+		elements = append(elements, env.LoadVarsInStruct(structs["Object"], map[string]interface{}{
+			"id":    o.getId(),
+			"type":  objTypeToIntMap[o.getType()],
+			"x":     o.getPos().X,
+			"y":     o.getPos().Y,
+			"angle": o.getAngle(),
+		}))
 	}
 
 	c.objTargetsByType.actualize(check)
 
-	if len(a) == 0 {
-		f := make(map[string]interface{})
-		f["id"] = 0
-		f["type"] = 0
-		f["x"] = 0.
-		f["y"] = 0.
-		f["angle"] = 0.
-		a = append(a, object.AbstractStruct{Fields: f})
-		env.CreateAndInjectEmptyArrayOfStructs("Object", "objects", a)
-		return
+	resultArray := &object.Array{ElementsType: "Object"}
+	if len(elements) == 0 {
+		resultArray.Empty = true
+		resultArray.Elements = make([]object.Object, 0)
+	} else {
+		resultArray.Elements = elements
 	}
-	env.CreateAndInjectArrayOfStructs("Object", "objects", a)
+	env.Set("objects", resultArray)
 }
 
 func (c *Code) loadMiscIntoEnv(env *object.Environment) {
@@ -139,7 +161,10 @@ const (
 	bRemoveFirstTarget string = "removeFirstTarget"
 )
 
-func (c *Code) SetupMarsGameBuiltinFunctions(executor *interpereter.ExecAstVisitor) {
+func (c *Code) SetupMarsGameBuiltinFunctions(
+	executor *interpereter.ExecAstVisitor,
+	structDefs map[string]*object.StructDefinition,
+) {
 	builtins := make(map[string]*object.Builtin)
 	builtins[bDistance] = &object.Builtin{
 		Name:       bDistance,
@@ -190,12 +215,8 @@ func (c *Code) SetupMarsGameBuiltinFunctions(executor *interpereter.ExecAstVisit
 			}
 			mech := args[0].(*object.Struct)
 			arrayOfStruct, _ := args[1].(*object.Array)
-			def, ok := env.GetStructDefinition("Object")
-			if !ok {
-				return nil, interpereter.BuiltinFuncError("Why no Object struct defined??")
-			}
 			if arrayOfStruct.Empty {
-				return object.NewEmptyStruct(def), nil
+				return object.NewEmptyStruct(structDefs["Object"]), nil
 			}
 			minDist := 99999999999.
 			minIndex := -1
@@ -232,12 +253,8 @@ func (c *Code) SetupMarsGameBuiltinFunctions(executor *interpereter.ExecAstVisit
 			}
 			mech := args[0].(*object.Struct)
 			arrayOfStruct, _ := args[1].(*object.Array)
-			def, ok := env.GetStructDefinition("Object")
-			if !ok {
-				return nil, interpereter.BuiltinFuncError("Why no Object struct defined??")
-			}
 			if arrayOfStruct.Empty {
-				return object.NewEmptyStruct(def), nil
+				return object.NewEmptyStruct(structDefs["Object"]), nil
 			}
 			objType := args[2].(*object.Integer).Value
 			minDist := 99999999999.
@@ -258,7 +275,7 @@ func (c *Code) SetupMarsGameBuiltinFunctions(executor *interpereter.ExecAstVisit
 				}
 			}
 			if minIndex == -1 {
-				return object.NewEmptyStruct(def), nil
+				return object.NewEmptyStruct(structDefs["Object"]), nil
 			}
 			return arrayOfStruct.Elements[minIndex], nil
 		},
@@ -293,13 +310,9 @@ func (c *Code) SetupMarsGameBuiltinFunctions(executor *interpereter.ExecAstVisit
 			if err := interpereter.CheckArgType("int", args[0]); err != nil {
 				return nil, err
 			}
-			def, ok := env.GetStructDefinition("Object")
-			if !ok {
-				return nil, interpereter.BuiltinFuncError("Why no Object struct defined??")
-			}
 			targetType := int(args[0].(*object.Integer).Value)
 
-			return c.objTargetsByType.GetFirst(targetType, def), nil
+			return c.objTargetsByType.GetFirst(targetType, structDefs["Object"]), nil
 		},
 	}
 	executor.AddBuiltinFunctions(builtins)

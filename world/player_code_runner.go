@@ -73,7 +73,9 @@ func (p *Player) runProgram() {
 
 	executor := interpereter.NewExecAstVisitor()
 	executor.SetExecCallback(p.consumeEnergy)
-	code.SetupMarsGameBuiltinFunctions(executor)
+
+	structs := code.getStructDefinitions()
+	code.SetupMarsGameBuiltinFunctions(executor, structs)
 
 	go p.mech.generator.start()
 
@@ -86,7 +88,7 @@ func (p *Player) runProgram() {
 			continue
 		}
 		env := object.NewEnvironment()
-		code.bootstrap(p, env)
+		code.bootstrap(p, structs, env)
 
 		err := executor.ExecAst(code.astProgram, env)
 		if err != nil {
