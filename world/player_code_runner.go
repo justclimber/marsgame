@@ -48,24 +48,15 @@ type Error struct {
 }
 
 func newMechOutputVarsFromEnv(env *object.Environment) *MechOutputVars {
+	commands, _ := env.Get("commands")
+	cmd := commands.(*object.Struct)
+	cannon := cmd.Fields["cannon"].(*object.Struct)
 	return &MechOutputVars{
-		MThrottle:  getFloatVarFromEnv("mThr", env),
-		RThrottle:  getFloatVarFromEnv("mrThr", env),
-		CRThrottle: getFloatVarFromEnv("crThr", env),
-		Shoot:      getFloatVarFromEnv("shoot", env),
+		MThrottle:  cmd.Fields["move"].(*object.Float).Value,
+		RThrottle:  cmd.Fields["rotate"].(*object.Float).Value,
+		CRThrottle: cannon.Fields["rotate"].(*object.Float).Value,
+		Shoot:      cannon.Fields["shoot"].(*object.Float).Value,
 	}
-}
-
-func getFloatVarFromEnv(varName string, env *object.Environment) float64 {
-	envObj, ok := env.Get(varName)
-	if !ok {
-		return 0
-	}
-	objFloat, ok := envObj.(*object.Float)
-	if !ok {
-		log.Fatalf("%s should be type float, %s given", varName, envObj.Type())
-	}
-	return objFloat.Value
 }
 
 func (p *Player) runProgram() {
@@ -110,22 +101,23 @@ func (p *Player) runProgram() {
 
 func (p *Player) consumeEnergy(operation interpereter.Operation) {
 	var energyByOperationMap = map[interpereter.OperationType]int{
-		interpereter.Assignment:      20,
-		interpereter.Return:          15,
-		interpereter.IfStmt:          15,
-		interpereter.Switch:          15,
-		interpereter.Unary:           4,
-		interpereter.BinExpr:         20,
-		interpereter.Struct:          25,
-		interpereter.StructFieldCall: 8,
-		interpereter.NumInt:          3,
-		interpereter.NumFloat:        4,
-		interpereter.Boolean:         2,
-		interpereter.Array:           6,
-		interpereter.ArrayIndex:      4,
-		interpereter.Identifier:      6,
-		interpereter.Function:        15,
-		interpereter.FunctionCall:    10,
+		interpereter.StructFieldAssignment: 20,
+		interpereter.Assignment:            20,
+		interpereter.Return:                15,
+		interpereter.IfStmt:                15,
+		interpereter.Switch:                15,
+		interpereter.Unary:                 4,
+		interpereter.BinExpr:               20,
+		interpereter.Struct:                25,
+		interpereter.StructFieldCall:       8,
+		interpereter.NumInt:                3,
+		interpereter.NumFloat:              4,
+		interpereter.Boolean:               2,
+		interpereter.Array:                 6,
+		interpereter.ArrayIndex:            4,
+		interpereter.Identifier:            6,
+		interpereter.Function:              15,
+		interpereter.FunctionCall:          10,
 	}
 	var energyByBuiltinFunctionMap = map[string]int{
 		bDistance:          60,

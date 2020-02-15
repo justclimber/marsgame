@@ -74,6 +74,7 @@ func (c *Code) bootstrap(p *Player, structs map[string]*object.StructDefinition,
 	c.loadMechVarsIntoEnv(p.mech, structs, env)
 	c.loadWorldObjectsIntoEnv(p.world, structs, env)
 	c.loadMiscIntoEnv(env)
+	c.loadCommandsVarIntoEnv(structs, env)
 }
 
 func (c *Code) getStructDefinitions() map[string]*object.StructDefinition {
@@ -91,6 +92,15 @@ func (c *Code) getStructDefinitions() map[string]*object.StructDefinition {
 			"y":     object.FloatObj,
 			"angle": object.FloatObj,
 		}},
+		"Cannon": {"Cannon", map[string]string{
+			"rotate": object.FloatObj,
+			"shoot":  object.FloatObj,
+		}},
+		"Commands": {"Commands", map[string]string{
+			"move":   object.FloatObj,
+			"rotate": object.FloatObj,
+			"cannon": "Cannon",
+		}},
 	}
 }
 
@@ -98,6 +108,18 @@ func (c *Code) copyStructDefinitionsToEnv(structs map[string]*object.StructDefin
 	for _, v := range structs {
 		_ = env.RegisterStructDefinition(v)
 	}
+}
+
+func (c *Code) loadCommandsVarIntoEnv(structs map[string]*object.StructDefinition, env *object.Environment) {
+	commands := env.LoadVarsInStruct(structs["Commands"], map[string]interface{}{
+		"move":   0.,
+		"rotate": 0.,
+	})
+	commands.Fields["cannon"] = env.LoadVarsInStruct(structs["Cannon"], map[string]interface{}{
+		"rotate": 0.,
+		"shoot":  0.,
+	})
+	env.Set("commands", commands)
 }
 
 func (c *Code) loadMechVarsIntoEnv(m *Mech, structs map[string]*object.StructDefinition, env *object.Environment) {
