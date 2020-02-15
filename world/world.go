@@ -96,7 +96,9 @@ func (w *World) createPlayerAndBootstrap(client *server.Client) *Player {
 func (w *World) reset() {
 	for i, p := range w.players {
 		p.flowCh <- Terminate
+		astProgram := p.mainProgram.astProgram
 		w.players[i] = w.createPlayerAndBootstrap(p.client)
+		w.players[i].mainProgram.astProgram = astProgram
 	}
 	w.objects = make(map[int]IObject)
 	w.objCount = 0
