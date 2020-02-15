@@ -13,6 +13,7 @@ type ProgramState int
 const (
 	Stopped ProgramState = iota
 	Running
+	Terminate
 )
 
 type Code struct {

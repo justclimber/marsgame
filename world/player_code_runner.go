@@ -73,7 +73,22 @@ func (p *Player) runProgram() {
 	ticker := time.NewTicker(p.runSpeedMs * time.Millisecond)
 	for range ticker.C {
 		//log.Printf("Code runProgram tick\n")
-		p.listenBeforeCodeExec()
+		select {
+		case p.mainProgram.state = <-p.flowCh:
+			switch p.mainProgram.state {
+			case Stopped:
+				p.outputCh <- &MechOutputVars{}
+			case Terminate:
+				p.outputCh <- &MechOutputVars{}
+				p.mech.generator.terminate()
+				p.terminateCh <- true
+				ticker.Stop()
+				return
+			}
+		case p.mainProgram.astProgram = <-p.codeSaveCh:
+			log.Println("Code saved")
+		default:
+		}
 		if code.astProgram == nil || code.state != Running {
 			// waiting for the ast or for the launch
 			continue
@@ -143,21 +158,6 @@ func (p *Player) consumeEnergy(operation interpereter.Operation) {
 	}
 	p.mech.generator.consumeWithThrottling(energyCost)
 	p.mainProgram.codeExecCost += energyCost
-}
-
-func (p *Player) listenBeforeCodeExec() {
-	select {
-	case p.mainProgram.state = <-p.flowCh:
-		if p.mainProgram.state == Stopped {
-			p.outputCh <- &MechOutputVars{
-				MThrottle: 0,
-				RThrottle: 0,
-			}
-		}
-	case p.mainProgram.astProgram = <-p.codeSaveCh:
-		log.Println("Code saved")
-	default:
-	}
 }
 
 func (p *Player) makeIO4Client(env *object.Environment) *IO4Client {

@@ -21,6 +21,8 @@ type Player struct {
 	codeSaveCh  chan *ast.StatementsBlock
 	flowCh      chan ProgramState
 	errorCh     chan *Error
+	commandsCh  chan *server.Command
+	terminateCh chan bool
 }
 
 func NewPlayer(id int, client *server.Client, w *World, m *Mech, runSpeedMs time.Duration) *Player {
@@ -36,6 +38,8 @@ func NewPlayer(id int, client *server.Client, w *World, m *Mech, runSpeedMs time
 		io4ClientCh: make(chan *IO4Client, 1),
 		flowCh:      make(chan ProgramState, 1),
 		errorCh:     make(chan *Error, 10),
+		commandsCh:  make(chan *server.Command, 10),
+		terminateCh: make(chan bool, 1),
 	}
 	return player
 }
@@ -88,6 +92,12 @@ func (p *Player) listen() {
 			p.client.PackAndSendCommand("codeError", codeError)
 		case io4Client := <-p.io4ClientCh:
 			p.client.PackAndSendCommand("codeInputOutput", io4Client)
+		case <-p.terminateCh:
+			return
+		case command := <-p.commandsCh:
+			switch command.Type {
+
+			}
 		}
 	}
 }

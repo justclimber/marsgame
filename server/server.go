@@ -14,6 +14,7 @@ type Server struct {
 	NewClientCh     chan *Client
 	SaveAstCodeCh   chan *SaveAstCode
 	ProgramFlowCh   chan *ProgramFlow
+	CommandsCh      chan *CommandFromClient
 }
 
 func NewServer() *Server {
@@ -26,6 +27,7 @@ func NewServer() *Server {
 		errCh:           make(chan error),
 		SaveAstCodeCh:   make(chan *SaveAstCode, 10),
 		ProgramFlowCh:   make(chan *ProgramFlow, 10),
+		CommandsCh:      make(chan *CommandFromClient, 10),
 	}
 }
 
@@ -73,6 +75,11 @@ type ProgramFlow struct {
 	FlowCmd ProgramFlowType `json:"flowCmd"`
 }
 
+type CommandFromClient struct {
+	UserId  int
+	Command *Command
+}
+
 func (s *Server) HandleCommand(client *Client, command *Command) {
 	switch command.Type {
 	case "saveCode":
@@ -87,6 +94,6 @@ func (s *Server) HandleCommand(client *Client, command *Command) {
 			FlowCmd: ProgramFlowType(flowAsInt),
 		}
 	default:
-		log.Printf("Unknown command %s", command.ToSting())
+		s.CommandsCh <- &CommandFromClient{client.Id, command}
 	}
 }

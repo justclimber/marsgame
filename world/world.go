@@ -81,6 +81,34 @@ func (w *World) MakeRandomObjects() {
 	}})
 }
 
+func (w *World) createPlayerAndBootstrap(client *server.Client) *Player {
+	x := float64(rand.Int31n(1000)) + 9500.
+	y := float64(rand.Int31n(1000)) + 9500.
+	mech := NewMech(x, y)
+	player := NewPlayer(client.Id, client, w, mech, w.codeRunSpeedMs)
+	w.players[player.id] = player
+	go player.runProgram()
+	go player.listen()
+
+	return player
+}
+
+func (w *World) reset() {
+	for i, p := range w.players {
+		p.flowCh <- Terminate
+		w.players[i] = w.createPlayerAndBootstrap(p.client)
+	}
+	w.objects = make(map[int]IObject)
+	w.objCount = 0
+	w.MakeRandomObjects()
+	w.changeLog.terminateCh <- true
+	w.changeLog = NewChangeLog()
+	go w.sendChangelogLoop()
+	for _, p := range w.players {
+		w.sendWorldInit(p)
+	}
+}
+
 func (w *World) sendWorldInit(p *Player) {
 	changeByTime := NewChangeByTime(0)
 	for _, p := range w.players {

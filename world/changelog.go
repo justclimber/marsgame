@@ -10,6 +10,7 @@ const ChangelogBufferSize = 8
 
 type ChangeLog struct {
 	changesByTimeCh  chan *ChangeByTime
+	terminateCh      chan bool
 	changesByTimeLog []*ChangeByTime
 }
 
@@ -47,6 +48,7 @@ func (ch *ChangeByTime) IsNotEmpty() bool {
 func NewChangeLog() *ChangeLog {
 	return &ChangeLog{
 		changesByTimeCh:  make(chan *ChangeByTime, ChangelogChannelBufferSize),
+		terminateCh:      make(chan bool, 1),
 		changesByTimeLog: make([]*ChangeByTime, 0, ChangelogBufferSize),
 	}
 }

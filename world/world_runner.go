@@ -4,7 +4,6 @@ import (
 	"aakimov/marsgame/helpers"
 	"aakimov/marsgame/server"
 	"log"
-	"math/rand"
 	"time"
 )
 
@@ -60,16 +59,9 @@ func (w *World) listenChannels() {
 	for {
 		select {
 		case client := <-w.Server.NewClientCh:
-			x := float64(rand.Int31n(1000)) + 9500.
-			y := float64(rand.Int31n(1000)) + 9500.
-			mech := NewMech(x, y)
-			player := NewPlayer(client.Id, client, w, mech, w.codeRunSpeedMs)
-			log.Printf("New player [%d] added to the game", player.id)
-
-			w.players[player.id] = player
+			player := w.createPlayerAndBootstrap(client)
 			w.sendWorldInit(player)
-			go player.runProgram()
-			go player.listen()
+			log.Printf("New player [%d] added to the game", player.id)
 		case saveCode := <-w.Server.SaveAstCodeCh:
 			player, ok := w.players[saveCode.UserId]
 			if !ok {
@@ -86,6 +78,22 @@ func (w *World) listenChannels() {
 			w.objCount += 1
 			o.setId(w.objCount)
 			w.objects[w.objCount] = o
+		case c := <-w.Server.CommandsCh:
+			player, ok := w.players[c.UserId]
+			if !ok {
+				log.Fatalf("Command from inexistant player [%d]", c.UserId)
+			}
+			switch c.Command.Type {
+			case "resetMech":
+				player.flowCh <- Terminate
+				player := w.createPlayerAndBootstrap(player.client)
+				log.Printf("Player [%d] has ben reset\n", player.id)
+			case "resetWorld":
+				w.reset()
+				log.Println("World has ben reset")
+			default:
+				log.Fatalf("Command '%s' not supported", c.Command.Type)
+			}
 		default:
 			return
 		}
@@ -95,6 +103,8 @@ func (w *World) listenChannels() {
 func (w *World) sendChangelogLoop() {
 	for {
 		select {
+		case <-w.changeLog.terminateCh:
+			return
 		case ch := <-w.changeLog.changesByTimeCh:
 			if w.changeLog.AddAndCheckSize(ch) {
 				w.changeLog.Optimize()

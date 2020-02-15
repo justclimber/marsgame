@@ -8,11 +8,13 @@ import (
 
 type Generator struct {
 	sync.Mutex
-	value      int
-	maxValue   int
-	xelons     int
-	efficiency int
-	rateMs     time.Duration
+	value                 int
+	maxValue              int
+	xelons                int
+	efficiency            int
+	rateMs                time.Duration
+	terminateCh           chan bool
+	terminateThrottlingCh chan bool
 }
 
 func (g *Generator) geValue() int {
@@ -65,6 +67,8 @@ func (g *Generator) consumeWithThrottling(value int) {
 		stop := make(chan bool, 1)
 		for {
 			select {
+			case <-g.terminateThrottlingCh:
+				return
 			case <-ticker.C:
 				g.Lock()
 				if g.value > 0 {
@@ -94,7 +98,14 @@ func (g *Generator) consumeXelons() int {
 
 func (g *Generator) start() {
 	ticker := time.NewTicker(g.rateMs * time.Millisecond)
+	defer ticker.Stop()
 	for range ticker.C {
+		select {
+		case <-g.terminateCh:
+			g.terminateThrottlingCh <- true
+			return
+		default:
+		}
 		g.Lock()
 		if g.value > g.maxValue {
 			g.value = g.maxValue
@@ -104,4 +115,8 @@ func (g *Generator) start() {
 		//log.Println(g.xelons)
 		g.Unlock()
 	}
+}
+
+func (g *Generator) terminate() {
+	g.terminateCh <- true
 }
