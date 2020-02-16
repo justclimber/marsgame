@@ -1,7 +1,8 @@
-package world
+package changelog
 
 import (
 	"aakimov/marsgame/physics"
+	"aakimov/marsgame/world"
 	"fmt"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -31,7 +32,7 @@ func TestChangeLog_OptimizeSimplePositiveCase(t *testing.T) {
 		newCR := cr
 
 		changeByObject := &ChangeByObject{
-			ObjType: TypePlayer,
+			ObjType: world.TypePlayer,
 			ObjId:   11,
 			Pos: &physics.Point{
 				X: x,
@@ -39,7 +40,7 @@ func TestChangeLog_OptimizeSimplePositiveCase(t *testing.T) {
 			},
 			Angle:       &newR,
 			CannonAngle: &newCR,
-			length:      &newL,
+			Length:      &newL,
 		}
 		changeByTime.Add(changeByObject)
 
@@ -47,9 +48,9 @@ func TestChangeLog_OptimizeSimplePositiveCase(t *testing.T) {
 	}
 
 	changelog.Optimize()
-	require.Len(t, changelog.changesByTimeLog, 2)
-	require.Equal(t, int64(0), changelog.changesByTimeLog[0].TimeId)
-	require.Equal(t, int64(2), changelog.changesByTimeLog[1].TimeId)
+	require.Len(t, changelog.ChangesByTimeLog, 2)
+	require.Equal(t, int64(0), changelog.ChangesByTimeLog[0].TimeId)
+	require.Equal(t, int64(2), changelog.ChangesByTimeLog[1].TimeId)
 }
 
 func TestChangeLog_OptimizeSimpleNegative(t *testing.T) {
@@ -81,7 +82,7 @@ func TestChangeLog_OptimizeSimpleNegative(t *testing.T) {
 		newCR := cr
 
 		changeByObject := &ChangeByObject{
-			ObjType: TypePlayer,
+			ObjType: world.TypePlayer,
 			ObjId:   11,
 			Pos: &physics.Point{
 				X: x,
@@ -89,7 +90,7 @@ func TestChangeLog_OptimizeSimpleNegative(t *testing.T) {
 			},
 			Angle:       &newR,
 			CannonAngle: &newCR,
-			length:      &newL,
+			Length:      &newL,
 		}
 		changeByTime.Add(changeByObject)
 
@@ -97,7 +98,7 @@ func TestChangeLog_OptimizeSimpleNegative(t *testing.T) {
 	}
 
 	changelog.Optimize()
-	require.Len(t, changelog.changesByTimeLog, 3)
+	require.Len(t, changelog.ChangesByTimeLog, 3)
 }
 
 func TestChangeLog_OptimizePositiveMoreElements(t *testing.T) {
@@ -124,7 +125,7 @@ func TestChangeLog_OptimizePositiveMoreElements(t *testing.T) {
 		newCR := cr
 
 		changeByObject := &ChangeByObject{
-			ObjType: TypePlayer,
+			ObjType: world.TypePlayer,
 			ObjId:   11,
 			Pos: &physics.Point{
 				X: x,
@@ -132,7 +133,7 @@ func TestChangeLog_OptimizePositiveMoreElements(t *testing.T) {
 			},
 			Angle:       &newR,
 			CannonAngle: &newCR,
-			length:      &newL,
+			Length:      &newL,
 		}
 		changeByTime.Add(changeByObject)
 
@@ -140,7 +141,7 @@ func TestChangeLog_OptimizePositiveMoreElements(t *testing.T) {
 	}
 
 	changelog.Optimize()
-	require.Len(t, changelog.changesByTimeLog, 2)
+	require.Len(t, changelog.ChangesByTimeLog, 2)
 }
 
 func printMap(mapVar map[string]float64) {

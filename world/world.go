@@ -1,6 +1,7 @@
 package world
 
 import (
+	"aakimov/marsgame/changelog"
 	"aakimov/marsgame/physics"
 	"aakimov/marsgame/server"
 	"math/rand"
@@ -20,7 +21,7 @@ type World struct {
 	Server         *server.Server
 	players        map[int]*Player
 	objects        map[int]IObject
-	changeLog      *ChangeLog
+	changeLog      *changelog.ChangeLog
 	timeId         int64
 	objCount       int
 	newObjectsCh   chan IObject
@@ -35,7 +36,7 @@ func NewWorld(server *server.Server) World {
 		Server:         server,
 		players:        make(map[int]*Player),
 		objects:        make(map[int]IObject),
-		changeLog:      NewChangeLog(),
+		changeLog:      changelog.NewChangeLog(),
 		newObjectsCh:   make(chan IObject, 10),
 		width:          WorldWide,
 		height:         WorldWide,
@@ -104,8 +105,8 @@ func (w *World) reset() {
 	w.objects = make(map[int]IObject)
 	w.objCount = 0
 	w.MakeRandomObjects()
-	w.changeLog.terminateCh <- true
-	w.changeLog = NewChangeLog()
+	w.changeLog.Terminate()
+	w.changeLog = changelog.NewChangeLog()
 	go w.sendChangelogLoop()
 	for _, p := range w.players {
 		w.sendWorldInit(p)
@@ -113,9 +114,9 @@ func (w *World) reset() {
 }
 
 func (w *World) sendWorldInit(p *Player) {
-	changeByTime := NewChangeByTime(0)
+	changeByTime := changelog.NewChangeByTime(0)
 	for _, p := range w.players {
-		changeByTime.Add(&ChangeByObject{
+		changeByTime.Add(&changelog.ChangeByObject{
 			ObjType: TypePlayer,
 			ObjId:   p.id,
 			Pos:     &p.mech.Pos,
@@ -124,15 +125,15 @@ func (w *World) sendWorldInit(p *Player) {
 	}
 	for _, o := range w.objects {
 		pos := o.getPos()
-		changeByTime.Add(&ChangeByObject{
+		changeByTime.Add(&changelog.ChangeByObject{
 			ObjType: o.getType(),
 			ObjId:   o.getId(),
 			Pos:     &pos,
 		})
 	}
-	ch := NewChangeLog()
+	ch := changelog.NewChangeLog()
 	ch.AddAndCheckSize(changeByTime)
 
-	command := server.PackStructToCommand("worldInit", ch.changesByTimeLog)
+	command := server.PackStructToCommand("worldInit", ch.GetLog())
 	p.client.SendCommand(command)
 }

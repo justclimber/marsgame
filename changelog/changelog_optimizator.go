@@ -1,4 +1,4 @@
-package world
+package changelog
 
 import (
 	"math"
@@ -7,7 +7,7 @@ import (
 
 // Optimize intermediate changelog for individual object if they can be interpolated (have const diffs at least for 3 changes)
 func (ch *ChangeLog) Optimize() {
-	changelogLen := len(ch.changesByTimeLog)
+	changelogLen := len(ch.ChangesByTimeLog)
 	if changelogLen < 3 {
 		return
 	}
@@ -18,7 +18,7 @@ func (ch *ChangeLog) Optimize() {
 }
 
 func (ch *ChangeLog) cutInterpolableChanges(i1, i2 int) {
-	ch.changesByTimeLog = append(ch.changesByTimeLog[:i2+1], ch.changesByTimeLog[i1:]...)
+	ch.ChangesByTimeLog = append(ch.ChangesByTimeLog[:i2+1], ch.ChangesByTimeLog[i1:]...)
 }
 
 func lookupForSameDiff(tailIndex int, index int, ch *ChangeLog) (int, int, bool) {
@@ -59,8 +59,8 @@ func checkAreDiffEqualZero(d1, d2 map[string]*float64) bool {
 }
 
 func getDiff(index int, index1 int, ch *ChangeLog) (map[string]*float64, map[string]*float64, map[string]*float64) {
-	l, r, cr := getValuesForChanges(ch.changesByTimeLog[index])
-	l1, r1, cr1 := getValuesForChanges(ch.changesByTimeLog[index1])
+	l, r, cr := getValuesForChanges(ch.ChangesByTimeLog[index])
+	l1, r1, cr1 := getValuesForChanges(ch.ChangesByTimeLog[index1])
 	dl := getDiffFor2Maps(l, l1)
 	dr := getDiffFor2Maps(r, r1)
 	dcr := getDiffFor2Maps(cr, cr1)
@@ -88,7 +88,7 @@ func getValuesForChanges(changeByTime *ChangeByTime) (map[string]*float64, map[s
 	cr := make(map[string]*float64)
 	for _, changeByObject := range changeByTime.ChangesByObject {
 		key := strconv.Itoa(changeByObject.ObjId) + " " + changeByObject.ObjType
-		l[key] = changeByObject.length
+		l[key] = changeByObject.Length
 		r[key] = changeByObject.Angle
 		cr[key] = changeByObject.CannonAngle
 	}

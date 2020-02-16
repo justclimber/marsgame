@@ -1,6 +1,7 @@
 package world
 
 import (
+	"aakimov/marsgame/changelog"
 	"aakimov/marsgame/physics"
 	"math"
 )
@@ -14,7 +15,7 @@ const (
 )
 
 type IObject interface {
-	run(world *World) *ChangeByObject
+	run(world *World) *changelog.ChangeByObject
 	setId(id int)
 	getId() int
 	getType() string
@@ -45,13 +46,13 @@ func NewObject(id int, typeObj string, p physics.Point, colRadius int, angle, sp
 	}}
 }
 
-func (o *Object) run(world *World) *ChangeByObject {
+func (o *Object) run(world *World) *changelog.ChangeByObject {
 	if o.Speed == 0 {
 		o.MoveDone = nil
 		return nil
 	}
 
-	ch := &ChangeByObject{
+	ch := &changelog.ChangeByObject{
 		ObjType: o.Type,
 		ObjId:   o.Id,
 	}
@@ -77,7 +78,7 @@ func (o *Object) run(world *World) *ChangeByObject {
 	newSpeed := o.Speed
 	newAngle := o.Angle
 	ch.Pos = &newPos
-	ch.length = &newSpeed
+	ch.Length = &newSpeed
 	ch.Angle = &newAngle
 	return ch
 }

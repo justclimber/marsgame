@@ -1,4 +1,4 @@
-package world
+package changelog
 
 import (
 	"aakimov/marsgame/physics"
@@ -6,13 +6,13 @@ import (
 	"math"
 )
 
-const ChangelogChannelBufferSize = 10
-const ChangelogBufferSize = 8
+const ChannelBufferSize = 10
+const BufferSize = 8
 
 type ChangeLog struct {
-	changesByTimeCh  chan *ChangeByTime
-	terminateCh      chan bool
-	changesByTimeLog []*ChangeByTime
+	ChangesByTimeCh  chan *ChangeByTime
+	TerminateCh      chan bool
+	ChangesByTimeLog []*ChangeByTime
 }
 
 type ChangeByTime struct {
@@ -28,7 +28,7 @@ type ChangeByObject struct {
 	CannonAngle   *float64
 	Delete        bool
 	DeleteOtherId int
-	length        *float64
+	Length        *float64
 }
 
 func NewChangeByTime(timeId int64) *ChangeByTime {
@@ -48,19 +48,31 @@ func (ch *ChangeByTime) IsNotEmpty() bool {
 
 func NewChangeLog() *ChangeLog {
 	return &ChangeLog{
-		changesByTimeCh:  make(chan *ChangeByTime, ChangelogChannelBufferSize),
-		terminateCh:      make(chan bool, 1),
-		changesByTimeLog: make([]*ChangeByTime, 0, ChangelogBufferSize),
+		ChangesByTimeCh:  make(chan *ChangeByTime, ChannelBufferSize),
+		TerminateCh:      make(chan bool, 1),
+		ChangesByTimeLog: make([]*ChangeByTime, 0, BufferSize),
 	}
 }
 
+func (ch *ChangeLog) Terminate() {
+	ch.TerminateCh <- true
+}
+
+func (ch *ChangeLog) Reset() {
+	ch.ChangesByTimeLog = make([]*ChangeByTime, 0, BufferSize)
+}
+
+func (ch *ChangeLog) GetLog() []*ChangeByTime {
+	return ch.ChangesByTimeLog
+}
+
 func (ch *ChangeLog) AddToBuffer(changeByTime *ChangeByTime) {
-	ch.changesByTimeCh <- changeByTime
+	ch.ChangesByTimeCh <- changeByTime
 }
 
 func (ch *ChangeLog) AddAndCheckSize(changeByTime *ChangeByTime) bool {
-	ch.changesByTimeLog = append(ch.changesByTimeLog, changeByTime)
-	return len(ch.changesByTimeLog) >= ChangelogBufferSize
+	ch.ChangesByTimeLog = append(ch.ChangesByTimeLog, changeByTime)
+	return len(ch.ChangesByTimeLog) >= BufferSize
 }
 
 func (ch *ChangeByObject) MarshalJSON() ([]byte, error) {

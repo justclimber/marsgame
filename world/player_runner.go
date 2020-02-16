@@ -1,6 +1,7 @@
 package world
 
 import (
+	"aakimov/marsgame/changelog"
 	"aakimov/marsgame/helpers"
 	"aakimov/marsgame/physics"
 	"math"
@@ -18,9 +19,9 @@ func areTimeIdNearlySameOrGrater(t1, t2 int64) bool {
 	return t1 > t2 || helpers.AbsInt64(t1-t2) < nearTimeDelta
 }
 
-func (p *Player) run(timeDelta time.Duration) *ChangeByObject {
+func (p *Player) run(timeDelta time.Duration) *changelog.ChangeByObject {
 	mech := p.mech
-	changeByObject := ChangeByObject{
+	changeByObject := changelog.ChangeByObject{
 		ObjType: TypePlayer,
 		ObjId:   p.id,
 	}
@@ -56,7 +57,7 @@ func (p *Player) run(timeDelta time.Duration) *ChangeByObject {
 		mech.Obj.Pos = *newPos
 		mech.Obj.Velocity = newVelocity
 		changeByObject.Pos = newPos
-		changeByObject.length = &length
+		changeByObject.Length = &length
 
 		p.collisions(&changeByObject)
 	}
@@ -87,7 +88,7 @@ func (p *Player) run(timeDelta time.Duration) *ChangeByObject {
 }
 
 // просчет коллизий с другими объектами
-func (p *Player) collisions(ch *ChangeByObject) {
+func (p *Player) collisions(ch *changelog.ChangeByObject) {
 	for id, object := range p.world.objects {
 		if object.getType() != TypeMissile && p.mech.isCollideWith(object) {
 			ch.DeleteOtherId = id

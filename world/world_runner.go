@@ -1,6 +1,7 @@
 package world
 
 import (
+	"aakimov/marsgame/changelog"
 	"aakimov/marsgame/helpers"
 	"aakimov/marsgame/server"
 	"log"
@@ -23,7 +24,7 @@ func (w *World) Run() {
 		//log.Printf("Game tick %v\n", t)
 
 		w.listenChannels()
-		changeByTime := NewChangeByTime(w.timeId)
+		changeByTime := changelog.NewChangeByTime(w.timeId)
 		for _, player := range w.players {
 			if ch := player.run(timeDelta); ch != nil {
 				changeByTime.Add(ch)
@@ -103,16 +104,16 @@ func (w *World) listenChannels() {
 func (w *World) sendChangelogLoop() {
 	for {
 		select {
-		case <-w.changeLog.terminateCh:
+		case <-w.changeLog.TerminateCh:
 			return
-		case ch := <-w.changeLog.changesByTimeCh:
+		case ch := <-w.changeLog.ChangesByTimeCh:
 			if w.changeLog.AddAndCheckSize(ch) {
 				w.changeLog.Optimize()
-				command := server.PackStructToCommand("worldChanges", w.changeLog.changesByTimeLog)
+				command := server.PackStructToCommand("worldChanges", w.changeLog.GetLog())
 				for _, player := range w.players {
 					player.client.SendCommand(command)
 				}
-				w.changeLog.changesByTimeLog = make([]*ChangeByTime, 0, ChangelogBufferSize)
+				w.changeLog.Reset()
 			}
 		}
 	}
