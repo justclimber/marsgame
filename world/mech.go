@@ -1,5 +1,7 @@
 package world
 
+import "aakimov/marsgame/physics"
+
 type Mech struct {
 	Object
 	cannon         *Cannon
@@ -34,8 +36,8 @@ func NewMech(x, y float64) *Mech {
 	return &Mech{
 		Object: NewObject(
 			1,
-			"player",
-			Point{x, y},
+			TypePlayer,
+			physics.Point{x, y},
 			100,
 			0,
 			0,

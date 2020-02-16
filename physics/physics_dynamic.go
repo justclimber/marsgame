@@ -1,6 +1,8 @@
-package world
+package physics
 
-import "time"
+import (
+	"time"
+)
 
 // силя тяготения
 const G = 5.
@@ -13,36 +15,36 @@ const CoeffAirResist = 1
 
 // рассчет силы тяги
 func calcTractionForce(direction *Vector, enginePower float64) *Vector {
-	return direction.multiplyOnScalar(enginePower)
+	return direction.MultiplyOnScalar(enginePower)
 }
 
 // рассчет силы сопротивления воздуха
 func calcAirResistForce(velocity *Vector) *Vector {
-	return velocity.multiplyOnScalar(-CoeffAirResist * velocity.len())
+	return velocity.MultiplyOnScalar(-CoeffAirResist * velocity.Len())
 }
 
 // расчет силы трения
 func calcFrictionForce(direction *Vector, weight float64) *Vector {
-	return direction.multiplyOnScalar(-CoeffFriction * weight * G)
+	return direction.MultiplyOnScalar(-CoeffFriction * weight * G)
 }
 
 // расчет ускорения
 func calcAccelerate(force *Vector, weight float64) *Vector {
-	return force.multiplyOnScalar(1 / weight)
+	return force.MultiplyOnScalar(1 / weight)
 }
 
 // рассчет скорости
 func applyAccelerateToVelocity(v *Vector, a *Vector, dt time.Duration) *Vector {
-	return v.add(a.multiplyOnScalar(dt.Seconds()))
+	return v.Add(a.MultiplyOnScalar(dt.Seconds()))
 }
 
 // рассчет перемещения
 func applyVelocityToPosition(p *Point, v *Vector, dt time.Duration) *Point {
-	return p.add(v.multiplyOnScalar(dt.Seconds()))
+	return p.Add(v.MultiplyOnScalar(dt.Seconds()))
 }
 
 // общий рассчет
-func calcMovementObject(obj *Object, power float64, dt time.Duration) (*Point, *Vector) {
+func CalcMovementObject(obj *Obj, power float64, dt time.Duration) (*Point, *Vector) {
 	//m := make(map[string]interface{})
 	//m["dir"] = obj.Direction.X
 	//m["velocity"] = obj.Velocity.X
@@ -53,7 +55,7 @@ func calcMovementObject(obj *Object, power float64, dt time.Duration) (*Point, *
 	tractionForce := calcTractionForce(obj.Direction, power)
 	airResistForce := calcAirResistForce(obj.Velocity)
 	frictionForce := calcFrictionForce(obj.Direction, obj.Weight)
-	force := tractionForce.add(airResistForce).add(frictionForce)
+	force := tractionForce.Add(airResistForce).Add(frictionForce)
 
 	accelerate := calcAccelerate(force, obj.Weight)
 	vNew := applyAccelerateToVelocity(obj.Velocity, accelerate, dt)
@@ -68,7 +70,7 @@ func calcMovementObject(obj *Object, power float64, dt time.Duration) (*Point, *
 	//prettyPrint("output", m1)
 
 	// сила трения на малых скоростях может привести к отризательной скорости, убираем это
-	if obj.Direction.multiplyOnVector(vNew) < 0 {
+	if obj.Direction.MultiplyOnVector(vNew) < 0 {
 		return &obj.Pos, &Vector{}
 	}
 

@@ -1,6 +1,7 @@
 package world
 
 import (
+	"aakimov/marsgame/physics"
 	"aakimov/marsgame/server"
 	"math/rand"
 	"time"
@@ -59,12 +60,12 @@ func (w *World) MakeRandomObjectsByType(seed RandomObjSeed) {
 			y = float64(rand.Int31n(8000)) + 6000.
 		}
 		w.objCount += 1
-		newObj := &Object{
+		newObj := &Object{physics.Obj{
 			Id:              w.objCount,
 			Type:            seed.objType,
-			Pos:             Point{X: x, Y: y},
+			Pos:             physics.Point{X: x, Y: y},
 			CollisionRadius: seed.collisionRadius,
-		}
+		}}
 		if seed.extraCallback != nil {
 			seed.extraCallback(newObj)
 		}

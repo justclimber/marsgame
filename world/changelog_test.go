@@ -1,6 +1,7 @@
 package world
 
 import (
+	"aakimov/marsgame/physics"
 	"encoding/json"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -19,7 +20,7 @@ func TestChangeLog_Marshal(t *testing.T) {
 	changeByObject := &ChangeByObject{
 		ObjType: TypePlayer,
 		ObjId:   11,
-		Pos: &Point{
+		Pos: &physics.Point{
 			X: x,
 			Y: y,
 		},

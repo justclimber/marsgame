@@ -1,6 +1,7 @@
 package world
 
 import (
+	"aakimov/marsgame/physics"
 	"aakimov/marslang/ast"
 	"aakimov/marslang/interpereter"
 	"aakimov/marslang/object"
@@ -203,7 +204,7 @@ func (c *Code) SetupMarsGameBuiltinFunctions(
 			y1 := args[1].(*object.Float).Value
 			x2 := args[2].(*object.Float).Value
 			y2 := args[3].(*object.Float).Value
-			return &object.Float{Value: distance(x1, y1, x2, y2)}, nil
+			return &object.Float{Value: physics.Distance(x1, y1, x2, y2)}, nil
 		},
 	}
 	builtins[bAngle] = &object.Builtin{
@@ -220,7 +221,7 @@ func (c *Code) SetupMarsGameBuiltinFunctions(
 			y1 := args[1].(*object.Float).Value
 			x2 := args[2].(*object.Float).Value
 			y2 := args[3].(*object.Float).Value
-			return &object.Float{Value: angle(x1, y1, x2, y2)}, nil
+			return &object.Float{Value: physics.Angle(x1, y1, x2, y2)}, nil
 		},
 	}
 	builtins[bNearest] = &object.Builtin{
@@ -249,7 +250,7 @@ func (c *Code) SetupMarsGameBuiltinFunctions(
 				objY := obj.Fields["y"].(*object.Float).Value
 				mechX := mech.Fields["x"].(*object.Float).Value
 				mechY := mech.Fields["y"].(*object.Float).Value
-				dist := distance(mechX, mechY, objX, objY)
+				dist := physics.Distance(mechX, mechY, objX, objY)
 				if dist < minDist {
 					minDist = dist
 					minIndex = i
@@ -291,7 +292,7 @@ func (c *Code) SetupMarsGameBuiltinFunctions(
 				objY := obj.Fields["y"].(*object.Float).Value
 				mechX := mech.Fields["x"].(*object.Float).Value
 				mechY := mech.Fields["y"].(*object.Float).Value
-				dist := distance(mechX, mechY, objX, objY)
+				dist := physics.Distance(mechX, mechY, objX, objY)
 				if dist < minDist {
 					minDist = dist
 					minIndex = i

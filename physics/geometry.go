@@ -1,4 +1,4 @@
-package world
+package physics
 
 import "math"
 
@@ -7,11 +7,11 @@ type Point struct {
 	Y float64
 }
 
-func (p *Point) checkIfOutOfBounds(x1, y1, x2, y2 float64) bool {
+func (p *Point) CheckIfOutOfBounds(x1, y1, x2, y2 float64) bool {
 	return p.X < x1 || p.Y < y1 || p.X > x2 || p.Y > y2
 }
 
-func (p *Point) distanceTo(p2 *Point) float64 {
+func (p *Point) DistanceTo(p2 *Point) float64 {
 	dx := p.X - p2.X
 	dy := p.Y - p2.Y
 	ds := (dx * dx) + (dy * dy)
@@ -19,7 +19,7 @@ func (p *Point) distanceTo(p2 *Point) float64 {
 	return math.Sqrt(ds)
 }
 
-func distancePoints(p1, p2 *Point) float64 {
+func DistancePoints(p1, p2 *Point) float64 {
 	dx := p1.X - p2.X
 	dy := p1.Y - p2.Y
 	ds := dx*dx + dy*dy
@@ -27,7 +27,7 @@ func distancePoints(p1, p2 *Point) float64 {
 	return math.Sqrt(ds)
 }
 
-func distance(x1, y1, x2, y2 float64) float64 {
+func Distance(x1, y1, x2, y2 float64) float64 {
 	dx := x1 - x2
 	dy := y1 - y2
 	ds := (dx * dx) + (dy * dy)
@@ -35,14 +35,14 @@ func distance(x1, y1, x2, y2 float64) float64 {
 	return math.Sqrt(ds)
 }
 
-func angle(x1, y1, x2, y2 float64) float64 {
+func Angle(x1, y1, x2, y2 float64) float64 {
 	dx := x2 - x1
 	dy := y2 - y1
 
-	return angleOrigin(dx, dy)
+	return AngleOrigin(dx, dy)
 }
 
-func angleOrigin(x, y float64) float64 {
+func AngleOrigin(x, y float64) float64 {
 	atan := math.Atan(y / x)
 	if math.IsNaN(atan) {
 		return 0.
@@ -68,7 +68,7 @@ func (p *Point) MoveForward(angle float64, length float64) *Vector {
 	return &Vector{dx, dy}
 }
 
-func (p *Point) add(v1 *Vector) *Point {
+func (p *Point) Add(v1 *Vector) *Point {
 	return &Point{p.X + v1.X, p.Y + v1.Y}
 }
 
@@ -77,23 +77,23 @@ type Vector struct {
 	Y float64
 }
 
-func (v *Vector) add(v1 *Vector) *Vector {
+func (v *Vector) Add(v1 *Vector) *Vector {
 	return &Vector{v.X + v1.X, v.Y + v1.Y}
 }
 
-func (v *Vector) multiplyOnScalar(k float64) *Vector {
+func (v *Vector) MultiplyOnScalar(k float64) *Vector {
 	return &Vector{v.X * k, v.Y * k}
 }
 
-func (v *Vector) multiplyOnVector(v1 *Vector) float64 {
+func (v *Vector) MultiplyOnVector(v1 *Vector) float64 {
 	return v.X*v1.X + v.Y*v1.Y
 }
 
-func (v *Vector) len() float64 {
+func (v *Vector) Len() float64 {
 	return math.Sqrt(v.X*v.X + v.Y*v.Y)
 }
 
-func makeNormalVectorByAngle(angle float64) *Vector {
+func MakeNormalVectorByAngle(angle float64) *Vector {
 	return &Vector{
 		X: math.Cos(angle),
 		Y: math.Sin(angle),

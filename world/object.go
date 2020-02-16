@@ -1,12 +1,11 @@
 package world
 
 import (
+	"aakimov/marsgame/physics"
 	"math"
-	"sync"
 )
 
 const (
-	TypeObject    = "object"
 	TypePlayer    = "player"
 	TypeMissile   = "missile"
 	TypeRock      = "rock"
@@ -19,30 +18,20 @@ type IObject interface {
 	setId(id int)
 	getId() int
 	getType() string
-	getPos() Point
+	getPos() physics.Point
+	getObj() physics.Obj
 	getAngle() float64
-	getMoveDone() *Vector
+	getMoveDone() *physics.Vector
 	isCollideWith(o1 IObject) bool
 	getCollisionRadius() int
 }
 
 type Object struct {
-	Id   int
-	Type string
-	sync.Mutex
-	Pos             Point
-	CollisionRadius int
-	Angle           float64
-	Speed           float64
-	AngleSpeed      float64
-	Weight          float64
-	MoveDone        *Vector
-	Velocity        *Vector
-	Direction       *Vector
+	physics.Obj
 }
 
-func NewObject(id int, typeObj string, p Point, colRadius int, angle, speed, aspeed, weight float64) Object {
-	return Object{
+func NewObject(id int, typeObj string, p physics.Point, colRadius int, angle, speed, aspeed, weight float64) Object {
+	return Object{Obj: physics.Obj{
 		Id:              id,
 		Type:            typeObj,
 		Pos:             p,
@@ -51,9 +40,9 @@ func NewObject(id int, typeObj string, p Point, colRadius int, angle, speed, asp
 		Speed:           speed,
 		AngleSpeed:      aspeed,
 		Weight:          weight,
-		Velocity:        &Vector{},
-		Direction:       makeNormalVectorByAngle(angle),
-	}
+		Velocity:        &physics.Vector{},
+		Direction:       physics.MakeNormalVectorByAngle(angle),
+	}}
 }
 
 func (o *Object) run(world *World) *ChangeByObject {
@@ -80,7 +69,7 @@ func (o *Object) run(world *World) *ChangeByObject {
 	}
 
 	o.MoveDone = o.Pos.MoveForward(o.Angle, o.Speed)
-	if o.Pos.checkIfOutOfBounds(0, 0, float64(world.width), float64(world.height)) {
+	if o.Pos.CheckIfOutOfBounds(0, 0, float64(world.width), float64(world.height)) {
 		ch.Delete = true
 		return ch
 	}
@@ -93,10 +82,14 @@ func (o *Object) run(world *World) *ChangeByObject {
 	return ch
 }
 
-func (o *Object) getId() int              { return o.Id }
-func (o *Object) setId(id int)            { o.Id = id }
-func (o *Object) getPos() Point           { return o.Pos }
-func (o *Object) getAngle() float64       { return o.Angle }
-func (o *Object) getType() string         { return o.Type }
-func (o *Object) getMoveDone() *Vector    { return o.MoveDone }
-func (o *Object) getCollisionRadius() int { return o.CollisionRadius }
+func (o *Object) getId() int                   { return o.Id }
+func (o *Object) setId(id int)                 { o.Id = id }
+func (o *Object) getObj() physics.Obj          { return o.Obj }
+func (o *Object) getPos() physics.Point        { return o.Pos }
+func (o *Object) getAngle() float64            { return o.Angle }
+func (o *Object) getType() string              { return o.Type }
+func (o *Object) getMoveDone() *physics.Vector { return o.MoveDone }
+func (o *Object) getCollisionRadius() int      { return o.CollisionRadius }
+func (o *Object) isCollideWith(o1 IObject) bool {
+	return o.IsCollideWith(o1.getObj())
+}

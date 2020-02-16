@@ -1,4 +1,4 @@
-package world
+package physics
 
 import (
 	"github.com/stretchr/testify/assert"
@@ -35,7 +35,7 @@ func TestSumForces(t *testing.T) {
 	ftr := calcTractionForce(dir, 10000)
 	fair := calcAirResistForce(velocity)
 	ffr := calcFrictionForce(dir, weight)
-	f := ftr.add(fair).add(ffr)
+	f := ftr.Add(fair).Add(ffr)
 
 	assert.Equal(t, 4000., f.X)
 	assert.Equal(t, 0., f.Y)
@@ -48,7 +48,7 @@ func TestCalcAccelerate(t *testing.T) {
 	ftr := calcTractionForce(dir, 10000)
 	fair := calcAirResistForce(velocity)
 	ffr := calcFrictionForce(dir, weight)
-	f := ftr.add(fair).add(ffr)
+	f := ftr.Add(fair).Add(ffr)
 	a := calcAccelerate(f, weight)
 	assert.Equal(t, 4., a.X)
 	assert.Equal(t, 0., a.Y)
@@ -61,7 +61,7 @@ func TestApplyAccelerateToVelocity(t *testing.T) {
 	ftr := calcTractionForce(dir, 10000)
 	fair := calcAirResistForce(velocity)
 	ffr := calcFrictionForce(dir, weight)
-	f := ftr.add(fair).add(ffr)
+	f := ftr.Add(fair).Add(ffr)
 	a := calcAccelerate(f, weight)
 	dt := time.Second
 	newV := applyAccelerateToVelocity(velocity, a, dt)
@@ -76,11 +76,11 @@ func TestApplyAccelerateToVelocityNegative(t *testing.T) {
 	ftr := calcTractionForce(dir, 2000)
 	fair := calcAirResistForce(velocity)
 	ffr := calcFrictionForce(dir, weight)
-	f := ftr.add(fair).add(ffr)
+	f := ftr.Add(fair).Add(ffr)
 	a := calcAccelerate(f, weight)
 	dt := time.Second
 	newV := applyAccelerateToVelocity(velocity, a, dt)
-	multiply := dir.multiplyOnVector(newV)
+	multiply := dir.MultiplyOnVector(newV)
 	require.Less(t, multiply, 0.)
 }
 
@@ -91,7 +91,7 @@ func TestApplyVelocityToPosition(t *testing.T) {
 	ftr := calcTractionForce(dir, 10000)
 	fair := calcAirResistForce(velocity)
 	ffr := calcFrictionForce(dir, weight)
-	f := ftr.add(fair).add(ffr)
+	f := ftr.Add(fair).Add(ffr)
 	a := calcAccelerate(f, weight)
 	dt := time.Second
 	newV := applyAccelerateToVelocity(velocity, a, dt)

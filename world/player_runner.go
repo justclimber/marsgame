@@ -2,6 +2,7 @@ package world
 
 import (
 	"aakimov/marsgame/helpers"
+	"aakimov/marsgame/physics"
 	"math"
 	"time"
 )
@@ -31,29 +32,29 @@ func (p *Player) run(timeDelta time.Duration) *ChangeByObject {
 		energyNeed := int(mech.rotateThrottle * mechFullRotateThrottleEnergyPerSec * timeDelta.Seconds())
 		throttleRegression := mech.generator.consumeWithPartlyUsage(energyNeed)
 
-		mech.Object.Angle += mech.rotateThrottle * MaxRotationValue * throttleRegression
-		if mech.Object.Angle > 2*math.Pi {
-			mech.Object.Angle = mech.Object.Angle - 2*math.Pi
-		} else if mech.Object.Angle < 0 {
-			mech.Object.Angle = 2*math.Pi + mech.Object.Angle
+		mech.Obj.Angle += mech.rotateThrottle * MaxRotationValue * throttleRegression
+		if mech.Obj.Angle > 2*math.Pi {
+			mech.Obj.Angle = mech.Obj.Angle - 2*math.Pi
+		} else if mech.Obj.Angle < 0 {
+			mech.Obj.Angle = 2*math.Pi + mech.Obj.Angle
 		}
-		newAngle := mech.Object.Angle
+		newAngle := mech.Obj.Angle
 		changeByObject.Angle = &newAngle
-		mech.Object.Direction = makeNormalVectorByAngle(newAngle)
-		mech.Object.Velocity = mech.Object.Direction.multiplyOnScalar(mech.Object.Velocity.len())
+		mech.Obj.Direction = physics.MakeNormalVectorByAngle(newAngle)
+		mech.Obj.Velocity = mech.Obj.Direction.MultiplyOnScalar(mech.Obj.Velocity.Len())
 	}
 
 	// просчет движения меха по вектору velocity
-	velocityLen := mech.Velocity.len
+	velocityLen := mech.Velocity.Len
 	if mech.throttle != 0 || velocityLen() != 0 {
 		energyNeed := int(mech.throttle * mechFullThrottleEnergyPerSec * timeDelta.Seconds())
 		throttleRegression := mech.generator.consumeWithPartlyUsage(energyNeed)
 		power := mech.throttle * maxPower * throttleRegression
 
-		newPos, newVelocity := calcMovementObject(&mech.Object, power, timeDelta)
-		length := newPos.distanceTo(&mech.Object.Pos)
-		mech.Object.Pos = *newPos
-		mech.Object.Velocity = newVelocity
+		newPos, newVelocity := physics.CalcMovementObject(&mech.Obj, power, timeDelta)
+		length := newPos.DistanceTo(&mech.Obj.Pos)
+		mech.Obj.Pos = *newPos
+		mech.Obj.Velocity = newVelocity
 		changeByObject.Pos = newPos
 		changeByObject.length = &length
 
@@ -111,12 +112,13 @@ func (p *Player) shoot() {
 	//move missile a bit of forward far away from mech center
 	missilePos.MoveForward(missileAngle, 100.)
 	p.world.newObjectsCh <- &Missile{
-		Object: Object{
-			Type:            TypeMissile,
-			Speed:           MissileSpeed,
-			Pos:             missilePos,
-			Angle:           missileAngle,
-			CollisionRadius: 20,
-		},
-	}
+		Object: NewObject(0,
+			TypeMissile,
+			missilePos,
+			20,
+			missileAngle,
+			MissileSpeed,
+			0,
+			10,
+		)}
 }

@@ -1,6 +1,7 @@
 package world
 
 import (
+	"aakimov/marsgame/physics"
 	"encoding/json"
 	"math"
 )
@@ -22,7 +23,7 @@ type ChangeByTime struct {
 type ChangeByObject struct {
 	ObjType       string
 	ObjId         int
-	Pos           *Point
+	Pos           *physics.Point
 	Angle         *float64
 	CannonAngle   *float64
 	Delete        bool
