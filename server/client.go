@@ -44,6 +44,7 @@ func (c *Client) listenWrite() {
 				log.Println(err)
 			}
 			//log.Printf("Command sent to the client with payload %s\n", cmd.Payload)
+			//log.Printf("Payload size %d\n", len(cmd.Payload))
 
 		case <-c.doneCh:
 			c.doneCh <- true // for listenRead method

@@ -22,6 +22,7 @@ func (w *World) Run() {
 		timeDelta := time.Since(lastTime)
 		lastTime = t
 		//log.Printf("Game tick %v\n", t)
+		//log.Printf("Time delta %v\n", timeDelta.Milliseconds())
 
 		w.listenChannels()
 		changeByTime := changelog.NewChangeByTime(w.timeId)

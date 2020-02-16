@@ -5,16 +5,22 @@ import (
 	"strconv"
 )
 
+var total int
+var optimized int
+
 // Optimize intermediate changelog for individual object if they can be interpolated (have const diffs at least for 3 changes)
 func (ch *ChangeLog) Optimize() {
 	changelogLen := len(ch.ChangesByTimeLog)
+	total += changelogLen
 	if changelogLen < 3 {
 		return
 	}
 	i1, i2, ok := lookupForSameDiff(changelogLen-1, changelogLen-2, ch)
 	if ok {
 		ch.cutInterpolableChanges(i1, i2)
+		optimized += changelogLen - len(ch.ChangesByTimeLog)
 	}
+	//log.Printf("Optimization %f%%: %d/%d\n", float64(optimized/total), optimized, total)
 }
 
 func (ch *ChangeLog) cutInterpolableChanges(i1, i2 int) {
