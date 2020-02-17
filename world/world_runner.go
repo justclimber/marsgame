@@ -2,7 +2,6 @@ package world
 
 import (
 	"aakimov/marsgame/changelog"
-	"aakimov/marsgame/helpers"
 	"aakimov/marsgame/server"
 	"log"
 	"time"
@@ -18,8 +17,8 @@ func (w *World) Run() {
 	//log.Printf("start %v\n", serverStartTime)
 	// endless loop here
 	for t := range ticker.C {
-		w.timeId = helpers.TimeStampDif(serverStartTime, t)
-		timeDelta := time.Since(lastTime)
+		w.timeId = t.Sub(serverStartTime).Milliseconds()
+		timeDelta := t.Sub(lastTime)
 		lastTime = t
 		//log.Printf("Game tick %v\n", t)
 		//log.Printf("Time delta %v\n", timeDelta.Milliseconds())
