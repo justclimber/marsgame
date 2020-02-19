@@ -45,6 +45,12 @@ func NewWorld(server *server.Server) World {
 	}
 }
 
+func (w *World) Bootstrap() {
+	w.MakeRandomObjects()
+	go w.run()
+	go w.sendChangelogLoop()
+}
+
 type RandomObjSeed struct {
 	objType         string
 	count           int
@@ -75,12 +81,16 @@ func (w *World) MakeRandomObjectsByType(seed RandomObjSeed) {
 }
 
 func (w *World) MakeRandomObjects() {
-	w.MakeRandomObjectsByType(RandomObjSeed{TypeRock, 50, 100, nil})
-	w.MakeRandomObjectsByType(RandomObjSeed{TypeXelon, 50, 50, nil})
-	w.MakeRandomObjectsByType(RandomObjSeed{TypeEnemyMech, 10, 100, func(obj *Object) {
-		obj.Speed = rand.Float64()*50 + 5.
-		obj.AngleSpeed = rand.Float64()*1.2 - 0.7
-	}})
+	for _, v := range []RandomObjSeed{
+		{TypeRock, 50, 100, nil},
+		{TypeXelon, 50, 50, nil},
+		{TypeEnemyMech, 10, 100, func(obj *Object) {
+			obj.Speed = rand.Float64()*50 + 5.
+			obj.AngleSpeed = rand.Float64()*1.2 - 0.7
+		}},
+	} {
+		w.MakeRandomObjectsByType(v)
+	}
 }
 
 func (w *World) createPlayerAndBootstrap(client *server.Client) *Player {

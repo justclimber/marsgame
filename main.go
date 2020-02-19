@@ -11,7 +11,6 @@ func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	s := server.NewServer()
 	w := world.NewWorld(s)
-	w.MakeRandomObjects()
-	go w.Run()
+	w.Bootstrap()
 	s.Setup()
 }

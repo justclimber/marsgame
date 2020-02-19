@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func (w *World) Run() {
+func (w *World) run() {
 	ticker := time.NewTicker(w.runSpeedMs * time.Millisecond)
 	go w.sendChangelogLoop()
 
