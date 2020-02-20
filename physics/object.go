@@ -14,7 +14,6 @@ type Obj struct {
 	Speed           float64
 	AngleSpeed      float64
 	Weight          float64
-	MoveDone        *Vector
 	Velocity        *Vector
 	Direction       *Vector
 }

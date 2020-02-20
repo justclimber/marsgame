@@ -95,7 +95,7 @@ func TestApplyVelocityToPosition(t *testing.T) {
 	a := calcAccelerate(f, weight)
 	dt := time.Second
 	newV := applyAccelerateToVelocity(velocity, a, dt)
-	newP := applyVelocityToPosition(&Point{1000, 1000}, newV, dt)
+	newP := ApplyVelocityToPosition(&Point{1000, 1000}, newV, dt)
 	assert.Equal(t, 1004., newP.X)
 	assert.Equal(t, 1000., newP.Y)
 }

@@ -59,13 +59,9 @@ func AngleOrigin(x, y float64) float64 {
 	}
 }
 
-func (p *Point) MoveForward(angle float64, length float64) *Vector {
-	dx := math.Cos(angle) * length
-	dy := math.Sin(angle) * length
-	p.X += dx
-	p.Y += dy
-
-	return &Vector{dx, dy}
+func (p *Point) MoveForward(angle float64, length float64) {
+	p.X += math.Cos(angle) * length
+	p.Y += math.Sin(angle) * length
 }
 
 func (p *Point) Add(v1 *Vector) *Point {
@@ -98,4 +94,13 @@ func MakeNormalVectorByAngle(angle float64) *Vector {
 		X: math.Cos(angle),
 		Y: math.Sin(angle),
 	}
+}
+
+func NormalizeAngle(angle float64) float64 {
+	if angle > 2*math.Pi {
+		angle = angle - 2*math.Pi
+	} else if angle < 0 {
+		angle = 2*math.Pi + angle
+	}
+	return angle
 }

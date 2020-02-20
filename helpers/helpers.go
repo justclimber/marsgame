@@ -11,10 +11,13 @@ func AbsInt64(n int64) int64 {
 }
 
 func PrettyPrint(msg string, obj interface{}) {
+	log.Println(msg, Pretty(obj))
+}
+
+func Pretty(obj interface{}) string {
 	str, err := json.MarshalIndent(obj, "", "   ")
 	if err != nil {
-		log.Println(err.Error())
-		return
+		log.Fatalln(err.Error())
 	}
-	log.Println(msg, string(str))
+	return string(str)
 }

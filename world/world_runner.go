@@ -1,58 +1,33 @@
 package world
 
 import (
-	"aakimov/marsgame/changelog"
-	"aakimov/marsgame/server"
 	"log"
 	"time"
 )
 
 func (w *World) run() {
 	ticker := time.NewTicker(w.runSpeedMs * time.Millisecond)
-	go w.sendChangelogLoop()
-
 	serverStartTime := time.Now()
 	lastTime := serverStartTime
 
 	//log.Printf("start %v\n", serverStartTime)
-	// endless loop here
+
+	// world mechanics processing loop
 	for t := range ticker.C {
-		w.timeId = t.Sub(serverStartTime).Milliseconds()
+		timeId := t.Sub(serverStartTime).Milliseconds()
 		timeDelta := t.Sub(lastTime)
 		lastTime = t
 		//log.Printf("Game tick %v\n", t)
 		//log.Printf("Time delta %v\n", timeDelta.Milliseconds())
 
 		w.listenChannels()
-		changeByTime := changelog.NewChangeByTime(w.timeId)
 		for _, player := range w.players {
-			if ch := player.run(timeDelta); ch != nil {
-				changeByTime.Add(ch)
-			}
+			player.run(timeDelta, timeId)
 		}
-		for id, object := range w.objects {
-			if ch := object.run(w); ch != nil {
-				for id1, object1 := range w.objects {
-					if id1 == id {
-						continue
-					}
-					if object.isCollideWith(object1) && object.getType() == TypeMissile {
-						ch.Delete = true
-						ch.DeleteOtherId = object1.getId()
-						delete(w.objects, object1.getId())
-						break
-					}
-				}
-				changeByTime.Add(ch)
-				if ch.Delete {
-					delete(w.objects, id)
-				}
-			}
+		for _, object := range w.objects {
+			object.run(w, timeDelta, timeId)
 		}
-
-		if changeByTime.IsNotEmpty() {
-			w.changeLog.AddToBuffer(changeByTime)
-		}
+		w.wal.Commit(timeId)
 	}
 }
 
@@ -78,6 +53,7 @@ func (w *World) listenChannels() {
 		case o := <-w.newObjectsCh:
 			w.objCount += 1
 			o.setId(w.objCount)
+			o.setObjectManager(w.wal.CreateObjectManager(w.objCount, o.getType()))
 			w.objects[w.objCount] = o
 		case c := <-w.Server.CommandsCh:
 			player, ok := w.players[c.UserId]
@@ -97,24 +73,6 @@ func (w *World) listenChannels() {
 			}
 		default:
 			return
-		}
-	}
-}
-
-func (w *World) sendChangelogLoop() {
-	for {
-		select {
-		case <-w.changeLog.TerminateCh:
-			return
-		case ch := <-w.changeLog.ChangesByTimeCh:
-			if w.changeLog.AddAndCheckSize(ch) {
-				w.changeLog.Optimize()
-				command := server.PackStructToCommand("worldChanges", w.changeLog.GetLog())
-				for _, player := range w.players {
-					player.client.SendCommand(command)
-				}
-				w.changeLog.Reset()
-			}
 		}
 	}
 }

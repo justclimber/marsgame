@@ -43,7 +43,7 @@ func (c *Client) listenWrite() {
 			if err := c.ws.WriteJSON(cmd); err != nil {
 				log.Println(err)
 			}
-			//log.Printf("Command sent to the client with payload %s\n", cmd.Payload)
+			log.Printf("Command sent to the client with payload %s\n", cmd.Payload)
 			//log.Printf("Payload size %d\n", len(cmd.Payload))
 
 		case <-c.doneCh:
