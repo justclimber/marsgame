@@ -192,14 +192,9 @@ func (c *Code) SetupMarsGameBuiltinFunctions(
 	builtins := make(map[string]*object.Builtin)
 	builtins[bDistance] = &object.Builtin{
 		Name:       bDistance,
+		ArgTypes:   object.ArgTypes{object.FloatObj, object.FloatObj, object.FloatObj, object.FloatObj},
 		ReturnType: object.FloatObj,
-		Fn: func(env *object.Environment, args ...object.Object) (object.Object, error) {
-			if len(args) != 4 {
-				return nil, interpereter.BuiltinFuncError("wrong number of arguments. got=%d, want 2", len(args))
-			}
-			if err := interpereter.CheckArgsType(object.FloatObj, args); err != nil {
-				return nil, err
-			}
+		Fn: func(env *object.Environment, args []object.Object) (object.Object, error) {
 			x1 := args[0].(*object.Float).Value
 			y1 := args[1].(*object.Float).Value
 			x2 := args[2].(*object.Float).Value
@@ -209,14 +204,9 @@ func (c *Code) SetupMarsGameBuiltinFunctions(
 	}
 	builtins[bAngle] = &object.Builtin{
 		Name:       bAngle,
+		ArgTypes:   object.ArgTypes{object.FloatObj, object.FloatObj, object.FloatObj, object.FloatObj},
 		ReturnType: object.FloatObj,
-		Fn: func(env *object.Environment, args ...object.Object) (object.Object, error) {
-			if len(args) != 4 {
-				return nil, interpereter.BuiltinFuncError("wrong number of arguments. got=%d, want 2", len(args))
-			}
-			if err := interpereter.CheckArgsType(object.FloatObj, args); err != nil {
-				return nil, err
-			}
+		Fn: func(env *object.Environment, args []object.Object) (object.Object, error) {
 			x1 := args[0].(*object.Float).Value
 			y1 := args[1].(*object.Float).Value
 			x2 := args[2].(*object.Float).Value
@@ -226,17 +216,9 @@ func (c *Code) SetupMarsGameBuiltinFunctions(
 	}
 	builtins[bNearest] = &object.Builtin{
 		Name:       bNearest,
+		ArgTypes:   object.ArgTypes{"Mech", "Object[]"},
 		ReturnType: "Object",
-		Fn: func(env *object.Environment, args ...object.Object) (object.Object, error) {
-			if len(args) != 2 {
-				return nil, interpereter.BuiltinFuncError("wrong number of arguments. got=%d, want 2", len(args))
-			}
-			if err := interpereter.CheckArgType("Mech", args[0]); err != nil {
-				return nil, err
-			}
-			if err := interpereter.CheckArgType("Object[]", args[1]); err != nil {
-				return nil, err
-			}
+		Fn: func(env *object.Environment, args []object.Object) (object.Object, error) {
 			mech := args[0].(*object.Struct)
 			arrayOfStruct, _ := args[1].(*object.Array)
 			if arrayOfStruct.Empty {
@@ -261,20 +243,9 @@ func (c *Code) SetupMarsGameBuiltinFunctions(
 	}
 	builtins[bNearestByType] = &object.Builtin{
 		Name:       bNearestByType,
+		ArgTypes:   object.ArgTypes{"Mech", "Object[]", object.IntegerObj},
 		ReturnType: "Object",
-		Fn: func(env *object.Environment, args ...object.Object) (object.Object, error) {
-			if len(args) != 3 {
-				return nil, interpereter.BuiltinFuncError("wrong number of arguments. got=%d, want 3", len(args))
-			}
-			if err := interpereter.CheckArgType("Mech", args[0]); err != nil {
-				return nil, err
-			}
-			if err := interpereter.CheckArgType("Object[]", args[1]); err != nil {
-				return nil, err
-			}
-			if err := interpereter.CheckArgType("int", args[2]); err != nil {
-				return nil, err
-			}
+		Fn: func(env *object.Environment, args []object.Object) (object.Object, error) {
 			mech := args[0].(*object.Struct)
 			arrayOfStruct, _ := args[1].(*object.Array)
 			if arrayOfStruct.Empty {
@@ -306,17 +277,9 @@ func (c *Code) SetupMarsGameBuiltinFunctions(
 	}
 	builtins[bAddTarget] = &object.Builtin{
 		Name:       bAddTarget,
+		ArgTypes:   object.ArgTypes{"Object", object.IntegerObj},
 		ReturnType: "void",
-		Fn: func(env *object.Environment, args ...object.Object) (object.Object, error) {
-			if len(args) != 2 {
-				return nil, interpereter.BuiltinFuncError("wrong number of arguments. got=%d, want 2", len(args))
-			}
-			if err := interpereter.CheckArgType("Object", args[0]); err != nil {
-				return nil, err
-			}
-			if err := interpereter.CheckArgType("int", args[1]); err != nil {
-				return nil, err
-			}
+		Fn: func(env *object.Environment, args []object.Object) (object.Object, error) {
 			objStruct, _ := args[0].(*object.Struct)
 			targetType := int(args[1].(*object.Integer).Value)
 			c.objTargetsByType.Add(targetType, objStruct)
@@ -326,14 +289,9 @@ func (c *Code) SetupMarsGameBuiltinFunctions(
 	}
 	builtins[bGetFirstTarget] = &object.Builtin{
 		Name:       bGetFirstTarget,
+		ArgTypes:   object.ArgTypes{object.IntegerObj},
 		ReturnType: "Object",
-		Fn: func(env *object.Environment, args ...object.Object) (object.Object, error) {
-			if len(args) != 1 {
-				return nil, interpereter.BuiltinFuncError("wrong number of arguments. got=%d, want 1", len(args))
-			}
-			if err := interpereter.CheckArgType("int", args[0]); err != nil {
-				return nil, err
-			}
+		Fn: func(env *object.Environment, args []object.Object) (object.Object, error) {
 			targetType := int(args[0].(*object.Integer).Value)
 
 			return c.objTargetsByType.GetFirst(targetType, structDefs["Object"]), nil
