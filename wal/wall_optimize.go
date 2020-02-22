@@ -21,7 +21,6 @@ func (om *ObjectManager) optimize() {
 		om.timeLog.Y = nil
 		om.timeLog.VelocityX = nil
 		om.timeLog.VelocityY = nil
-		om.timeLog.VelocityLen = nil
 	} else {
 		om.lastVelocityX = om.timeLog.VelocityX
 		om.lastVelocityY = om.timeLog.VelocityY

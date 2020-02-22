@@ -79,7 +79,7 @@ func (o *Object) collisions(w *World) {
 			continue
 		}
 		if o.isCollideWith(otherObject) {
-			o.wal.AddDeleteOther(otherId)
+			o.wal.AddDeleteOtherIds([]int{otherId})
 			o.wal.AddExplode()
 			delete(w.objects, otherId)
 			delete(w.objects, o.Id)

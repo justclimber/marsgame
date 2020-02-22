@@ -79,7 +79,7 @@ func (p *Player) run(timeDelta time.Duration, timeId int64) {
 func (p *Player) collisions() {
 	for id, object := range p.world.objects {
 		if object.getType() != TypeMissile && p.mech.isCollideWith(object) {
-			p.wal.AddDeleteOther(id)
+			p.wal.AddDeleteOtherIds([]int{id})
 			delete(p.world.objects, id)
 			if object.getType() == TypeXelon {
 				p.pickupXelon()

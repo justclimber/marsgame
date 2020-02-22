@@ -95,25 +95,24 @@ func (o *ObjectLog) LastTimeLog() *TimeLog {
 }
 
 type TimeLog struct {
-	skip                bool
-	TimeId              int64    `json:"i"`
-	IsNew               *bool    `json:"n,omitempty"`
-	X                   *float64 `json:"x,omitempty"`
-	Y                   *float64 `json:"y,omitempty"`
-	Angle               *float64 `json:"a,omitempty"`
-	CannonAngle         *float64 `json:"ca,omitempty"`
-	CannonRotation      *float64 `json:"cr,omitempty"`
-	CannonUntilTimeId   *int64   `json:"cu,omitempty"`
-	Fire                *bool    `json:"f,omitempty"`
-	Delete              *bool    `json:"d,omitempty"`
-	Explode             *bool    `json:"e,omitempty"`
-	ExplodeOther        *bool    `json:"eo,omitempty"`
-	DeleteOtherObjectId *int     `json:"did,omitempty"`
-	VelocityX           *float64 `json:"vx,omitempty"`
-	VelocityY           *float64 `json:"vy,omitempty"`
-	VelocityLen         *float64 `json:"vl,omitempty"`
-	VelocityRotation    *float64 `json:"vr,omitempty"`
-	VelocityUntilTimeId *int64   `json:"vu,omitempty"`
+	skip                 bool
+	TimeId               int64    `json:"i"`
+	IsNew                *bool    `json:"n,omitempty"`
+	X                    *float64 `json:"x,omitempty"`
+	Y                    *float64 `json:"y,omitempty"`
+	Angle                *float64 `json:"a,omitempty"`
+	CannonAngle          *float64 `json:"ca,omitempty"`
+	CannonRotation       *float64 `json:"cr,omitempty"`
+	CannonUntilTimeId    *int64   `json:"cu,omitempty"`
+	Fire                 *bool    `json:"f,omitempty"`
+	Delete               *bool    `json:"d,omitempty"`
+	Explode              *bool    `json:"e,omitempty"`
+	ExplodeOther         *bool    `json:"eo,omitempty"`
+	DeleteOtherObjectIds []int    `json:"did,omitempty"`
+	VelocityX            *float64 `json:"vx,omitempty"`
+	VelocityY            *float64 `json:"vy,omitempty"`
+	VelocityRotation     *float64 `json:"vr,omitempty"`
+	VelocityUntilTimeId  *int64   `json:"vu,omitempty"`
 }
 
 func NewTimeLog() *TimeLog {
@@ -133,8 +132,6 @@ func (om *ObjectManager) AddPosAndVelocity(pos physics.Point, velocity *physics.
 	om.timeLog.Y = &pos.Y
 	om.timeLog.VelocityX = &velocity.X
 	om.timeLog.VelocityY = &velocity.Y
-	l := velocity.Len()
-	om.timeLog.VelocityLen = &l
 }
 
 func (om *ObjectManager) AddCannonRotation(rotation float64) {
@@ -160,8 +157,8 @@ func (om *ObjectManager) AddExplode() {
 	om.timeLog.Explode = &explode
 }
 
-func (om *ObjectManager) AddDeleteOther(id int) {
-	om.timeLog.DeleteOtherObjectId = &id
+func (om *ObjectManager) AddDeleteOtherIds(ids []int) {
+	om.timeLog.DeleteOtherObjectIds = ids
 }
 
 func (om *ObjectManager) Commit(timeId int64) {
