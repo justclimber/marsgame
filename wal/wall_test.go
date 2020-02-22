@@ -29,8 +29,7 @@ func TestWallSimple(t *testing.T) {
                "x": 10,
                "y": 10,
                "vx": 0,
-               "vy": 0,
-               "vl": 0
+               "vy": 0
             }
          ]
       }
@@ -65,7 +64,6 @@ func TestWall2SameSimpleRecords(t *testing.T) {
                "y": 10,
                "vx": 0,
                "vy": 0,
-               "vl": 0,
                "vu": 202
             }
          ]
