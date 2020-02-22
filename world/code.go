@@ -178,11 +178,13 @@ func (c *Code) loadMiscIntoEnv(env *object.Environment) {
 const (
 	bDistance          string = "distance"
 	bAngle             string = "angle"
+	bAngleToRotate     string = "angleToRotate"
 	bNearest           string = "nearest"
 	bNearestByType     string = "nearestByType"
 	bAddTarget         string = "addTarget"
 	bGetFirstTarget    string = "getFirstTarget"
 	bRemoveFirstTarget string = "removeFirstTarget"
+	bKeepBounds        string = "keepBounds"
 )
 
 func (c *Code) SetupMarsGameBuiltinFunctions(
@@ -212,6 +214,28 @@ func (c *Code) SetupMarsGameBuiltinFunctions(
 			x2 := args[2].(*object.Float).Value
 			y2 := args[3].(*object.Float).Value
 			return &object.Float{Value: physics.Angle(x1, y1, x2, y2)}, nil
+		},
+	}
+	builtins[bAngleToRotate] = &object.Builtin{
+		Name:       bAngleToRotate,
+		ArgTypes:   object.ArgTypes{object.FloatObj, object.FloatObj, object.FloatObj, object.FloatObj, object.FloatObj},
+		ReturnType: object.FloatObj,
+		Fn: func(env *object.Environment, args []object.Object) (object.Object, error) {
+			angleFrom := args[0].(*object.Float).Value
+			x1 := args[1].(*object.Float).Value
+			y1 := args[2].(*object.Float).Value
+			x2 := args[3].(*object.Float).Value
+			y2 := args[4].(*object.Float).Value
+			if angleFrom > 2*math.Pi {
+				angleFrom -= 2 * math.Pi
+			}
+			angleTo := physics.Angle(x1, y1, x2, y2) - angleFrom
+			if angleTo < -math.Pi {
+				angleTo = 2.*math.Pi + angleTo
+			} else if angleTo > math.Pi {
+				angleTo = angleTo - 2.*math.Pi
+			}
+			return &object.Float{Value: angleTo}, nil
 		},
 	}
 	builtins[bNearest] = &object.Builtin{
@@ -278,7 +302,7 @@ func (c *Code) SetupMarsGameBuiltinFunctions(
 	builtins[bAddTarget] = &object.Builtin{
 		Name:       bAddTarget,
 		ArgTypes:   object.ArgTypes{"Object", object.IntegerObj},
-		ReturnType: "void",
+		ReturnType: object.VoidObj,
 		Fn: func(env *object.Environment, args []object.Object) (object.Object, error) {
 			objStruct, _ := args[0].(*object.Struct)
 			targetType := int(args[1].(*object.Integer).Value)
@@ -295,6 +319,22 @@ func (c *Code) SetupMarsGameBuiltinFunctions(
 			targetType := int(args[0].(*object.Integer).Value)
 
 			return c.objTargetsByType.GetFirst(targetType, structDefs["Object"]), nil
+		},
+	}
+	builtins[bKeepBounds] = &object.Builtin{
+		Name:       bKeepBounds,
+		ArgTypes:   object.ArgTypes{object.FloatObj, object.FloatObj},
+		ReturnType: object.FloatObj,
+		Fn: func(env *object.Environment, args []object.Object) (object.Object, error) {
+			value := args[0].(*object.Float).Value
+			bound := args[1].(*object.Float).Value
+			if value > bound {
+				value = bound
+			} else if value < -bound {
+				value = -bound
+			}
+
+			return &object.Float{Value: value}, nil
 		},
 	}
 	executor.AddBuiltinFunctions(builtins)
