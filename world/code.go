@@ -82,25 +82,25 @@ func (c *Code) bootstrap(p *Player, structs map[string]*object.StructDefinition,
 func (c *Code) getStructDefinitions() map[string]*object.StructDefinition {
 	return map[string]*object.StructDefinition{
 		"Mech": {"Mech", map[string]string{
-			"x":      object.FloatObj,
-			"y":      object.FloatObj,
-			"angle":  object.FloatObj,
-			"cAngle": object.FloatObj,
+			"x":      object.TypeFloat,
+			"y":      object.TypeFloat,
+			"angle":  object.TypeFloat,
+			"cAngle": object.TypeFloat,
 		}},
 		"Object": {"Object", map[string]string{
-			"id":    object.IntegerObj,
-			"type":  object.IntegerObj,
-			"x":     object.FloatObj,
-			"y":     object.FloatObj,
-			"angle": object.FloatObj,
+			"id":    object.TypeInt,
+			"type":  object.TypeInt,
+			"x":     object.TypeFloat,
+			"y":     object.TypeFloat,
+			"angle": object.TypeFloat,
 		}},
 		"Cannon": {"Cannon", map[string]string{
-			"rotate": object.FloatObj,
-			"shoot":  object.FloatObj,
+			"rotate": object.TypeFloat,
+			"shoot":  object.TypeFloat,
 		}},
 		"Commands": {"Commands", map[string]string{
-			"move":   object.FloatObj,
-			"rotate": object.FloatObj,
+			"move":   object.TypeFloat,
+			"rotate": object.TypeFloat,
 			"cannon": "Cannon",
 		}},
 	}
@@ -194,8 +194,8 @@ func (c *Code) SetupMarsGameBuiltinFunctions(
 	builtins := make(map[string]*object.Builtin)
 	builtins[bDistance] = &object.Builtin{
 		Name:       bDistance,
-		ArgTypes:   object.ArgTypes{object.FloatObj, object.FloatObj, object.FloatObj, object.FloatObj},
-		ReturnType: object.FloatObj,
+		ArgTypes:   object.ArgTypes{object.TypeFloat, object.TypeFloat, object.TypeFloat, object.TypeFloat},
+		ReturnType: object.TypeFloat,
 		Fn: func(env *object.Environment, args []object.Object) (object.Object, error) {
 			x1 := args[0].(*object.Float).Value
 			y1 := args[1].(*object.Float).Value
@@ -206,8 +206,8 @@ func (c *Code) SetupMarsGameBuiltinFunctions(
 	}
 	builtins[bAngle] = &object.Builtin{
 		Name:       bAngle,
-		ArgTypes:   object.ArgTypes{object.FloatObj, object.FloatObj, object.FloatObj, object.FloatObj},
-		ReturnType: object.FloatObj,
+		ArgTypes:   object.ArgTypes{object.TypeFloat, object.TypeFloat, object.TypeFloat, object.TypeFloat},
+		ReturnType: object.TypeFloat,
 		Fn: func(env *object.Environment, args []object.Object) (object.Object, error) {
 			x1 := args[0].(*object.Float).Value
 			y1 := args[1].(*object.Float).Value
@@ -218,8 +218,8 @@ func (c *Code) SetupMarsGameBuiltinFunctions(
 	}
 	builtins[bAngleToRotate] = &object.Builtin{
 		Name:       bAngleToRotate,
-		ArgTypes:   object.ArgTypes{object.FloatObj, object.FloatObj, object.FloatObj, object.FloatObj, object.FloatObj},
-		ReturnType: object.FloatObj,
+		ArgTypes:   object.ArgTypes{object.TypeFloat, object.TypeFloat, object.TypeFloat, object.TypeFloat, object.TypeFloat},
+		ReturnType: object.TypeFloat,
 		Fn: func(env *object.Environment, args []object.Object) (object.Object, error) {
 			angleFrom := args[0].(*object.Float).Value
 			x1 := args[1].(*object.Float).Value
@@ -267,7 +267,7 @@ func (c *Code) SetupMarsGameBuiltinFunctions(
 	}
 	builtins[bNearestByType] = &object.Builtin{
 		Name:       bNearestByType,
-		ArgTypes:   object.ArgTypes{"Mech", "Object[]", object.IntegerObj},
+		ArgTypes:   object.ArgTypes{"Mech", "Object[]", object.TypeInt},
 		ReturnType: "Object",
 		Fn: func(env *object.Environment, args []object.Object) (object.Object, error) {
 			mech := args[0].(*object.Struct)
@@ -301,8 +301,8 @@ func (c *Code) SetupMarsGameBuiltinFunctions(
 	}
 	builtins[bAddTarget] = &object.Builtin{
 		Name:       bAddTarget,
-		ArgTypes:   object.ArgTypes{"Object", object.IntegerObj},
-		ReturnType: object.VoidObj,
+		ArgTypes:   object.ArgTypes{"Object", object.TypeInt},
+		ReturnType: object.TypeVoid,
 		Fn: func(env *object.Environment, args []object.Object) (object.Object, error) {
 			objStruct, _ := args[0].(*object.Struct)
 			targetType := int(args[1].(*object.Integer).Value)
@@ -313,7 +313,7 @@ func (c *Code) SetupMarsGameBuiltinFunctions(
 	}
 	builtins[bGetFirstTarget] = &object.Builtin{
 		Name:       bGetFirstTarget,
-		ArgTypes:   object.ArgTypes{object.IntegerObj},
+		ArgTypes:   object.ArgTypes{object.TypeInt},
 		ReturnType: "Object",
 		Fn: func(env *object.Environment, args []object.Object) (object.Object, error) {
 			targetType := int(args[0].(*object.Integer).Value)
@@ -323,8 +323,8 @@ func (c *Code) SetupMarsGameBuiltinFunctions(
 	}
 	builtins[bKeepBounds] = &object.Builtin{
 		Name:       bKeepBounds,
-		ArgTypes:   object.ArgTypes{object.FloatObj, object.FloatObj},
-		ReturnType: object.FloatObj,
+		ArgTypes:   object.ArgTypes{object.TypeFloat, object.TypeFloat},
+		ReturnType: object.TypeFloat,
 		Fn: func(env *object.Environment, args []object.Object) (object.Object, error) {
 			value := args[0].(*object.Float).Value
 			bound := args[1].(*object.Float).Value
