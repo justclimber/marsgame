@@ -12,10 +12,11 @@ import (
 )
 
 type IO4Client struct {
-	Input  []string
-	Output []string
-	Cost   int
-	Energy int
+	Input    []string
+	Output   []string
+	Commands []string
+	Cost     int
+	Energy   int
 }
 
 type MechOutputVars struct {
@@ -166,21 +167,32 @@ func (p *Player) makeIO4Client(env *object.Environment) *IO4Client {
 	inputKeys := map[string]bool{"mech": true, "objects": true, "PI": true}
 	input := make([]string, 0)
 	output := make([]string, 0)
+	commands := make([]string, 4)
 	for k, v := range env.Store() {
 		vStr := fmt.Sprintf("%s: %s\n", k, v.Inspect())
 		if _, ok := inputKeys[k]; ok {
 			input = append(input, vStr)
 		} else {
-			output = append(output, vStr)
+			if k == "commands" {
+				commandsStruct, _ := v.(*object.Struct)
+				commands[0] = fmt.Sprintf("move: %s", commandsStruct.Fields["move"].Inspect())
+				commands[1] = fmt.Sprintf("rotate: %s", commandsStruct.Fields["rotate"].Inspect())
+				cannonCommandsStruct, _ := commandsStruct.Fields["cannon"].(*object.Struct)
+				commands[2] = fmt.Sprintf("cannon.rotate: %s", cannonCommandsStruct.Fields["rotate"].Inspect())
+				commands[3] = fmt.Sprintf("cannon.shoot: %s", cannonCommandsStruct.Fields["shoot"].Inspect())
+			} else {
+				output = append(output, vStr)
+			}
 		}
 	}
 	sort.Strings(input)
 	sort.Strings(output)
 	return &IO4Client{
-		Input:  input,
-		Output: output,
-		Cost:   p.mainProgram.codeExecCost,
-		Energy: p.mech.generator.geValue(),
+		Input:    input,
+		Output:   output,
+		Commands: commands,
+		Cost:     p.mainProgram.codeExecCost,
+		Energy:   p.mech.generator.geValue(),
 	}
 }
 
