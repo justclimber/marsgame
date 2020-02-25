@@ -3,41 +3,36 @@
 
 пример кода, который управляет mech'ом:
 ```
-ifempty obj = nearestByType(mech, objects, 3) {
-   return 1
+ifempty xelon = getFirstTarget(1) {
+   ifempty xelon = nearestByType(mech, objects, ObjectTypes:xelon) {
+      return 1
+   }
+   addTarget(xelon, 1)
 }
-angleObj = angle(mech.x, mech.y, obj.x, obj.y)
-angleMech = mech.angle
-angleTo = angleObj - angleMech
-if angleTo < -PI {
-   angleTo = 2. * PI + angleTo
-}
-if angleTo > PI {
-   angleTo = angleTo - 2. * PI
+angleTo = angleToRotate(mech.angle, mech.x, mech.y, xelon.x, xelon.y)
+commands.rotate = keepBounds(angleTo, 1.)
+
+commands.move = 1. - commands.rotate
+
+ifempty obj = getFirstTarget(2) {   
+   ifempty obj = nearestByType(mech, objects, ObjectTypes:rock) {
+      return 1
+   }
+   addTarget(obj, 2)
 }
 
-switch angleTo {
-case > 1.:
-   commands.rotate = 1.
-case < -1.:
-   commands.rotate = -1.
-default:
-   commands.rotate = angleTo
+angleSum = mech.angle + mech.cAngle
+cAngleTo = angleToRotate(angleSum, mech.x, mech.y, obj.x, obj.y)
+
+if cAngleTo * angleTo < 0. {
+   cAngleTo = cAngleTo - angleTo
 }
+commands.cannon.rotate = keepBounds(cAngleTo, 1.)
 
 dist = distance(mech.x, mech.y, obj.x, obj.y)
-if obj.type == 3 {
-   commands.move = 1.
-   return 1
-}
-if dist > 200. {
-   commands.move = distance / 1000.
-   if commands.move > 1. {
-      commands.move = 1.
-   }
-}
-if angleTo * angleTo * dist < 70. {
+toShoot = cAngleTo * cAngleTo * dist
+if toShoot < 40. {
    commands.cannon.shoot = 0.1
-   return 1
 }
+
 ```
