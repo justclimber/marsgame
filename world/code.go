@@ -270,7 +270,7 @@ func (c *Code) SetupMarsGameBuiltinFunctions(
 	}
 	builtins[bNearest] = &object.Builtin{
 		Name:       bNearest,
-		ArgTypes:   object.ArgTypes{"Mech", "Object[]"},
+		ArgTypes:   object.ArgTypes{"Mech", "[]Object"},
 		ReturnType: "Object",
 		Fn: func(env *object.Environment, args []object.Object) (object.Object, error) {
 			mech := args[0].(*object.Struct)
@@ -297,7 +297,7 @@ func (c *Code) SetupMarsGameBuiltinFunctions(
 	}
 	builtins[bNearestByType] = &object.Builtin{
 		Name:       bNearestByType,
-		ArgTypes:   object.ArgTypes{"Mech", "Object[]", "ObjectTypes"},
+		ArgTypes:   object.ArgTypes{"Mech", "[]Object", "ObjectTypes"},
 		ReturnType: "Object",
 		Fn: func(env *object.Environment, args []object.Object) (object.Object, error) {
 			mech := args[0].(*object.Struct)
