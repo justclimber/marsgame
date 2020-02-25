@@ -71,10 +71,16 @@ func NewCode(id string) *Code {
 	}
 }
 
-func (c *Code) bootstrap(p *Player, structs map[string]*object.StructDefinition, env *object.Environment) {
+func (c *Code) bootstrap(
+	p *Player,
+	structs map[string]*object.StructDefinition,
+	enums map[string]*object.EnumDefinition,
+	env *object.Environment,
+) {
 	c.copyStructDefinitionsToEnv(structs, env)
+	c.copyEnumDefinitionsToEnv(enums, env)
 	c.loadMechVarsIntoEnv(p.mech, structs, env)
-	c.loadWorldObjectsIntoEnv(p.world, structs, env)
+	c.loadWorldObjectsIntoEnv(p.world, structs, enums, env)
 	c.loadMiscIntoEnv(env)
 	c.loadCommandsVarIntoEnv(structs, env)
 }
@@ -89,7 +95,7 @@ func (c *Code) getStructDefinitions() map[string]*object.StructDefinition {
 		}},
 		"Object": {"Object", map[string]string{
 			"id":    object.TypeInt,
-			"type":  object.TypeInt,
+			"type":  "ObjectTypes",
 			"x":     object.TypeFloat,
 			"y":     object.TypeFloat,
 			"angle": object.TypeFloat,
@@ -106,9 +112,24 @@ func (c *Code) getStructDefinitions() map[string]*object.StructDefinition {
 	}
 }
 
+func (c *Code) getEnumDefinitions() map[string]*object.EnumDefinition {
+	return map[string]*object.EnumDefinition{
+		"ObjectTypes": {
+			"ObjectTypes",
+			[]string{TypePlayer, TypeEnemyMech, TypeRock, TypeXelon, TypeMissile},
+		},
+	}
+}
+
 func (c *Code) copyStructDefinitionsToEnv(structs map[string]*object.StructDefinition, env *object.Environment) {
 	for _, v := range structs {
 		_ = env.RegisterStructDefinition(v)
+	}
+}
+
+func (c *Code) copyEnumDefinitionsToEnv(enums map[string]*object.EnumDefinition, env *object.Environment) {
+	for _, v := range enums {
+		_ = env.RegisterEnumDefinition(v)
 	}
 }
 
@@ -134,7 +155,12 @@ func (c *Code) loadMechVarsIntoEnv(m *Mech, structs map[string]*object.StructDef
 	env.Set("mech", s)
 }
 
-func (c *Code) loadWorldObjectsIntoEnv(w *World, structs map[string]*object.StructDefinition, env *object.Environment) {
+func (c *Code) loadWorldObjectsIntoEnv(
+	w *World,
+	structs map[string]*object.StructDefinition,
+	enums map[string]*object.EnumDefinition,
+	env *object.Environment,
+) {
 	var objTypeToIntMap = map[string]int{
 		TypePlayer:    0,
 		TypeEnemyMech: 1,
@@ -150,13 +176,17 @@ func (c *Code) loadWorldObjectsIntoEnv(w *World, structs map[string]*object.Stru
 			continue
 		}
 		check[o.getId()] = true
-		elements = append(elements, env.LoadVarsInStruct(structs["Object"], map[string]interface{}{
+		objStruct := env.LoadVarsInStruct(structs["Object"], map[string]interface{}{
 			"id":    o.getId(),
-			"type":  objTypeToIntMap[o.getType()],
 			"x":     o.getPos().X,
 			"y":     o.getPos().Y,
 			"angle": o.getAngle(),
-		}))
+		})
+		objStruct.Fields["type"] = &object.Enum{
+			Definition: enums["ObjectTypes"],
+			Value:      int8(objTypeToIntMap[o.getType()]),
+		}
+		elements = append(elements, objStruct)
 	}
 
 	c.objTargetsByType.actualize(check)
@@ -267,7 +297,7 @@ func (c *Code) SetupMarsGameBuiltinFunctions(
 	}
 	builtins[bNearestByType] = &object.Builtin{
 		Name:       bNearestByType,
-		ArgTypes:   object.ArgTypes{"Mech", "Object[]", object.TypeInt},
+		ArgTypes:   object.ArgTypes{"Mech", "Object[]", "ObjectTypes"},
 		ReturnType: "Object",
 		Fn: func(env *object.Environment, args []object.Object) (object.Object, error) {
 			mech := args[0].(*object.Struct)
@@ -275,12 +305,12 @@ func (c *Code) SetupMarsGameBuiltinFunctions(
 			if arrayOfStruct.Empty {
 				return object.NewEmptyStruct(structDefs["Object"]), nil
 			}
-			objType := args[2].(*object.Integer).Value
+			objType := args[2].(*object.Enum).Value
 			minDist := 99999999999.
 			minIndex := -1
 			for i := 0; i < len(arrayOfStruct.Elements); i++ {
 				obj, _ := arrayOfStruct.Elements[i].(*object.Struct)
-				if obj.Fields["type"].(*object.Integer).Value != objType {
+				if obj.Fields["type"].(*object.Enum).Value != objType {
 					continue
 				}
 				objX := obj.Fields["x"].(*object.Float).Value

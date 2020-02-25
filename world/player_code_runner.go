@@ -67,6 +67,7 @@ func (p *Player) runProgram() {
 	executor.SetExecCallback(p.consumeEnergy)
 
 	structs := code.getStructDefinitions()
+	enums := code.getEnumDefinitions()
 	code.SetupMarsGameBuiltinFunctions(executor, structs)
 
 	go p.mech.generator.start()
@@ -95,7 +96,7 @@ func (p *Player) runProgram() {
 			continue
 		}
 		env := object.NewEnvironment()
-		code.bootstrap(p, structs, env)
+		code.bootstrap(p, structs, enums, env)
 
 		err := executor.ExecAst(code.astProgram, env)
 		if err != nil {
@@ -134,6 +135,7 @@ func (p *Player) consumeEnergy(operation interpereter.Operation) {
 		interpereter.Identifier:            6,
 		interpereter.Function:              15,
 		interpereter.FunctionCall:          10,
+		interpereter.EnumElementCall:       4,
 	}
 	var energyByBuiltinFunctionMap = map[string]int{
 		bDistance:          60,
