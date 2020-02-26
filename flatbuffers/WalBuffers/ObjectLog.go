@@ -26,19 +26,19 @@ func (rcv *ObjectLog) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *ObjectLog) Id() int32 {
+func (rcv *ObjectLog) Id() uint32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
-		return rcv._tab.GetInt32(o + rcv._tab.Pos)
+		return rcv._tab.GetUint32(o + rcv._tab.Pos)
 	}
 	return 0
 }
 
-func (rcv *ObjectLog) MutateId(n int32) bool {
-	return rcv._tab.MutateInt32Slot(4, n)
+func (rcv *ObjectLog) MutateId(n uint32) bool {
+	return rcv._tab.MutateUint32Slot(4, n)
 }
 
-func (rcv *ObjectLog) Type() ObjectType {
+func (rcv *ObjectLog) ObjectType() ObjectType {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		return rcv._tab.GetInt8(o + rcv._tab.Pos)
@@ -46,7 +46,7 @@ func (rcv *ObjectLog) Type() ObjectType {
 	return 0
 }
 
-func (rcv *ObjectLog) MutateType(n ObjectType) bool {
+func (rcv *ObjectLog) MutateObjectType(n ObjectType) bool {
 	return rcv._tab.MutateInt8Slot(6, n)
 }
 
@@ -73,11 +73,11 @@ func (rcv *ObjectLog) TimesLength() int {
 func ObjectLogStart(builder *flatbuffers.Builder) {
 	builder.StartObject(3)
 }
-func ObjectLogAddId(builder *flatbuffers.Builder, id int32) {
-	builder.PrependInt32Slot(0, id, 0)
+func ObjectLogAddId(builder *flatbuffers.Builder, id uint32) {
+	builder.PrependUint32Slot(0, id, 0)
 }
-func ObjectLogAddType(builder *flatbuffers.Builder, type_ int8) {
-	builder.PrependInt8Slot(1, type_, 0)
+func ObjectLogAddObjectType(builder *flatbuffers.Builder, objectType int8) {
+	builder.PrependInt8Slot(1, objectType, 0)
 }
 func ObjectLogAddTimes(builder *flatbuffers.Builder, times flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(times), 0)

@@ -11,7 +11,7 @@ import (
 )
 
 type Player struct {
-	id          int
+	id          uint32
 	world       *World
 	client      *server.Client
 	mech        *Mech
@@ -28,7 +28,7 @@ type Player struct {
 }
 
 func NewPlayer(
-	id int,
+	id uint32,
 	client *server.Client,
 	w *World, m *Mech,
 	runSpeedMs time.Duration,

@@ -3,23 +3,28 @@
 // параллельными программами и браузерами
 package wal
 
+const defaultInt = 99999999
+const defaultFloat = 99999999.
+const LogBufferSize = 8
+
 type Wal struct {
-	MainLog        *Log
-	objectManagers []*ObjectObserver
-	Sender         *Sender
+	curSize         int8
+	logBuffer       *Log
+	objectObservers []*ObjectObserver
+	Sender          *Sender
 }
 
 func NewWal() *Wal {
 	return &Wal{
-		objectManagers: make([]*ObjectObserver, 0),
-		MainLog:        NewLog(),
-		Sender:         NewSender(),
+		objectObservers: make([]*ObjectObserver, 0),
+		logBuffer:       NewLog(),
+		Sender:          NewSender(),
 	}
 }
 
 type Log struct {
-	TimeIds []int64      `json:"tIds"`
-	Objects []*ObjectLog `json:"objs"`
+	TimeIds []int64
+	Objects []*ObjectLog
 }
 
 func NewLog() *Log {
@@ -30,18 +35,45 @@ func NewLog() *Log {
 }
 
 func (w *Wal) Commit(timeId int64) {
-	w.MainLog.TimeIds = append(w.MainLog.TimeIds, timeId)
+	w.logBuffer.TimeIds = append(w.logBuffer.TimeIds, timeId)
+	w.curSize++
 
-	w.Sender.logCh <- w.MainLog
+	if w.curSize == LogBufferSize {
+		w.Sender.logCh <- w.logBuffer
+		w.curSize = 0
+		w.resetLogBuffer()
+	}
+}
+
+func (w *Wal) resetLogBuffer() {
+	w.logBuffer = &Log{
+		TimeIds: make([]int64, 0),
+		Objects: make([]*ObjectLog, len(w.objectObservers)),
+	}
+
+	for i, oo := range w.objectObservers {
+		ol := NewObjectLog(oo.Id, oo.ObjType)
+		tl := NewTimeLog(false)
+		oo.objectLog = ol
+		oo.timeLog = tl
+		oo.lastVelocityX = &tl.VelocityX
+		oo.lastVelocityY = &tl.VelocityY
+		oo.lastVelocityRotation = &tl.VelocityRotation
+		oo.lastVelocityUntilTimeId = &tl.VelocityUntilTimeId
+		oo.lastCannonRotation = &tl.CannonRotation
+		oo.lastCannonUntilTimeId = &tl.CannonUntilTimeId
+
+		w.logBuffer.Objects[i] = ol
+	}
 }
 
 type ObjectLog struct {
-	Id      int        `json:"i"`
-	ObjType string     `json:"t"`
-	Times   []*TimeLog `json:"l"`
+	Id      uint32
+	ObjType int8
+	Times   []*TimeLog
 }
 
-func NewObjectLog(id int, objType string) *ObjectLog {
+func NewObjectLog(id uint32, objType int8) *ObjectLog {
 	return &ObjectLog{
 		Id:      id,
 		ObjType: objType,
@@ -58,25 +90,37 @@ func (o *ObjectLog) LastTimeLog() *TimeLog {
 
 type TimeLog struct {
 	skip                 bool
-	TimeId               int64    `json:"i"`
-	IsNew                *bool    `json:"n,omitempty"`
-	X                    *float64 `json:"x,omitempty"`
-	Y                    *float64 `json:"y,omitempty"`
-	Angle                *float64 `json:"a,omitempty"`
-	CannonAngle          *float64 `json:"ca,omitempty"`
-	CannonRotation       *float64 `json:"cr,omitempty"`
-	CannonUntilTimeId    *int64   `json:"cu,omitempty"`
-	Fire                 *bool    `json:"f,omitempty"`
-	Delete               *bool    `json:"d,omitempty"`
-	Explode              *bool    `json:"e,omitempty"`
-	ExplodeOther         *bool    `json:"eo,omitempty"`
-	DeleteOtherObjectIds []int    `json:"did,omitempty"`
-	VelocityX            *float64 `json:"vx,omitempty"`
-	VelocityY            *float64 `json:"vy,omitempty"`
-	VelocityRotation     *float64 `json:"vr,omitempty"`
-	VelocityUntilTimeId  *int64   `json:"vu,omitempty"`
+	TimeId               int64
+	IsNew                bool
+	X                    float64
+	Y                    float64
+	Angle                float64
+	CannonAngle          float64
+	CannonRotation       float64
+	CannonUntilTimeId    int64
+	Fire                 bool
+	Delete               bool
+	Explode              bool
+	ExplodeOther         bool
+	DeleteOtherObjectIds []uint32
+	VelocityX            float64
+	VelocityY            float64
+	VelocityRotation     float64
+	VelocityUntilTimeId  int64
 }
 
-func NewTimeLog() *TimeLog {
-	return &TimeLog{}
+func NewTimeLog(isNew bool) *TimeLog {
+	return &TimeLog{
+		IsNew:               isNew,
+		X:                   defaultInt,
+		Y:                   defaultInt,
+		Angle:               defaultFloat,
+		CannonAngle:         defaultFloat,
+		CannonRotation:      defaultFloat,
+		CannonUntilTimeId:   defaultInt,
+		VelocityX:           defaultFloat,
+		VelocityY:           defaultFloat,
+		VelocityRotation:    defaultFloat,
+		VelocityUntilTimeId: defaultInt,
+	}
 }

@@ -93,7 +93,7 @@ func getValuesForChanges(changeByTime *ChangeByTime) (map[string]*float64, map[s
 	r := make(map[string]*float64)
 	cr := make(map[string]*float64)
 	for _, changeByObject := range changeByTime.ChangesByObject {
-		key := strconv.Itoa(changeByObject.ObjId) + " " + changeByObject.ObjType
+		key := strconv.Itoa(int(changeByObject.ObjId)) + " " + changeByObject.ObjType
 		l[key] = changeByObject.Length
 		r[key] = changeByObject.Angle
 		cr[key] = changeByObject.CannonAngle

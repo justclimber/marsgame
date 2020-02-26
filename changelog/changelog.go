@@ -22,7 +22,7 @@ type ChangeByTime struct {
 
 type ChangeByObject struct {
 	ObjType       string
-	ObjId         int
+	ObjId         uint32
 	Pos           *physics.Point
 	Angle         *float64
 	CannonAngle   *float64
@@ -96,7 +96,7 @@ func (ch *ChangeByObject) MarshalJSON() ([]byte, error) {
 	}
 	return json.Marshal(struct {
 		ObjType       string   `json:"t"`
-		ObjId         int      `json:"id"`
+		ObjId         uint32   `json:"id"`
 		X             *int     `json:"x,omitempty"`
 		Y             *int     `json:"y,omitempty"`
 		Angle         *float64 `json:"a,omitempty"`

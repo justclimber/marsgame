@@ -16,15 +16,15 @@ const (
 
 type IObject interface {
 	run(world *World, timeDelta time.Duration, timeId int64)
-	setId(id int)
-	getId() int
+	setId(id uint32)
+	getId() uint32
 	getType() string
 	getPos() physics.Point
 	getObj() physics.Obj
 	getAngle() float64
 	isCollideWith(o1 IObject) bool
 	getCollisionRadius() int
-	setObjectManager(om *wal.ObjectObserver)
+	setObjectObserver(om *wal.ObjectObserver)
 }
 
 type Object struct {
@@ -32,7 +32,7 @@ type Object struct {
 	wal *wal.ObjectObserver
 }
 
-func NewObject(id int, typeObj string, p physics.Point, colRadius int, angle, speed, aspeed, weight float64) Object {
+func NewObject(id uint32, typeObj string, p physics.Point, colRadius int, angle, speed, aspeed, weight float64) Object {
 	return Object{Obj: physics.Obj{
 		Id:              id,
 		Type:            typeObj,
@@ -79,7 +79,7 @@ func (o *Object) collisions(w *World) {
 			continue
 		}
 		if o.isCollideWith(otherObject) {
-			o.wal.AddDeleteOtherIds([]int{otherId})
+			o.wal.AddDeleteOtherIds([]uint32{otherId})
 			o.wal.AddExplode()
 			delete(w.objects, otherId)
 			delete(w.objects, o.Id)
@@ -88,8 +88,8 @@ func (o *Object) collisions(w *World) {
 	}
 }
 
-func (o *Object) getId() int              { return o.Id }
-func (o *Object) setId(id int)            { o.Id = id }
+func (o *Object) getId() uint32           { return o.Id }
+func (o *Object) setId(id uint32)         { o.Id = id }
 func (o *Object) getObj() physics.Obj     { return o.Obj }
 func (o *Object) getPos() physics.Point   { return o.Pos }
 func (o *Object) getAngle() float64       { return o.Angle }
@@ -98,6 +98,6 @@ func (o *Object) getCollisionRadius() int { return o.CollisionRadius }
 func (o *Object) isCollideWith(o1 IObject) bool {
 	return o.IsCollideWith(o1.getObj())
 }
-func (o *Object) setObjectManager(om *wal.ObjectObserver) {
+func (o *Object) setObjectObserver(om *wal.ObjectObserver) {
 	o.wal = om
 }

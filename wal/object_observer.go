@@ -3,8 +3,8 @@ package wal
 import "aakimov/marsgame/physics"
 
 type ObjectObserver struct {
-	Id                      int
-	ObjType                 string
+	Id                      uint32
+	ObjType                 int8
 	timeLog                 *TimeLog
 	objectLog               *ObjectLog
 	lastVelocityX           *float64
@@ -15,9 +15,9 @@ type ObjectObserver struct {
 	lastCannonUntilTimeId   *int64
 }
 
-func (w *Wal) NewObjectObserver(id int, objType string) *ObjectObserver {
+func (w *Wal) NewObjectObserver(id uint32, objType int8) *ObjectObserver {
 	ol := NewObjectLog(id, objType)
-	tl := NewTimeLog()
+	tl := NewTimeLog(true)
 	o := &ObjectObserver{
 		Id:        id,
 		ObjType:   objType,
@@ -25,57 +25,54 @@ func (w *Wal) NewObjectObserver(id int, objType string) *ObjectObserver {
 		timeLog:   tl,
 	}
 
-	o.lastVelocityX = tl.VelocityX
-	o.lastVelocityY = tl.VelocityY
-	o.lastVelocityRotation = tl.VelocityRotation
-	o.lastVelocityUntilTimeId = tl.VelocityUntilTimeId
-	o.lastCannonRotation = tl.CannonRotation
-	o.lastCannonUntilTimeId = tl.CannonUntilTimeId
+	o.lastVelocityX = &tl.VelocityX
+	o.lastVelocityY = &tl.VelocityY
+	o.lastVelocityRotation = &tl.VelocityRotation
+	o.lastVelocityUntilTimeId = &tl.VelocityUntilTimeId
+	o.lastCannonRotation = &tl.CannonRotation
+	o.lastCannonUntilTimeId = &tl.CannonUntilTimeId
 
-	w.objectManagers = append(w.objectManagers, o)
-	w.MainLog.Objects = append(w.MainLog.Objects, ol)
+	w.objectObservers = append(w.objectObservers, o)
+	w.logBuffer.Objects = append(w.logBuffer.Objects, ol)
 	return o
 }
 
 func (oo *ObjectObserver) AddRotation(rotation float64) {
-	oo.timeLog.VelocityRotation = &rotation
+	oo.timeLog.VelocityRotation = rotation
 }
 
 func (oo *ObjectObserver) AddAngle(angle float64) {
-	oo.timeLog.Angle = &angle
+	oo.timeLog.Angle = angle
 }
 
 func (oo *ObjectObserver) AddPosAndVelocity(pos physics.Point, velocity *physics.Vector) {
-	oo.timeLog.X = &pos.X
-	oo.timeLog.Y = &pos.Y
-	oo.timeLog.VelocityX = &velocity.X
-	oo.timeLog.VelocityY = &velocity.Y
+	oo.timeLog.X = pos.X
+	oo.timeLog.Y = pos.Y
+	oo.timeLog.VelocityX = velocity.X
+	oo.timeLog.VelocityY = velocity.Y
 }
 
 func (oo *ObjectObserver) AddCannonRotation(rotation float64) {
-	oo.timeLog.CannonRotation = &rotation
+	oo.timeLog.CannonRotation = rotation
 }
 
 func (oo *ObjectObserver) AddCannonAngle(angle float64) {
-	oo.timeLog.CannonAngle = &angle
+	oo.timeLog.CannonAngle = angle
 }
 
 func (oo *ObjectObserver) AddShoot() {
-	fire := true
-	oo.timeLog.Fire = &fire
+	oo.timeLog.Fire = true
 }
 
 func (oo *ObjectObserver) AddDelete() {
-	del := true
-	oo.timeLog.Delete = &del
+	oo.timeLog.Delete = true
 }
 
 func (oo *ObjectObserver) AddExplode() {
-	explode := true
-	oo.timeLog.Explode = &explode
+	oo.timeLog.Explode = true
 }
 
-func (oo *ObjectObserver) AddDeleteOtherIds(ids []int) {
+func (oo *ObjectObserver) AddDeleteOtherIds(ids []uint32) {
 	oo.timeLog.DeleteOtherObjectIds = ids
 }
 
@@ -85,5 +82,5 @@ func (oo *ObjectObserver) Commit(timeId int64) {
 	if !oo.timeLog.skip {
 		oo.objectLog.Times = append(oo.objectLog.Times, oo.timeLog)
 	}
-	oo.timeLog = NewTimeLog()
+	oo.timeLog = NewTimeLog(false)
 }

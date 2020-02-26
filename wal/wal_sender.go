@@ -11,7 +11,7 @@ type Sender struct {
 	logCh         chan *Log
 	subscribeCh   chan *server.Client
 	unsubscribeCh chan *server.Client
-	clients       map[int]*server.Client
+	clients       map[uint32]*server.Client
 }
 
 func NewSender() *Sender {
@@ -20,7 +20,7 @@ func NewSender() *Sender {
 		logCh:         make(chan *Log, 10),
 		subscribeCh:   make(chan *server.Client, 10),
 		unsubscribeCh: make(chan *server.Client, 10),
-		clients:       make(map[int]*server.Client),
+		clients:       make(map[uint32]*server.Client),
 	}
 }
 
@@ -55,19 +55,51 @@ func (s *Sender) SendLoop() {
 }
 
 func (s *Sender) logToBuffer(logToBuff *Log) []byte {
-	timelog1 := logToBuff.Objects[2].Times[0]
 	builder := flatbuffers.NewBuilder(1024)
-	WalBuffers.TimeLogStart(builder)
-	if timelog1.X != nil {
-		WalBuffers.TimeLogAddX(builder, int32(*timelog1.X))
-		WalBuffers.TimeLogAddY(builder, int32(*timelog1.Y))
+	WalBuffers.LogStartTimeIdsVector(builder, len(logToBuff.TimeIds))
+	for _, v := range logToBuff.TimeIds {
+		builder.PrependInt64(v)
 	}
-	if timelog1.Angle != nil {
-		WalBuffers.TimeLogAddAngle(builder, float32(*timelog1.Angle))
-	}
-	timeLogBuffer := WalBuffers.TimeLogEnd(builder)
-	builder.Finish(timeLogBuffer)
-	buf := builder.FinishedBytes()
+	timeIdsBuffObj := builder.EndVector(len(logToBuff.TimeIds))
 
+	objsCount := len(logToBuff.Objects)
+	objectLogBuffers := make([]flatbuffers.UOffsetT, objsCount)
+
+	for objIndex, obj := range logToBuff.Objects {
+		timeLogsCount := len(obj.Times)
+		timeLogBuffers := make([]flatbuffers.UOffsetT, timeLogsCount)
+		for i, timeLog := range obj.Times {
+			WalBuffers.TimeLogStart(builder)
+			WalBuffers.TimeLogAddX(builder, int32(timeLog.X))
+			WalBuffers.TimeLogAddY(builder, int32(timeLog.Y))
+			WalBuffers.TimeLogAddAngle(builder, float32(timeLog.Angle))
+			timeLogBuffers[i] = WalBuffers.TimeLogEnd(builder)
+		}
+		WalBuffers.ObjectLogStartTimesVector(builder, timeLogsCount)
+		for _, buffer := range timeLogBuffers {
+			builder.PrependUOffsetT(buffer)
+		}
+		timeLogBuffersObject := builder.EndVector(timeLogsCount)
+
+		WalBuffers.ObjectLogStart(builder)
+		WalBuffers.ObjectLogAddId(builder, obj.Id)
+		WalBuffers.ObjectLogAddObjectType(builder, obj.ObjType)
+		WalBuffers.ObjectLogAddTimes(builder, timeLogBuffersObject)
+		objectLogBuffers[objIndex] = WalBuffers.ObjectLogEnd(builder)
+	}
+
+	WalBuffers.LogStartObjectsVector(builder, objsCount)
+	for _, buffer := range objectLogBuffers {
+		builder.PrependUOffsetT(buffer)
+	}
+	objectLogBuffersObject := builder.EndVector(objsCount)
+
+	WalBuffers.LogStart(builder)
+	WalBuffers.LogAddTimeIds(builder, timeIdsBuffObj)
+	WalBuffers.LogAddObjects(builder, objectLogBuffersObject)
+	logBufferObj := WalBuffers.LogEnd(builder)
+
+	builder.Finish(logBufferObj)
+	buf := builder.FinishedBytes()
 	return buf
 }

@@ -13,9 +13,9 @@ const Wide = 30000
 
 type World struct {
 	Server         *server.Server
-	players        map[int]*Player
-	objects        map[int]IObject
-	objCount       int
+	players        map[uint32]*Player
+	objects        map[uint32]IObject
+	objCount       uint32
 	newObjectsCh   chan IObject
 	width          int
 	height         int
@@ -27,13 +27,13 @@ type World struct {
 func NewWorld(server *server.Server) World {
 	return World{
 		Server:         server,
-		players:        make(map[int]*Player),
-		objects:        make(map[int]IObject),
+		players:        make(map[uint32]*Player),
+		objects:        make(map[uint32]IObject),
 		newObjectsCh:   make(chan IObject, 10),
 		width:          Wide,
 		height:         Wide,
-		runSpeedMs:     100,
-		codeRunSpeedMs: 1000,
+		runSpeedMs:     1000,
+		codeRunSpeedMs: 2000,
 		wal:            wal.NewWal(),
 	}
 }
@@ -67,7 +67,7 @@ func (w *World) MakeRandomObjectsByType(seed RandomObjSeed) {
 				Pos:             physics.Point{X: x, Y: y},
 				CollisionRadius: seed.collisionRadius,
 			},
-			wal: w.wal.NewObjectObserver(w.objCount, seed.objType),
+			wal: w.wal.NewObjectObserver(w.objCount, ObjectTypeToInt(seed.objType)),
 		}
 		if seed.extraCallback != nil {
 			seed.extraCallback(newObj)
@@ -89,6 +89,17 @@ func (w *World) MakeRandomObjects() {
 	}
 }
 
+func ObjectTypeToInt(objType string) int8 {
+	var objTypeToIntMap = map[string]int8{
+		TypePlayer:    0,
+		TypeEnemyMech: 1,
+		TypeRock:      2,
+		TypeXelon:     3,
+		TypeMissile:   4,
+	}
+	return objTypeToIntMap[objType]
+}
+
 func (w *World) createPlayerAndBootstrap(client *server.Client) *Player {
 	x := float64(rand.Int31n(1000)) + 9500.
 	y := float64(rand.Int31n(1000)) + 9500.
@@ -99,7 +110,7 @@ func (w *World) createPlayerAndBootstrap(client *server.Client) *Player {
 		w,
 		mech,
 		w.codeRunSpeedMs,
-		w.wal.NewObjectObserver(client.Id, TypePlayer),
+		w.wal.NewObjectObserver(client.Id, ObjectTypeToInt(TypePlayer)),
 	)
 	w.players[player.id] = player
 	w.wal.Sender.Subscribe(player.client)
@@ -118,7 +129,7 @@ func (w *World) reset() {
 		w.players[i] = w.createPlayerAndBootstrap(p.client)
 		w.players[i].mainProgram.astProgram = astProgram
 	}
-	w.objects = make(map[int]IObject)
+	w.objects = make(map[uint32]IObject)
 	w.objCount = 0
 	w.MakeRandomObjects()
 	for _, p := range w.players {

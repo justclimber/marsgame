@@ -6,7 +6,7 @@ import (
 )
 
 type Client struct {
-	Id         int
+	Id         uint32
 	ws         *websocket.Conn
 	server     *Server
 	commandsCh chan *Command
@@ -14,7 +14,7 @@ type Client struct {
 	doneCh     chan bool
 }
 
-func NewClient(id int, ws *websocket.Conn, server *Server) *Client {
+func NewClient(id uint32, ws *websocket.Conn, server *Server) *Client {
 	return &Client{
 		Id:         id,
 		ws:         ws,
@@ -50,6 +50,7 @@ func (c *Client) listenWrite() {
 				log.Fatalln(err)
 			}
 			//log.Printf("Buff sent to the client: %s\n", buf)
+			log.Printf("Payload size %d\n", len(buf))
 		case cmd := <-c.commandsCh:
 			if err := c.ws.WriteJSON(cmd); err != nil {
 				log.Fatalln(err)

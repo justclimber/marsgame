@@ -26,11 +26,11 @@ func (rcv *Log) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *Log) TimeIds(j int) uint64 {
+func (rcv *Log) TimeIds(j int) int64 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
-		return rcv._tab.GetUint64(a + flatbuffers.UOffsetT(j*8))
+		return rcv._tab.GetInt64(a + flatbuffers.UOffsetT(j*8))
 	}
 	return 0
 }
@@ -43,11 +43,11 @@ func (rcv *Log) TimeIdsLength() int {
 	return 0
 }
 
-func (rcv *Log) MutateTimeIds(j int, n uint64) bool {
+func (rcv *Log) MutateTimeIds(j int, n int64) bool {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
-		return rcv._tab.MutateUint64(a+flatbuffers.UOffsetT(j*8), n)
+		return rcv._tab.MutateInt64(a+flatbuffers.UOffsetT(j*8), n)
 	}
 	return false
 }

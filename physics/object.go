@@ -5,7 +5,7 @@ import (
 )
 
 type Obj struct {
-	Id   int
+	Id   uint32
 	Type string
 	sync.Mutex
 	Pos             Point
