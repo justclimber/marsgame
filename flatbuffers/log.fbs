@@ -1,0 +1,23 @@
+namespace WalBuffers;
+
+table Log {
+  timeIds: [ulong];
+  objects: [ObjectLog];
+}
+
+enum ObjectType: byte {player, missile, rock, enemy_mech, xelon}
+
+table ObjectLog {
+  id: int;
+  type: ObjectType;
+  times: [TimeLog];
+}
+
+table TimeLog {
+  timeId: ulong;
+  x: int = 99999999;
+  y: int = 99999999;
+  angle: float = 99999999;
+}
+
+root_type Log;

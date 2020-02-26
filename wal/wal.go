@@ -31,7 +31,8 @@ func NewLog() *Log {
 
 func (w *Wal) Commit(timeId int64) {
 	w.MainLog.TimeIds = append(w.MainLog.TimeIds, timeId)
-	//w.Sender.logCh <- w.MainLog
+
+	w.Sender.logCh <- w.MainLog
 }
 
 type ObjectLog struct {

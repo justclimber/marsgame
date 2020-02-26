@@ -1,6 +1,10 @@
 package wal
 
-import "aakimov/marsgame/server"
+import (
+	"aakimov/marsgame/flatbuffers/WalBuffers"
+	"aakimov/marsgame/server"
+)
+import flatbuffers "github.com/google/flatbuffers/go"
 
 type Sender struct {
 	terminateCh   chan bool
@@ -42,10 +46,28 @@ func (s *Sender) SendLoop() {
 		case client := <-s.unsubscribeCh:
 			delete(s.clients, client.Id)
 		case log := <-s.logCh:
+			buf := s.logToBuffer(log)
 			for _, client := range s.clients {
-				command := server.PackStructToCommand("wal", log)
-				client.SendCommand(command)
+				client.SendBuffer(buf)
 			}
 		}
 	}
+}
+
+func (s *Sender) logToBuffer(logToBuff *Log) []byte {
+	timelog1 := logToBuff.Objects[2].Times[0]
+	builder := flatbuffers.NewBuilder(1024)
+	WalBuffers.TimeLogStart(builder)
+	if timelog1.X != nil {
+		WalBuffers.TimeLogAddX(builder, int32(*timelog1.X))
+		WalBuffers.TimeLogAddY(builder, int32(*timelog1.Y))
+	}
+	if timelog1.Angle != nil {
+		WalBuffers.TimeLogAddAngle(builder, float32(*timelog1.Angle))
+	}
+	timeLogBuffer := WalBuffers.TimeLogEnd(builder)
+	builder.Finish(timeLogBuffer)
+	buf := builder.FinishedBytes()
+
+	return buf
 }
