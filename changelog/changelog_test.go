@@ -2,7 +2,6 @@ package changelog
 
 import (
 	"aakimov/marsgame/physics"
-	"aakimov/marsgame/world"
 	"encoding/json"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -19,7 +18,7 @@ func TestChangeLog_Marshal(t *testing.T) {
 	changelog := NewChangeLog()
 	changeByTime := NewChangeByTime(int64(1))
 	changeByObject := &ChangeByObject{
-		ObjType: world.TypePlayer,
+		ObjType: "player",
 		ObjId:   11,
 		Pos: &physics.Point{
 			X: x,

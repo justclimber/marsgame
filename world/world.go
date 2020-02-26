@@ -21,7 +21,7 @@ type World struct {
 	height         int
 	runSpeedMs     time.Duration
 	codeRunSpeedMs time.Duration
-	wal            *wal.Manager
+	wal            *wal.Wal
 }
 
 func NewWorld(server *server.Server) World {
@@ -34,7 +34,7 @@ func NewWorld(server *server.Server) World {
 		height:         Wide,
 		runSpeedMs:     100,
 		codeRunSpeedMs: 1000,
-		wal:            wal.NewManager(),
+		wal:            wal.NewWal(),
 	}
 }
 
@@ -67,7 +67,7 @@ func (w *World) MakeRandomObjectsByType(seed RandomObjSeed) {
 				Pos:             physics.Point{X: x, Y: y},
 				CollisionRadius: seed.collisionRadius,
 			},
-			wal: w.wal.CreateObjectManager(w.objCount, seed.objType),
+			wal: w.wal.NewObjectObserver(w.objCount, seed.objType),
 		}
 		if seed.extraCallback != nil {
 			seed.extraCallback(newObj)
@@ -99,7 +99,7 @@ func (w *World) createPlayerAndBootstrap(client *server.Client) *Player {
 		w,
 		mech,
 		w.codeRunSpeedMs,
-		w.wal.CreateObjectManager(client.Id, TypePlayer),
+		w.wal.NewObjectObserver(client.Id, TypePlayer),
 	)
 	w.players[player.id] = player
 	w.wal.Sender.Subscribe(player.client)
@@ -111,7 +111,7 @@ func (w *World) createPlayerAndBootstrap(client *server.Client) *Player {
 
 func (w *World) reset() {
 	w.wal.Sender.Terminate()
-	w.wal = wal.NewManager()
+	w.wal = wal.NewWal()
 	for i, p := range w.players {
 		p.flowCh <- Terminate
 		astProgram := p.mainProgram.astProgram

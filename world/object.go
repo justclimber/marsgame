@@ -24,12 +24,12 @@ type IObject interface {
 	getAngle() float64
 	isCollideWith(o1 IObject) bool
 	getCollisionRadius() int
-	setObjectManager(om *wal.ObjectManager)
+	setObjectManager(om *wal.ObjectObserver)
 }
 
 type Object struct {
 	physics.Obj
-	wal *wal.ObjectManager
+	wal *wal.ObjectObserver
 }
 
 func NewObject(id int, typeObj string, p physics.Point, colRadius int, angle, speed, aspeed, weight float64) Object {
@@ -98,6 +98,6 @@ func (o *Object) getCollisionRadius() int { return o.CollisionRadius }
 func (o *Object) isCollideWith(o1 IObject) bool {
 	return o.IsCollideWith(o1.getObj())
 }
-func (o *Object) setObjectManager(om *wal.ObjectManager) {
+func (o *Object) setObjectManager(om *wal.ObjectObserver) {
 	o.wal = om
 }

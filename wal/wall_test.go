@@ -8,8 +8,8 @@ import (
 )
 
 func TestWallSimple(t *testing.T) {
-	mainWal := NewManager()
-	objectLog := mainWal.CreateObjectManager(1, "t")
+	mainWal := NewWal()
+	objectLog := mainWal.NewObjectObserver(1, "t")
 	objectLog.AddPosAndVelocity(physics.Point{X: 10, Y: 10}, &physics.Vector{})
 	objectLog.Commit(101)
 	mainWal.Commit(101)
@@ -38,8 +38,8 @@ func TestWallSimple(t *testing.T) {
 }
 
 func TestWall2SameSimpleRecords(t *testing.T) {
-	mainWal := NewManager()
-	objectLog := mainWal.CreateObjectManager(1, "t")
+	mainWal := NewWal()
+	objectLog := mainWal.NewObjectObserver(1, "t")
 	objectLog.AddPosAndVelocity(physics.Point{X: 10, Y: 10}, &physics.Vector{})
 	objectLog.Commit(101)
 	mainWal.Commit(101)
@@ -73,8 +73,8 @@ func TestWall2SameSimpleRecords(t *testing.T) {
 }
 
 //func TestWall2AlmostSameRecords(t *testing.T) {
-//	mainWal := NewManager()
-//	objectLog := mainWal.CreateObjectManager(1, "t")
+//	mainWal := NewWal()
+//	objectLog := mainWal.NewObjectObserver(1, "t")
 //	objectLog.AddPosAndVelocity(physics.Point{X: 10, Y: 10}, &physics.Vector{})
 //	objectLog.Commit(101)
 //	mainWal.Commit(101)

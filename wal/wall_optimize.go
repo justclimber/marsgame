@@ -1,50 +1,50 @@
 package wal
 
-func (om *ObjectManager) optimize() {
-	lastTimeLog := om.objectLog.LastTimeLog()
+func (oo *ObjectObserver) optimize() {
+	lastTimeLog := oo.objectLog.LastTimeLog()
 	if lastTimeLog == nil {
-		om.lastVelocityX = om.timeLog.VelocityX
-		om.lastVelocityY = om.timeLog.VelocityY
-		om.lastVelocityUntilTimeId = om.timeLog.VelocityUntilTimeId
+		oo.lastVelocityX = oo.timeLog.VelocityX
+		oo.lastVelocityY = oo.timeLog.VelocityY
+		oo.lastVelocityUntilTimeId = oo.timeLog.VelocityUntilTimeId
 		return
 	}
-	om.timeLog.skip = true
-	if (om.timeLog.VelocityX == nil &&
-		om.lastVelocityX == nil &&
-		om.lastVelocityRotation == nil) ||
-		(om.timeLog.VelocityX != nil &&
-			om.lastVelocityX != nil &&
-			*om.timeLog.VelocityX == *om.lastVelocityX &&
-			*om.timeLog.VelocityY == *om.lastVelocityY) {
-		lastTimeLog.VelocityUntilTimeId = &om.timeLog.TimeId
-		om.timeLog.X = nil
-		om.timeLog.Y = nil
-		om.timeLog.VelocityX = nil
-		om.timeLog.VelocityY = nil
+	oo.timeLog.skip = true
+	if (oo.timeLog.VelocityX == nil &&
+		oo.lastVelocityX == nil &&
+		oo.lastVelocityRotation == nil) ||
+		(oo.timeLog.VelocityX != nil &&
+			oo.lastVelocityX != nil &&
+			*oo.timeLog.VelocityX == *oo.lastVelocityX &&
+			*oo.timeLog.VelocityY == *oo.lastVelocityY) {
+		lastTimeLog.VelocityUntilTimeId = &oo.timeLog.TimeId
+		oo.timeLog.X = nil
+		oo.timeLog.Y = nil
+		oo.timeLog.VelocityX = nil
+		oo.timeLog.VelocityY = nil
 	} else {
-		om.lastVelocityX = om.timeLog.VelocityX
-		om.lastVelocityY = om.timeLog.VelocityY
-		om.lastVelocityUntilTimeId = om.timeLog.VelocityUntilTimeId
-		om.timeLog.skip = false
+		oo.lastVelocityX = oo.timeLog.VelocityX
+		oo.lastVelocityY = oo.timeLog.VelocityY
+		oo.lastVelocityUntilTimeId = oo.timeLog.VelocityUntilTimeId
+		oo.timeLog.skip = false
 	}
 
-	//if (om.timeLog.CannonAngle == nil && om.lastVelocityRotation == nil) ||
-	//	(om.timeLog.VelocityRotation != nil &&
-	//		om.lastVelocityRotation != nil &&
-	//		*om.timeLog.VelocityRotation == *om.lastVelocityRotation) {
-	//	om.timeLog.Angle = nil
-	//	om.timeLog.VelocityRotation = nil
+	//if (oo.timeLog.CannonAngle == nil && oo.lastVelocityRotation == nil) ||
+	//	(oo.timeLog.VelocityRotation != nil &&
+	//		oo.lastVelocityRotation != nil &&
+	//		*oo.timeLog.VelocityRotation == *oo.lastVelocityRotation) {
+	//	oo.timeLog.Angle = nil
+	//	oo.timeLog.VelocityRotation = nil
 	//} else {
-	//	om.timeLog.skip = false
+	//	oo.timeLog.skip = false
 	//}
 
-	//if (om.timeLog.VelocityRotation == nil && om.lastVelocityRotation == nil) ||
-	//	(om.timeLog.VelocityRotation != nil &&
-	//		om.lastVelocityRotation != nil &&
-	//		*om.timeLog.VelocityRotation == *om.lastVelocityRotation) {
-	//	om.timeLog.Angle = nil
-	//	om.timeLog.VelocityRotation = nil
+	//if (oo.timeLog.VelocityRotation == nil && oo.lastVelocityRotation == nil) ||
+	//	(oo.timeLog.VelocityRotation != nil &&
+	//		oo.lastVelocityRotation != nil &&
+	//		*oo.timeLog.VelocityRotation == *oo.lastVelocityRotation) {
+	//	oo.timeLog.Angle = nil
+	//	oo.timeLog.VelocityRotation = nil
 	//} else {
-	//	om.timeLog.skip = false
+	//	oo.timeLog.skip = false
 	//}
 }

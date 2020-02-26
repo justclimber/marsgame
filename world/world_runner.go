@@ -53,7 +53,7 @@ func (w *World) listenChannels() {
 		case o := <-w.newObjectsCh:
 			w.objCount += 1
 			o.setId(w.objCount)
-			o.setObjectManager(w.wal.CreateObjectManager(w.objCount, o.getType()))
+			o.setObjectManager(w.wal.NewObjectObserver(w.objCount, o.getType()))
 			w.objects[w.objCount] = o
 		case c := <-w.Server.CommandsCh:
 			player, ok := w.players[c.UserId]

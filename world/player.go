@@ -24,7 +24,7 @@ type Player struct {
 	errorCh     chan *Error
 	commandsCh  chan *server.Command
 	terminateCh chan bool
-	wal         *wal.ObjectManager
+	wal         *wal.ObjectObserver
 }
 
 func NewPlayer(
@@ -32,7 +32,7 @@ func NewPlayer(
 	client *server.Client,
 	w *World, m *Mech,
 	runSpeedMs time.Duration,
-	objectLogManager *wal.ObjectManager,
+	objectLogManager *wal.ObjectObserver,
 ) *Player {
 	player := &Player{
 		id:          id,

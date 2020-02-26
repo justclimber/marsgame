@@ -2,7 +2,7 @@ package wal
 
 import "aakimov/marsgame/server"
 
-type WallSender struct {
+type Sender struct {
 	terminateCh   chan bool
 	logCh         chan *Log
 	subscribeCh   chan *server.Client
@@ -10,8 +10,8 @@ type WallSender struct {
 	clients       map[int]*server.Client
 }
 
-func NewWallSender() *WallSender {
-	return &WallSender{
+func NewSender() *Sender {
+	return &Sender{
 		terminateCh:   make(chan bool, 1),
 		logCh:         make(chan *Log, 10),
 		subscribeCh:   make(chan *server.Client, 10),
@@ -20,29 +20,29 @@ func NewWallSender() *WallSender {
 	}
 }
 
-func (ws *WallSender) Subscribe(client *server.Client) {
-	ws.subscribeCh <- client
+func (s *Sender) Subscribe(client *server.Client) {
+	s.subscribeCh <- client
 }
 
-func (ws *WallSender) Unsubscribe(client *server.Client) {
-	ws.unsubscribeCh <- client
+func (s *Sender) Unsubscribe(client *server.Client) {
+	s.unsubscribeCh <- client
 }
 
-func (ws *WallSender) Terminate() {
-	ws.terminateCh <- true
+func (s *Sender) Terminate() {
+	s.terminateCh <- true
 }
 
-func (ws *WallSender) SendLoop() {
+func (s *Sender) SendLoop() {
 	for {
 		select {
-		case <-ws.terminateCh:
+		case <-s.terminateCh:
 			return
-		case client := <-ws.subscribeCh:
-			ws.clients[client.Id] = client
-		case client := <-ws.unsubscribeCh:
-			delete(ws.clients, client.Id)
-		case log := <-ws.logCh:
-			for _, client := range ws.clients {
+		case client := <-s.subscribeCh:
+			s.clients[client.Id] = client
+		case client := <-s.unsubscribeCh:
+			delete(s.clients, client.Id)
+		case log := <-s.logCh:
+			for _, client := range s.clients {
 				command := server.PackStructToCommand("wal", log)
 				client.SendCommand(command)
 			}
