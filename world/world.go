@@ -32,8 +32,8 @@ func NewWorld(server *server.Server) World {
 		newObjectsCh:   make(chan IObject, 10),
 		width:          Wide,
 		height:         Wide,
-		runSpeedMs:     1000,
-		codeRunSpeedMs: 2000,
+		runSpeedMs:     200,
+		codeRunSpeedMs: 1000,
 		wal:            wal.NewWal(),
 	}
 }

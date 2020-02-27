@@ -69,10 +69,27 @@ func (s *Sender) logToBuffer(logToBuff *Log) []byte {
 		timeLogsCount := len(obj.Times)
 		timeLogBuffers := make([]flatbuffers.UOffsetT, timeLogsCount)
 		for i, timeLog := range obj.Times {
+			didCount := len(timeLog.DeleteOtherObjectIds)
+			WalBuffers.TimeLogStartDeleteOtherIdsVector(builder, didCount)
+			for _, did := range timeLog.DeleteOtherObjectIds {
+				builder.PrependUint32(did)
+			}
+			didsBuffObject := builder.EndVector(didCount)
+
 			WalBuffers.TimeLogStart(builder)
 			WalBuffers.TimeLogAddX(builder, int32(timeLog.X))
 			WalBuffers.TimeLogAddY(builder, int32(timeLog.Y))
 			WalBuffers.TimeLogAddAngle(builder, float32(timeLog.Angle))
+			WalBuffers.TimeLogAddCannonAngle(builder, float32(timeLog.CannonAngle))
+			WalBuffers.TimeLogAddCannonRotation(builder, float32(timeLog.CannonRotation))
+			WalBuffers.TimeLogAddCannonUntilTimeId(builder, timeLog.CannonUntilTimeId)
+			WalBuffers.TimeLogAddFire(builder, timeLog.Fire)
+			WalBuffers.TimeLogAddIsDelete(builder, timeLog.Delete)
+			WalBuffers.TimeLogAddVelocityX(builder, float32(timeLog.VelocityX))
+			WalBuffers.TimeLogAddVelocityY(builder, float32(timeLog.VelocityY))
+			WalBuffers.TimeLogAddVelocityRotation(builder, float32(timeLog.VelocityRotation))
+			WalBuffers.TimeLogAddVelocityUntilTimeId(builder, timeLog.VelocityUntilTimeId)
+			WalBuffers.TimeLogAddDeleteOtherIds(builder, didsBuffObject)
 			timeLogBuffers[i] = WalBuffers.TimeLogEnd(builder)
 		}
 		WalBuffers.ObjectLogStartTimesVector(builder, timeLogsCount)

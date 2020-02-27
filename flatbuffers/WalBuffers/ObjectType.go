@@ -6,16 +6,16 @@ type ObjectType = int8
 
 const (
 	ObjectTypeplayer     ObjectType = 0
-	ObjectTypemissile    ObjectType = 1
+	ObjectTypeenemy_mech ObjectType = 1
 	ObjectTyperock       ObjectType = 2
-	ObjectTypeenemy_mech ObjectType = 3
-	ObjectTypexelon      ObjectType = 4
+	ObjectTypexelon      ObjectType = 3
+	ObjectTypemissile    ObjectType = 4
 )
 
 var EnumNamesObjectType = map[ObjectType]string{
 	ObjectTypeplayer:     "player",
-	ObjectTypemissile:    "missile",
-	ObjectTyperock:       "rock",
 	ObjectTypeenemy_mech: "enemy_mech",
+	ObjectTyperock:       "rock",
 	ObjectTypexelon:      "xelon",
+	ObjectTypemissile:    "missile",
 }

@@ -5,7 +5,7 @@ table Log {
   objects: [ObjectLog];
 }
 
-enum ObjectType: byte {player, missile, rock, enemy_mech, xelon}
+enum ObjectType: byte {player, enemy_mech, rock, xelon, missile}
 
 table ObjectLog {
   id: uint;
@@ -20,7 +20,7 @@ table TimeLog {
   angle: float = 99999999;
   cannonAngle: float = 99999999;
   cannonRotation: float = 99999999;
-  cannonUntilTimeId: ulong = 99999999;
+  cannonUntilTimeId: long = 99999999;
   fire: bool;
   isDelete: bool;
   explode: bool;
@@ -28,7 +28,8 @@ table TimeLog {
   deleteOtherIds: [uint];
   velocityX: float = 99999999;
   velocityY: float = 99999999;
-  velocityUntilTimeId: ulong = 99999999;
+  velocityRotation: float = 99999999;
+  velocityUntilTimeId: long = 99999999;
 }
 
 root_type Log;
