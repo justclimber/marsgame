@@ -26,16 +26,16 @@ func (rcv *TimeLog) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *TimeLog) TimeId() uint64 {
+func (rcv *TimeLog) TimeId() int32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
-		return rcv._tab.GetUint64(o + rcv._tab.Pos)
+		return rcv._tab.GetInt32(o + rcv._tab.Pos)
 	}
 	return 0
 }
 
-func (rcv *TimeLog) MutateTimeId(n uint64) bool {
-	return rcv._tab.MutateUint64Slot(4, n)
+func (rcv *TimeLog) MutateTimeId(n int32) bool {
+	return rcv._tab.MutateInt32Slot(4, n)
 }
 
 func (rcv *TimeLog) X() int32 {
@@ -98,16 +98,16 @@ func (rcv *TimeLog) MutateCannonRotation(n float32) bool {
 	return rcv._tab.MutateFloat32Slot(14, n)
 }
 
-func (rcv *TimeLog) CannonUntilTimeId() int64 {
+func (rcv *TimeLog) CannonUntilTimeId() int32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
 	if o != 0 {
-		return rcv._tab.GetInt64(o + rcv._tab.Pos)
+		return rcv._tab.GetInt32(o + rcv._tab.Pos)
 	}
 	return 99999999
 }
 
-func (rcv *TimeLog) MutateCannonUntilTimeId(n int64) bool {
-	return rcv._tab.MutateInt64Slot(16, n)
+func (rcv *TimeLog) MutateCannonUntilTimeId(n int32) bool {
+	return rcv._tab.MutateInt32Slot(16, n)
 }
 
 func (rcv *TimeLog) Fire() bool {
@@ -220,23 +220,23 @@ func (rcv *TimeLog) MutateVelocityRotation(n float32) bool {
 	return rcv._tab.MutateFloat32Slot(32, n)
 }
 
-func (rcv *TimeLog) VelocityUntilTimeId() int64 {
+func (rcv *TimeLog) VelocityUntilTimeId() int32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(34))
 	if o != 0 {
-		return rcv._tab.GetInt64(o + rcv._tab.Pos)
+		return rcv._tab.GetInt32(o + rcv._tab.Pos)
 	}
 	return 99999999
 }
 
-func (rcv *TimeLog) MutateVelocityUntilTimeId(n int64) bool {
-	return rcv._tab.MutateInt64Slot(34, n)
+func (rcv *TimeLog) MutateVelocityUntilTimeId(n int32) bool {
+	return rcv._tab.MutateInt32Slot(34, n)
 }
 
 func TimeLogStart(builder *flatbuffers.Builder) {
 	builder.StartObject(16)
 }
-func TimeLogAddTimeId(builder *flatbuffers.Builder, timeId uint64) {
-	builder.PrependUint64Slot(0, timeId, 0)
+func TimeLogAddTimeId(builder *flatbuffers.Builder, timeId int32) {
+	builder.PrependInt32Slot(0, timeId, 0)
 }
 func TimeLogAddX(builder *flatbuffers.Builder, x int32) {
 	builder.PrependInt32Slot(1, x, 99999999)
@@ -253,8 +253,8 @@ func TimeLogAddCannonAngle(builder *flatbuffers.Builder, cannonAngle float32) {
 func TimeLogAddCannonRotation(builder *flatbuffers.Builder, cannonRotation float32) {
 	builder.PrependFloat32Slot(5, cannonRotation, 99999999.0)
 }
-func TimeLogAddCannonUntilTimeId(builder *flatbuffers.Builder, cannonUntilTimeId int64) {
-	builder.PrependInt64Slot(6, cannonUntilTimeId, 99999999)
+func TimeLogAddCannonUntilTimeId(builder *flatbuffers.Builder, cannonUntilTimeId int32) {
+	builder.PrependInt32Slot(6, cannonUntilTimeId, 99999999)
 }
 func TimeLogAddFire(builder *flatbuffers.Builder, fire bool) {
 	builder.PrependBoolSlot(7, fire, false)
@@ -283,8 +283,8 @@ func TimeLogAddVelocityY(builder *flatbuffers.Builder, velocityY float32) {
 func TimeLogAddVelocityRotation(builder *flatbuffers.Builder, velocityRotation float32) {
 	builder.PrependFloat32Slot(14, velocityRotation, 99999999.0)
 }
-func TimeLogAddVelocityUntilTimeId(builder *flatbuffers.Builder, velocityUntilTimeId int64) {
-	builder.PrependInt64Slot(15, velocityUntilTimeId, 99999999)
+func TimeLogAddVelocityUntilTimeId(builder *flatbuffers.Builder, velocityUntilTimeId int32) {
+	builder.PrependInt32Slot(15, velocityUntilTimeId, 99999999)
 }
 func TimeLogEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

@@ -26,11 +26,11 @@ func (rcv *Log) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *Log) TimeIds(j int) int64 {
+func (rcv *Log) TimeIds(j int) int32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
-		return rcv._tab.GetInt64(a + flatbuffers.UOffsetT(j*8))
+		return rcv._tab.GetInt32(a + flatbuffers.UOffsetT(j*4))
 	}
 	return 0
 }
@@ -43,11 +43,11 @@ func (rcv *Log) TimeIdsLength() int {
 	return 0
 }
 
-func (rcv *Log) MutateTimeIds(j int, n int64) bool {
+func (rcv *Log) MutateTimeIds(j int, n int32) bool {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
-		return rcv._tab.MutateInt64(a+flatbuffers.UOffsetT(j*8), n)
+		return rcv._tab.MutateInt32(a+flatbuffers.UOffsetT(j*4), n)
 	}
 	return false
 }
@@ -79,7 +79,7 @@ func LogAddTimeIds(builder *flatbuffers.Builder, timeIds flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(timeIds), 0)
 }
 func LogStartTimeIdsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
-	return builder.StartVector(8, numElems, 8)
+	return builder.StartVector(4, numElems, 4)
 }
 func LogAddObjects(builder *flatbuffers.Builder, objects flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(objects), 0)

@@ -1,7 +1,7 @@
 namespace WalBuffers;
 
 table Log {
-  timeIds: [long];
+  timeIds: [int];
   objects: [ObjectLog];
 }
 
@@ -14,13 +14,13 @@ table ObjectLog {
 }
 
 table TimeLog {
-  timeId: ulong;
+  timeId: int;
   x: int = 99999999;
   y: int = 99999999;
   angle: float = 99999999;
   cannonAngle: float = 99999999;
   cannonRotation: float = 99999999;
-  cannonUntilTimeId: long = 99999999;
+  cannonUntilTimeId: int = 99999999;
   fire: bool;
   isDelete: bool;
   explode: bool;
@@ -29,7 +29,7 @@ table TimeLog {
   velocityX: float = 99999999;
   velocityY: float = 99999999;
   velocityRotation: float = 99999999;
-  velocityUntilTimeId: long = 99999999;
+  velocityUntilTimeId: int = 99999999;
 }
 
 root_type Log;

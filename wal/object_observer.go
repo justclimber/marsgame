@@ -1,18 +1,21 @@
 package wal
 
-import "aakimov/marsgame/physics"
+import (
+	"aakimov/marsgame/helpers"
+	"aakimov/marsgame/physics"
+)
 
 type ObjectObserver struct {
 	Id                      uint32
 	ObjType                 int8
 	timeLog                 *TimeLog
 	objectLog               *ObjectLog
-	lastVelocityX           *float64
-	lastVelocityY           *float64
+	lastVelocityLen         *float64
 	lastVelocityRotation    *float64
 	lastVelocityUntilTimeId *int64
 	lastCannonRotation      *float64
 	lastCannonUntilTimeId   *int64
+	toDelete                bool
 }
 
 func (w *Wal) NewObjectObserver(id uint32, objType int8) *ObjectObserver {
@@ -25,20 +28,19 @@ func (w *Wal) NewObjectObserver(id uint32, objType int8) *ObjectObserver {
 		timeLog:   tl,
 	}
 
-	o.lastVelocityX = &tl.VelocityX
-	o.lastVelocityY = &tl.VelocityY
+	o.lastVelocityLen = &tl.VelocityLen
 	o.lastVelocityRotation = &tl.VelocityRotation
 	o.lastVelocityUntilTimeId = &tl.VelocityUntilTimeId
 	o.lastCannonRotation = &tl.CannonRotation
 	o.lastCannonUntilTimeId = &tl.CannonUntilTimeId
 
-	w.objectObservers = append(w.objectObservers, o)
-	w.logBuffer.Objects = append(w.logBuffer.Objects, ol)
+	w.objectObservers[id] = o
+	w.logBuffer.Objects[id] = ol
 	return o
 }
 
 func (oo *ObjectObserver) AddRotation(rotation float64) {
-	oo.timeLog.VelocityRotation = rotation
+	oo.timeLog.VelocityRotation = helpers.Round(rotation)
 }
 
 func (oo *ObjectObserver) AddAngle(angle float64) {
@@ -50,6 +52,8 @@ func (oo *ObjectObserver) AddPosAndVelocity(pos physics.Point, velocity *physics
 	oo.timeLog.Y = pos.Y
 	oo.timeLog.VelocityX = velocity.X
 	oo.timeLog.VelocityY = velocity.Y
+	velocity = &physics.Vector{X: velocity.X, Y: velocity.Y}
+	oo.timeLog.VelocityLen = helpers.Round(velocity.Len())
 }
 
 func (oo *ObjectObserver) AddCannonRotation(rotation float64) {
@@ -66,6 +70,7 @@ func (oo *ObjectObserver) AddShoot() {
 
 func (oo *ObjectObserver) AddDelete() {
 	oo.timeLog.Delete = true
+	oo.toDelete = true
 }
 
 func (oo *ObjectObserver) AddExplode() {

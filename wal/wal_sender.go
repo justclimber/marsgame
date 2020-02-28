@@ -58,14 +58,15 @@ func (s *Sender) logToBuffer(logToBuff *Log) []byte {
 	builder := flatbuffers.NewBuilder(1024)
 	WalBuffers.LogStartTimeIdsVector(builder, len(logToBuff.TimeIds))
 	for _, v := range logToBuff.TimeIds {
-		builder.PrependInt64(v)
+		builder.PrependInt32(int32(v))
 	}
 	timeIdsBuffObj := builder.EndVector(len(logToBuff.TimeIds))
 
 	objsCount := len(logToBuff.Objects)
 	objectLogBuffers := make([]flatbuffers.UOffsetT, objsCount)
 
-	for objIndex, obj := range logToBuff.Objects {
+	i := 0
+	for _, obj := range logToBuff.Objects {
 		timeLogsCount := len(obj.Times)
 		timeLogBuffers := make([]flatbuffers.UOffsetT, timeLogsCount)
 		for i, timeLog := range obj.Times {
@@ -77,18 +78,19 @@ func (s *Sender) logToBuffer(logToBuff *Log) []byte {
 			didsBuffObject := builder.EndVector(didCount)
 
 			WalBuffers.TimeLogStart(builder)
+			WalBuffers.TimeLogAddTimeId(builder, int32(timeLog.TimeId))
 			WalBuffers.TimeLogAddX(builder, int32(timeLog.X))
 			WalBuffers.TimeLogAddY(builder, int32(timeLog.Y))
 			WalBuffers.TimeLogAddAngle(builder, float32(timeLog.Angle))
 			WalBuffers.TimeLogAddCannonAngle(builder, float32(timeLog.CannonAngle))
 			WalBuffers.TimeLogAddCannonRotation(builder, float32(timeLog.CannonRotation))
-			WalBuffers.TimeLogAddCannonUntilTimeId(builder, timeLog.CannonUntilTimeId)
+			WalBuffers.TimeLogAddCannonUntilTimeId(builder, int32(timeLog.CannonUntilTimeId))
 			WalBuffers.TimeLogAddFire(builder, timeLog.Fire)
 			WalBuffers.TimeLogAddIsDelete(builder, timeLog.Delete)
 			WalBuffers.TimeLogAddVelocityX(builder, float32(timeLog.VelocityX))
 			WalBuffers.TimeLogAddVelocityY(builder, float32(timeLog.VelocityY))
 			WalBuffers.TimeLogAddVelocityRotation(builder, float32(timeLog.VelocityRotation))
-			WalBuffers.TimeLogAddVelocityUntilTimeId(builder, timeLog.VelocityUntilTimeId)
+			WalBuffers.TimeLogAddVelocityUntilTimeId(builder, int32(timeLog.VelocityUntilTimeId))
 			WalBuffers.TimeLogAddDeleteOtherIds(builder, didsBuffObject)
 			timeLogBuffers[i] = WalBuffers.TimeLogEnd(builder)
 		}
@@ -102,7 +104,8 @@ func (s *Sender) logToBuffer(logToBuff *Log) []byte {
 		WalBuffers.ObjectLogAddId(builder, obj.Id)
 		WalBuffers.ObjectLogAddObjectType(builder, obj.ObjType)
 		WalBuffers.ObjectLogAddTimes(builder, timeLogBuffersObject)
-		objectLogBuffers[objIndex] = WalBuffers.ObjectLogEnd(builder)
+		objectLogBuffers[i] = WalBuffers.ObjectLogEnd(builder)
+		i++
 	}
 
 	WalBuffers.LogStartObjectsVector(builder, objsCount)

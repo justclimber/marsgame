@@ -15,25 +15,23 @@ func (oo *ObjectObserver) optimize() {
 	}
 	lastTimeLog := oo.objectLog.LastTimeLog()
 	if lastTimeLog == nil {
-		oo.lastVelocityX = &oo.timeLog.VelocityX
-		oo.lastVelocityY = &oo.timeLog.VelocityY
+		oo.lastVelocityLen = &oo.timeLog.VelocityLen
 		oo.lastVelocityUntilTimeId = &oo.timeLog.VelocityUntilTimeId
 		return
 	}
 	oo.timeLog.skip = true
-	if oo.timeLog.VelocityX != defaultFloat &&
-		oo.lastVelocityX != nil &&
-		oo.timeLog.VelocityX == *oo.lastVelocityX &&
-		oo.timeLog.VelocityY == *oo.lastVelocityY {
+	if oo.timeLog.VelocityLen != defaultFloat &&
+		oo.timeLog.VelocityLen == *oo.lastVelocityLen &&
+		oo.timeLog.VelocityRotation == *oo.lastVelocityRotation {
 
 		lastTimeLog.VelocityUntilTimeId = oo.timeLog.TimeId
 		oo.timeLog.X = defaultInt
 		oo.timeLog.Y = defaultInt
 		oo.timeLog.VelocityX = defaultFloat
 		oo.timeLog.VelocityY = defaultFloat
+		oo.timeLog.VelocityLen = defaultFloat
 	} else {
-		oo.lastVelocityX = &oo.timeLog.VelocityX
-		oo.lastVelocityY = &oo.timeLog.VelocityY
+		oo.lastVelocityLen = &oo.timeLog.VelocityLen
 		oo.lastVelocityUntilTimeId = &oo.timeLog.VelocityUntilTimeId
 		oo.timeLog.skip = false
 	}

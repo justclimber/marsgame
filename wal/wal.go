@@ -3,20 +3,24 @@
 // параллельными программами и браузерами
 package wal
 
+import (
+	"aakimov/marsgame/helpers"
+)
+
 const defaultInt = 99999999
-const defaultFloat = 99999999.
+const defaultFloat = 99999999
 const LogBufferSize = 8
 
 type Wal struct {
 	curSize         int8
 	logBuffer       *Log
-	objectObservers []*ObjectObserver
+	objectObservers map[uint32]*ObjectObserver
 	Sender          *Sender
 }
 
 func NewWal() *Wal {
 	return &Wal{
-		objectObservers: make([]*ObjectObserver, 0),
+		objectObservers: make(map[uint32]*ObjectObserver),
 		logBuffer:       NewLog(),
 		Sender:          NewSender(),
 	}
@@ -24,13 +28,13 @@ func NewWal() *Wal {
 
 type Log struct {
 	TimeIds []int64
-	Objects []*ObjectLog
+	Objects map[uint32]*ObjectLog
 }
 
 func NewLog() *Log {
 	return &Log{
 		TimeIds: make([]int64, 0),
-		Objects: make([]*ObjectLog, 0),
+		Objects: make(map[uint32]*ObjectLog),
 	}
 }
 
@@ -39,7 +43,19 @@ func (w *Wal) Commit(timeId int64) {
 	w.curSize++
 
 	if w.curSize == LogBufferSize {
+		for k, o := range w.logBuffer.Objects {
+			if len(o.Times) == 0 {
+				delete(w.logBuffer.Objects, k)
+			}
+		}
+		helpers.PrettyPrint("wal", w.logBuffer)
 		w.Sender.logCh <- w.logBuffer
+		for k, oo := range w.objectObservers {
+			if oo.toDelete {
+				delete(w.objectObservers, k)
+				delete(w.logBuffer.Objects, k)
+			}
+		}
 		w.curSize = 0
 		w.resetLogBuffer()
 	}
@@ -48,22 +64,20 @@ func (w *Wal) Commit(timeId int64) {
 func (w *Wal) resetLogBuffer() {
 	w.logBuffer = &Log{
 		TimeIds: make([]int64, 0),
-		Objects: make([]*ObjectLog, len(w.objectObservers)),
+		Objects: make(map[uint32]*ObjectLog),
 	}
 
-	for i, oo := range w.objectObservers {
+	for _, oo := range w.objectObservers {
 		ol := NewObjectLog(oo.Id, oo.ObjType)
 		tl := NewTimeLog(false)
 		oo.objectLog = ol
 		oo.timeLog = tl
-		oo.lastVelocityX = &tl.VelocityX
-		oo.lastVelocityY = &tl.VelocityY
+		oo.lastVelocityLen = &tl.VelocityLen
 		oo.lastVelocityRotation = &tl.VelocityRotation
 		oo.lastVelocityUntilTimeId = &tl.VelocityUntilTimeId
 		oo.lastCannonRotation = &tl.CannonRotation
 		oo.lastCannonUntilTimeId = &tl.CannonUntilTimeId
-
-		w.logBuffer.Objects[i] = ol
+		w.logBuffer.Objects[oo.Id] = ol
 	}
 }
 
@@ -105,6 +119,7 @@ type TimeLog struct {
 	DeleteOtherObjectIds []uint32
 	VelocityX            float64
 	VelocityY            float64
+	VelocityLen          float64
 	VelocityRotation     float64
 	VelocityUntilTimeId  int64
 }
@@ -120,6 +135,7 @@ func NewTimeLog(isNew bool) *TimeLog {
 		CannonUntilTimeId:   defaultInt,
 		VelocityX:           defaultFloat,
 		VelocityY:           defaultFloat,
+		VelocityLen:         defaultFloat,
 		VelocityRotation:    defaultFloat,
 		VelocityUntilTimeId: defaultInt,
 	}
