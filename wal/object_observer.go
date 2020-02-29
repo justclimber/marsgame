@@ -71,6 +71,7 @@ func (oo *ObjectObserver) AddDelete() {
 }
 
 func (oo *ObjectObserver) AddExplode() {
+	oo.timeLog.Delete = true
 	oo.timeLog.Explode = true
 }
 

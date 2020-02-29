@@ -95,6 +95,8 @@ func (s *Sender) logToBuffer(logToBuff *Log) []byte {
 			WalBuffers.TimeLogAddCannonRotation(builder, float32(timeLog.CannonRotation))
 			WalBuffers.TimeLogAddCannonUntilTimeId(builder, int32(timeLog.CannonUntilTimeId))
 			WalBuffers.TimeLogAddFire(builder, timeLog.Fire)
+			WalBuffers.TimeLogAddExplode(builder, timeLog.Explode)
+			WalBuffers.TimeLogAddExplodeOther(builder, timeLog.ExplodeOther)
 			WalBuffers.TimeLogAddIsDelete(builder, timeLog.Delete)
 			WalBuffers.TimeLogAddVelocityLen(builder, float32(timeLog.VelocityLen))
 			WalBuffers.TimeLogAddVelocityRotation(builder, float32(timeLog.VelocityRotation))

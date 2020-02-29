@@ -56,8 +56,8 @@ func (w *World) MakeRandomObjectsByType(seed RandomObjSeed) {
 		x := 10000.
 		y := x
 		for x > 9800 && x < 10200 && y > 9800 && y < 10200 {
-			x = float64(rand.Int31n(2000)) + 9000.
-			y = float64(rand.Int31n(2000)) + 9000.
+			x = float64(rand.Int31n(10000)) + 6000.
+			y = float64(rand.Int31n(10000)) + 6000.
 		}
 		w.objCount += 1
 		newObj := &Object{
@@ -84,9 +84,9 @@ func (w *World) MakeRandomObjectsByType(seed RandomObjSeed) {
 
 func (w *World) MakeRandomObjects() {
 	for _, v := range []RandomObjSeed{
-		{TypeRock, 1, 100, nil},
-		{TypeXelon, 1, 50, nil},
-		{TypeEnemyMech, 0, 100, func(obj *Object) {
+		{TypeRock, 40, 100, nil},
+		{TypeXelon, 30, 50, nil},
+		{TypeEnemyMech, 10, 100, func(obj *Object) {
 			obj.Speed = rand.Float64()*50 + 5.
 			obj.AngleSpeed = rand.Float64()*1.2 - 0.7
 		}},

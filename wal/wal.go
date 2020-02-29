@@ -3,10 +3,6 @@
 // параллельными программами и браузерами
 package wal
 
-import (
-	"aakimov/marsgame/helpers"
-)
-
 const defaultInt = 99999999
 const defaultFloat = 99999999
 const LogBufferSize = 8
@@ -63,7 +59,7 @@ func (w *Wal) Commit(timeId int64) {
 				delete(w.logBuffer.Objects, k)
 			}
 		}
-		helpers.PrettyPrint("wal", w.logBuffer)
+		//helpers.PrettyPrint("wal", w.logBuffer)
 		w.Sender.logCh <- w.logBuffer
 		for k, oo := range w.objectObservers {
 			if oo.toDelete {

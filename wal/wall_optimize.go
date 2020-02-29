@@ -8,6 +8,7 @@ func (oo *ObjectObserver) optimize() {
 		!oo.timeLog.IsNew &&
 		!oo.timeLog.Fire &&
 		!oo.timeLog.Delete &&
+		len(oo.timeLog.DeleteOtherObjectIds) == 0 &&
 		!oo.timeLog.Explode {
 
 		oo.timeLog.skip = true
@@ -34,17 +35,15 @@ func (oo *ObjectObserver) optimize() {
 		oo.timeLog.skip = false
 	}
 
-	//if (oo.timeLog.CannonAngle == nil && oo.lastVelocityRotation == nil) ||
-	//	(oo.timeLog.VelocityRotation != nil &&
-	//		oo.lastVelocityRotation != nil &&
-	//		*oo.timeLog.VelocityRotation == *oo.lastVelocityRotation) {
-	//	oo.timeLog.Angle = nil
-	//	oo.timeLog.VelocityRotation = nil
-	//} else {
-	//	oo.timeLog.skip = false
-	//}
+	if oo.timeLog.IsNew ||
+		oo.timeLog.Fire ||
+		oo.timeLog.Delete ||
+		len(oo.timeLog.DeleteOtherObjectIds) != 0 ||
+		oo.timeLog.Explode {
+		oo.timeLog.skip = false
+	}
 
-	//if (oo.timeLog.VelocityRotation == nil && oo.lastVelocityRotation == nil) ||
+	//if (oo.timeLog.CannonAngle == nil && oo.lastVelocityRotation == nil) ||
 	//	(oo.timeLog.VelocityRotation != nil &&
 	//		oo.lastVelocityRotation != nil &&
 	//		*oo.timeLog.VelocityRotation == *oo.lastVelocityRotation) {
