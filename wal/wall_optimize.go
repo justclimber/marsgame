@@ -27,8 +27,6 @@ func (oo *ObjectObserver) optimize() {
 		lastTimeLog.VelocityUntilTimeId = oo.timeLog.TimeId
 		oo.timeLog.X = defaultInt
 		oo.timeLog.Y = defaultInt
-		oo.timeLog.VelocityX = defaultFloat
-		oo.timeLog.VelocityY = defaultFloat
 		oo.timeLog.VelocityLen = defaultFloat
 	} else {
 		oo.lastVelocityLen = &oo.timeLog.VelocityLen

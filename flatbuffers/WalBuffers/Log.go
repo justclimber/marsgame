@@ -26,8 +26,20 @@ func (rcv *Log) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *Log) TimeIds(j int) int32 {
+func (rcv *Log) CurrTimeId() int32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
+	if o != 0 {
+		return rcv._tab.GetInt32(o + rcv._tab.Pos)
+	}
+	return 0
+}
+
+func (rcv *Log) MutateCurrTimeId(n int32) bool {
+	return rcv._tab.MutateInt32Slot(4, n)
+}
+
+func (rcv *Log) TimeIds(j int) int32 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
 		return rcv._tab.GetInt32(a + flatbuffers.UOffsetT(j*4))
@@ -36,7 +48,7 @@ func (rcv *Log) TimeIds(j int) int32 {
 }
 
 func (rcv *Log) TimeIdsLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
@@ -44,7 +56,7 @@ func (rcv *Log) TimeIdsLength() int {
 }
 
 func (rcv *Log) MutateTimeIds(j int, n int32) bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
 		return rcv._tab.MutateInt32(a+flatbuffers.UOffsetT(j*4), n)
@@ -53,7 +65,7 @@ func (rcv *Log) MutateTimeIds(j int, n int32) bool {
 }
 
 func (rcv *Log) Objects(obj *ObjectLog, j int) bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		x := rcv._tab.Vector(o)
 		x += flatbuffers.UOffsetT(j) * 4
@@ -65,7 +77,7 @@ func (rcv *Log) Objects(obj *ObjectLog, j int) bool {
 }
 
 func (rcv *Log) ObjectsLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
@@ -73,16 +85,19 @@ func (rcv *Log) ObjectsLength() int {
 }
 
 func LogStart(builder *flatbuffers.Builder) {
-	builder.StartObject(2)
+	builder.StartObject(3)
+}
+func LogAddCurrTimeId(builder *flatbuffers.Builder, currTimeId int32) {
+	builder.PrependInt32Slot(0, currTimeId, 0)
 }
 func LogAddTimeIds(builder *flatbuffers.Builder, timeIds flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(timeIds), 0)
+	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(timeIds), 0)
 }
 func LogStartTimeIdsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
 }
 func LogAddObjects(builder *flatbuffers.Builder, objects flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(objects), 0)
+	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(objects), 0)
 }
 func LogStartObjectsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)

@@ -52,12 +52,11 @@ func (o *Object) run(world *World, timeDelta time.Duration, timeId int64) {
 	defer o.Unlock()
 	defer o.wal.Commit(timeId)
 
-	if o.AngleSpeed != 0 {
-		o.Angle = physics.NormalizeAngle(o.Angle + o.AngleSpeed)
-		o.Direction = physics.MakeNormalVectorByAngle(o.Angle)
+	rotation := o.AngleSpeed * timeDelta.Seconds()
 
-		o.wal.AddAngle(o.Angle)
-		o.wal.AddRotation(o.AngleSpeed)
+	if rotation != 0 {
+		o.Angle = physics.NormalizeAngle(o.Angle + rotation)
+		o.Direction = physics.MakeNormalVectorByAngle(o.Angle)
 	}
 
 	if o.Speed != 0 {
@@ -67,9 +66,11 @@ func (o *Object) run(world *World, timeDelta time.Duration, timeId int64) {
 			o.wal.AddDelete()
 			return
 		}
-		o.wal.AddPosAndVelocity(o.Pos, o.Velocity)
 		o.collisions(world)
 	}
+	o.wal.AddAngle(o.Angle)
+	o.wal.AddRotation(rotation)
+	o.wal.AddPosAndVelocity(o.Pos, o.Velocity)
 }
 
 // просчет коллизий с другими объектами

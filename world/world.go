@@ -32,7 +32,7 @@ func NewWorld(server *server.Server) World {
 		newObjectsCh:   make(chan IObject, 10),
 		width:          Wide,
 		height:         Wide,
-		runSpeedMs:     200,
+		runSpeedMs:     100,
 		codeRunSpeedMs: 1000,
 		wal:            wal.NewWal(),
 	}
@@ -56,8 +56,8 @@ func (w *World) MakeRandomObjectsByType(seed RandomObjSeed) {
 		x := 10000.
 		y := x
 		for x > 9800 && x < 10200 && y > 9800 && y < 10200 {
-			x = float64(rand.Int31n(8000)) + 6000.
-			y = float64(rand.Int31n(8000)) + 6000.
+			x = float64(rand.Int31n(2000)) + 9000.
+			y = float64(rand.Int31n(2000)) + 9000.
 		}
 		w.objCount += 1
 		newObj := &Object{
@@ -66,12 +66,18 @@ func (w *World) MakeRandomObjectsByType(seed RandomObjSeed) {
 				Type:            seed.objType,
 				Pos:             physics.Point{X: x, Y: y},
 				CollisionRadius: seed.collisionRadius,
+				Velocity:        &physics.Vector{},
+				Direction:       physics.MakeNormalVectorByAngle(0),
 			},
 			wal: w.wal.NewObjectObserver(w.objCount, ObjectTypeToInt(seed.objType)),
 		}
+
 		if seed.extraCallback != nil {
 			seed.extraCallback(newObj)
 		}
+		newObj.wal.AddAngle(newObj.Angle)
+		newObj.wal.AddPosAndVelocity(newObj.Pos, newObj.Velocity)
+		newObj.wal.AddRotation(0)
 		w.objects[w.objCount] = newObj
 	}
 }
@@ -80,7 +86,7 @@ func (w *World) MakeRandomObjects() {
 	for _, v := range []RandomObjSeed{
 		{TypeRock, 1, 100, nil},
 		{TypeXelon, 1, 50, nil},
-		{TypeEnemyMech, 1, 100, func(obj *Object) {
+		{TypeEnemyMech, 0, 100, func(obj *Object) {
 			obj.Speed = rand.Float64()*50 + 5.
 			obj.AngleSpeed = rand.Float64()*1.2 - 0.7
 		}},

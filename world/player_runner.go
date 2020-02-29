@@ -13,8 +13,8 @@ const mechFullRotateThrottleEnergyPerSec = 2000
 const shootEnergy = 4000
 const xelonsInOneCrystal = 200
 const MissileSpeed = 50
-const MaxRotationValue float64 = 0.1
-const MaxCannonRotationValue float64 = 0.11
+const MaxRotationValue float64 = 1
+const MaxCannonRotationValue float64 = 1.1
 
 func areTimeIdNearlySameOrGrater(t1, t2 int64) bool {
 	return t1 > t2 || helpers.AbsInt64(t1-t2) < nearTimeDelta
@@ -26,18 +26,18 @@ func (p *Player) run(timeDelta time.Duration, timeId int64) {
 	defer mech.Unlock()
 	defer p.wal.Commit(timeId)
 
+	rotation := 0.
+
 	// просчет поворота меха
 	if mech.rotateThrottle != 0 {
 		energyNeed := int(mech.rotateThrottle * mechFullRotateThrottleEnergyPerSec * timeDelta.Seconds())
 		throttleRegression := mech.generator.consumeWithPartlyUsage(energyNeed)
 
-		rotation := mech.rotateThrottle * MaxRotationValue * throttleRegression
+		rotation = mech.rotateThrottle * MaxRotationValue * throttleRegression * timeDelta.Seconds()
 		mech.Obj.Angle = physics.NormalizeAngle(mech.Obj.Angle + rotation)
 		mech.Obj.Direction = physics.MakeNormalVectorByAngle(mech.Obj.Angle)
 		mech.Obj.Velocity = mech.Obj.Direction.MultiplyOnScalar(mech.Obj.Velocity.Len())
 
-		p.wal.AddRotation(rotation)
-		p.wal.AddAngle(mech.Obj.Angle)
 	}
 
 	// просчет движения меха по вектору velocity
@@ -48,10 +48,12 @@ func (p *Player) run(timeDelta time.Duration, timeId int64) {
 		power := mech.throttle * maxPower * throttleRegression
 
 		mech.Obj.Pos, mech.Obj.Velocity = physics.MoveObjectByForces(&mech.Obj, power, timeDelta)
-		p.wal.AddPosAndVelocity(mech.Obj.Pos, mech.Obj.Velocity)
-
 		p.collisions()
 	}
+
+	p.wal.AddPosAndVelocity(mech.Obj.Pos, mech.Obj.Velocity)
+	p.wal.AddRotation(rotation)
+	p.wal.AddAngle(mech.Obj.Angle)
 
 	// просчет поворота башни меха
 	if mech.cannon.rotateThrottle != 0 {

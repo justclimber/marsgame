@@ -1,6 +1,7 @@
 namespace WalBuffers;
 
 table Log {
+  currTimeId: int;
   timeIds: [int];
   objects: [ObjectLog];
 }
@@ -26,8 +27,7 @@ table TimeLog {
   explode: bool;
   explodeOther: bool;
   deleteOtherIds: [uint];
-  velocityX: float = 99999999;
-  velocityY: float = 99999999;
+  velocityLen: float = 99999999;
   velocityRotation: float = 99999999;
   velocityUntilTimeId: int = 99999999;
 }

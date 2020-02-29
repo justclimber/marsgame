@@ -50,9 +50,6 @@ func (oo *ObjectObserver) AddAngle(angle float64) {
 func (oo *ObjectObserver) AddPosAndVelocity(pos physics.Point, velocity *physics.Vector) {
 	oo.timeLog.X = pos.X
 	oo.timeLog.Y = pos.Y
-	oo.timeLog.VelocityX = velocity.X
-	oo.timeLog.VelocityY = velocity.Y
-	velocity = &physics.Vector{X: velocity.X, Y: velocity.Y}
 	oo.timeLog.VelocityLen = helpers.Round(velocity.Len())
 }
 

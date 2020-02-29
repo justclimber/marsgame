@@ -6,21 +6,28 @@ import (
 )
 import flatbuffers "github.com/google/flatbuffers/go"
 
+type Subscriber struct {
+	client     *server.Client
+	currTimeId int64
+}
+
 type Sender struct {
+	logStorage    *Log
 	terminateCh   chan bool
 	logCh         chan *Log
 	subscribeCh   chan *server.Client
 	unsubscribeCh chan *server.Client
-	clients       map[uint32]*server.Client
+	subscribers   map[uint32]*Subscriber
 }
 
-func NewSender() *Sender {
+func NewSender(storage *Log) *Sender {
 	return &Sender{
+		logStorage:    storage,
 		terminateCh:   make(chan bool, 1),
 		logCh:         make(chan *Log, 10),
 		subscribeCh:   make(chan *server.Client, 10),
 		unsubscribeCh: make(chan *server.Client, 10),
-		clients:       make(map[uint32]*server.Client),
+		subscribers:   make(map[uint32]*Subscriber),
 	}
 }
 
@@ -42,13 +49,15 @@ func (s *Sender) SendLoop() {
 		case <-s.terminateCh:
 			return
 		case client := <-s.subscribeCh:
-			s.clients[client.Id] = client
+			s.subscribers[client.Id] = &Subscriber{client, s.logStorage.currTimeId}
+			client.SendBuffer(s.logToBuffer(s.logStorage))
 		case client := <-s.unsubscribeCh:
-			delete(s.clients, client.Id)
+			delete(s.subscribers, client.Id)
 		case log := <-s.logCh:
+			s.logStorage.merge(log)
 			buf := s.logToBuffer(log)
-			for _, client := range s.clients {
-				client.SendBuffer(buf)
+			for _, subscriber := range s.subscribers {
+				subscriber.client.SendBuffer(buf)
 			}
 		}
 	}
@@ -57,8 +66,8 @@ func (s *Sender) SendLoop() {
 func (s *Sender) logToBuffer(logToBuff *Log) []byte {
 	builder := flatbuffers.NewBuilder(1024)
 	WalBuffers.LogStartTimeIdsVector(builder, len(logToBuff.TimeIds))
-	for _, v := range logToBuff.TimeIds {
-		builder.PrependInt32(int32(v))
+	for i := len(logToBuff.TimeIds) - 1; i >= 0; i-- {
+		builder.PrependInt32(int32(logToBuff.TimeIds[i]))
 	}
 	timeIdsBuffObj := builder.EndVector(len(logToBuff.TimeIds))
 
@@ -87,12 +96,11 @@ func (s *Sender) logToBuffer(logToBuff *Log) []byte {
 			WalBuffers.TimeLogAddCannonUntilTimeId(builder, int32(timeLog.CannonUntilTimeId))
 			WalBuffers.TimeLogAddFire(builder, timeLog.Fire)
 			WalBuffers.TimeLogAddIsDelete(builder, timeLog.Delete)
-			WalBuffers.TimeLogAddVelocityX(builder, float32(timeLog.VelocityX))
-			WalBuffers.TimeLogAddVelocityY(builder, float32(timeLog.VelocityY))
+			WalBuffers.TimeLogAddVelocityLen(builder, float32(timeLog.VelocityLen))
 			WalBuffers.TimeLogAddVelocityRotation(builder, float32(timeLog.VelocityRotation))
 			WalBuffers.TimeLogAddVelocityUntilTimeId(builder, int32(timeLog.VelocityUntilTimeId))
 			WalBuffers.TimeLogAddDeleteOtherIds(builder, didsBuffObject)
-			timeLogBuffers[i] = WalBuffers.TimeLogEnd(builder)
+			timeLogBuffers[timeLogsCount-i-1] = WalBuffers.TimeLogEnd(builder)
 		}
 		WalBuffers.ObjectLogStartTimesVector(builder, timeLogsCount)
 		for _, buffer := range timeLogBuffers {
@@ -115,6 +123,7 @@ func (s *Sender) logToBuffer(logToBuff *Log) []byte {
 	objectLogBuffersObject := builder.EndVector(objsCount)
 
 	WalBuffers.LogStart(builder)
+	WalBuffers.LogAddCurrTimeId(builder, int32(logToBuff.currTimeId))
 	WalBuffers.LogAddTimeIds(builder, timeIdsBuffObj)
 	WalBuffers.LogAddObjects(builder, objectLogBuffersObject)
 	logBufferObj := WalBuffers.LogEnd(builder)

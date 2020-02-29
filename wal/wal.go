@@ -19,16 +19,18 @@ type Wal struct {
 }
 
 func NewWal() *Wal {
+	storage := NewLog()
 	return &Wal{
 		objectObservers: make(map[uint32]*ObjectObserver),
 		logBuffer:       NewLog(),
-		Sender:          NewSender(),
+		Sender:          NewSender(storage),
 	}
 }
 
 type Log struct {
-	TimeIds []int64
-	Objects map[uint32]*ObjectLog
+	currTimeId int64
+	TimeIds    []int64
+	Objects    map[uint32]*ObjectLog
 }
 
 func NewLog() *Log {
@@ -38,8 +40,21 @@ func NewLog() *Log {
 	}
 }
 
+func (l *Log) merge(withLog *Log) {
+	l.currTimeId = withLog.currTimeId
+	l.TimeIds = append(l.TimeIds, withLog.TimeIds...)
+	for k, v := range withLog.Objects {
+		if _, ok := l.Objects[k]; ok {
+			l.Objects[k].merge(v)
+		} else {
+			l.Objects[k] = v
+		}
+	}
+}
+
 func (w *Wal) Commit(timeId int64) {
 	w.logBuffer.TimeIds = append(w.logBuffer.TimeIds, timeId)
+	w.logBuffer.currTimeId = timeId
 	w.curSize++
 
 	if w.curSize == LogBufferSize {
@@ -67,6 +82,7 @@ func (w *Wal) resetLogBuffer() {
 		Objects: make(map[uint32]*ObjectLog),
 	}
 
+	w.logBuffer.Objects = make(map[uint32]*ObjectLog, len(w.objectObservers))
 	for _, oo := range w.objectObservers {
 		ol := NewObjectLog(oo.Id, oo.ObjType)
 		tl := NewTimeLog(false)
@@ -95,6 +111,10 @@ func NewObjectLog(id uint32, objType int8) *ObjectLog {
 	}
 }
 
+func (o *ObjectLog) merge(withObjectLog *ObjectLog) {
+	o.Times = append(o.Times, withObjectLog.Times...)
+}
+
 func (o *ObjectLog) LastTimeLog() *TimeLog {
 	if len(o.Times) == 0 {
 		return nil
@@ -117,8 +137,6 @@ type TimeLog struct {
 	Explode              bool
 	ExplodeOther         bool
 	DeleteOtherObjectIds []uint32
-	VelocityX            float64
-	VelocityY            float64
 	VelocityLen          float64
 	VelocityRotation     float64
 	VelocityUntilTimeId  int64
@@ -133,8 +151,6 @@ func NewTimeLog(isNew bool) *TimeLog {
 		CannonAngle:         defaultFloat,
 		CannonRotation:      defaultFloat,
 		CannonUntilTimeId:   defaultInt,
-		VelocityX:           defaultFloat,
-		VelocityY:           defaultFloat,
 		VelocityLen:         defaultFloat,
 		VelocityRotation:    defaultFloat,
 		VelocityUntilTimeId: defaultInt,

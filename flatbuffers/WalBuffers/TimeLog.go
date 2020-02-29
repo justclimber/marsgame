@@ -184,7 +184,7 @@ func (rcv *TimeLog) MutateDeleteOtherIds(j int, n uint32) bool {
 	return false
 }
 
-func (rcv *TimeLog) VelocityX() float32 {
+func (rcv *TimeLog) VelocityLen() float32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(28))
 	if o != 0 {
 		return rcv._tab.GetFloat32(o + rcv._tab.Pos)
@@ -192,11 +192,11 @@ func (rcv *TimeLog) VelocityX() float32 {
 	return 99999999.0
 }
 
-func (rcv *TimeLog) MutateVelocityX(n float32) bool {
+func (rcv *TimeLog) MutateVelocityLen(n float32) bool {
 	return rcv._tab.MutateFloat32Slot(28, n)
 }
 
-func (rcv *TimeLog) VelocityY() float32 {
+func (rcv *TimeLog) VelocityRotation() float32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(30))
 	if o != 0 {
 		return rcv._tab.GetFloat32(o + rcv._tab.Pos)
@@ -204,24 +204,12 @@ func (rcv *TimeLog) VelocityY() float32 {
 	return 99999999.0
 }
 
-func (rcv *TimeLog) MutateVelocityY(n float32) bool {
+func (rcv *TimeLog) MutateVelocityRotation(n float32) bool {
 	return rcv._tab.MutateFloat32Slot(30, n)
 }
 
-func (rcv *TimeLog) VelocityRotation() float32 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(32))
-	if o != 0 {
-		return rcv._tab.GetFloat32(o + rcv._tab.Pos)
-	}
-	return 99999999.0
-}
-
-func (rcv *TimeLog) MutateVelocityRotation(n float32) bool {
-	return rcv._tab.MutateFloat32Slot(32, n)
-}
-
 func (rcv *TimeLog) VelocityUntilTimeId() int32 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(34))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(32))
 	if o != 0 {
 		return rcv._tab.GetInt32(o + rcv._tab.Pos)
 	}
@@ -229,11 +217,11 @@ func (rcv *TimeLog) VelocityUntilTimeId() int32 {
 }
 
 func (rcv *TimeLog) MutateVelocityUntilTimeId(n int32) bool {
-	return rcv._tab.MutateInt32Slot(34, n)
+	return rcv._tab.MutateInt32Slot(32, n)
 }
 
 func TimeLogStart(builder *flatbuffers.Builder) {
-	builder.StartObject(16)
+	builder.StartObject(15)
 }
 func TimeLogAddTimeId(builder *flatbuffers.Builder, timeId int32) {
 	builder.PrependInt32Slot(0, timeId, 0)
@@ -274,17 +262,14 @@ func TimeLogAddDeleteOtherIds(builder *flatbuffers.Builder, deleteOtherIds flatb
 func TimeLogStartDeleteOtherIdsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
 }
-func TimeLogAddVelocityX(builder *flatbuffers.Builder, velocityX float32) {
-	builder.PrependFloat32Slot(12, velocityX, 99999999.0)
-}
-func TimeLogAddVelocityY(builder *flatbuffers.Builder, velocityY float32) {
-	builder.PrependFloat32Slot(13, velocityY, 99999999.0)
+func TimeLogAddVelocityLen(builder *flatbuffers.Builder, velocityLen float32) {
+	builder.PrependFloat32Slot(12, velocityLen, 99999999.0)
 }
 func TimeLogAddVelocityRotation(builder *flatbuffers.Builder, velocityRotation float32) {
-	builder.PrependFloat32Slot(14, velocityRotation, 99999999.0)
+	builder.PrependFloat32Slot(13, velocityRotation, 99999999.0)
 }
 func TimeLogAddVelocityUntilTimeId(builder *flatbuffers.Builder, velocityUntilTimeId int32) {
-	builder.PrependInt32Slot(15, velocityUntilTimeId, 99999999)
+	builder.PrependInt32Slot(14, velocityUntilTimeId, 99999999)
 }
 func TimeLogEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
