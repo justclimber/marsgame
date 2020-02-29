@@ -6,20 +6,22 @@ import (
 )
 
 type Client struct {
-	Id       int
-	ws       *websocket.Conn
-	server   *Server
-	commands chan *Command
-	doneCh   chan bool
+	Id         uint32
+	ws         *websocket.Conn
+	server     *Server
+	commandsCh chan *Command
+	buffersCh  chan []byte
+	doneCh     chan bool
 }
 
-func NewClient(id int, ws *websocket.Conn, server *Server) *Client {
+func NewClient(id uint32, ws *websocket.Conn, server *Server) *Client {
 	return &Client{
-		Id:       id,
-		ws:       ws,
-		server:   server,
-		commands: make(chan *Command),
-		doneCh:   make(chan bool),
+		Id:         id,
+		ws:         ws,
+		server:     server,
+		commandsCh: make(chan *Command, 10),
+		buffersCh:  make(chan []byte, 10),
+		doneCh:     make(chan bool, 2),
 	}
 }
 
@@ -33,15 +35,25 @@ func (c *Client) PackAndSendCommand(name string, payload interface{}) {
 }
 
 func (c *Client) SendCommand(command *Command) {
-	c.commands <- command
+	c.commandsCh <- command
+}
+
+func (c *Client) SendBuffer(buff []byte) {
+	c.buffersCh <- buff
 }
 
 func (c *Client) listenWrite() {
 	for {
 		select {
-		case cmd := <-c.commands:
+		case buf := <-c.buffersCh:
+			if err := c.ws.WriteMessage(websocket.BinaryMessage, buf); err != nil {
+				log.Fatalln(err)
+			}
+			//log.Printf("Buff sent to the client: %s\n", buf)
+			log.Printf("Payload size %d\n", len(buf))
+		case cmd := <-c.commandsCh:
 			if err := c.ws.WriteJSON(cmd); err != nil {
-				log.Println(err)
+				log.Fatalln(err)
 			}
 			//log.Printf("Command sent to the client with payload %s\n", cmd.Payload)
 			//log.Printf("Payload size %d\n", len(cmd.Payload))

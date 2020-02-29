@@ -5,7 +5,7 @@ import (
 )
 
 type Obj struct {
-	Id   int
+	Id   uint32
 	Type string
 	sync.Mutex
 	Pos             Point
@@ -14,7 +14,6 @@ type Obj struct {
 	Speed           float64
 	AngleSpeed      float64
 	Weight          float64
-	MoveDone        *Vector
 	Velocity        *Vector
 	Direction       *Vector
 }

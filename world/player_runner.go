@@ -1,10 +1,8 @@
 package world
 
 import (
-	"aakimov/marsgame/changelog"
 	"aakimov/marsgame/helpers"
 	"aakimov/marsgame/physics"
-	"math"
 	"time"
 )
 
@@ -14,84 +12,79 @@ const mechFullThrottleEnergyPerSec = 5000
 const mechFullRotateThrottleEnergyPerSec = 2000
 const shootEnergy = 4000
 const xelonsInOneCrystal = 200
+const MissileSpeed = 400
+const MaxRotationValue float64 = 1
+const MaxCannonRotationValue float64 = 1.1
 
 func areTimeIdNearlySameOrGrater(t1, t2 int64) bool {
 	return t1 > t2 || helpers.AbsInt64(t1-t2) < nearTimeDelta
 }
 
-func (p *Player) run(timeDelta time.Duration) *changelog.ChangeByObject {
+func (p *Player) run(timeDelta time.Duration, timeId int64) {
 	mech := p.mech
-	changeByObject := changelog.ChangeByObject{
-		ObjType: TypePlayer,
-		ObjId:   p.id,
-	}
 	mech.Lock()
 	defer mech.Unlock()
+	defer p.wal.Commit(timeId)
+
+	rotation := 0.
+	cannonRotation := 0.
 
 	// просчет поворота меха
 	if mech.rotateThrottle != 0 {
 		energyNeed := int(mech.rotateThrottle * mechFullRotateThrottleEnergyPerSec * timeDelta.Seconds())
 		throttleRegression := mech.generator.consumeWithPartlyUsage(energyNeed)
 
-		mech.Obj.Angle += mech.rotateThrottle * MaxRotationValue * throttleRegression
-		if mech.Obj.Angle > 2*math.Pi {
-			mech.Obj.Angle = mech.Obj.Angle - 2*math.Pi
-		} else if mech.Obj.Angle < 0 {
-			mech.Obj.Angle = 2*math.Pi + mech.Obj.Angle
-		}
-		newAngle := mech.Obj.Angle
-		changeByObject.Angle = &newAngle
-		mech.Obj.Direction = physics.MakeNormalVectorByAngle(newAngle)
+		rotation = mech.rotateThrottle * MaxRotationValue * throttleRegression * timeDelta.Seconds()
+		mech.Obj.Angle = physics.NormalizeAngle(mech.Obj.Angle + rotation)
+		mech.Obj.Direction = physics.MakeNormalVectorByAngle(mech.Obj.Angle)
 		mech.Obj.Velocity = mech.Obj.Direction.MultiplyOnScalar(mech.Obj.Velocity.Len())
+
 	}
 
 	// просчет движения меха по вектору velocity
-	velocityLen := mech.Velocity.Len
-	if mech.throttle != 0 || velocityLen() != 0 {
+	velocityLen := mech.Velocity.Len()
+	if mech.throttle != 0 || velocityLen != 0 {
 		energyNeed := int(mech.throttle * mechFullThrottleEnergyPerSec * timeDelta.Seconds())
 		throttleRegression := mech.generator.consumeWithPartlyUsage(energyNeed)
 		power := mech.throttle * maxPower * throttleRegression
 
-		newPos, newVelocity := physics.CalcMovementObject(&mech.Obj, power, timeDelta)
-		length := newPos.DistanceTo(&mech.Obj.Pos)
-		mech.Obj.Pos = *newPos
-		mech.Obj.Velocity = newVelocity
-		changeByObject.Pos = newPos
-		changeByObject.Length = &length
-
-		p.collisions(&changeByObject)
+		mech.Obj.Pos, mech.Obj.Velocity = physics.MoveObjectByForces(&mech.Obj, power, timeDelta)
+		p.collisions()
 	}
 
 	// просчет поворота башни меха
 	if mech.cannon.rotateThrottle != 0 {
-		mech.cannon.angle += mech.cannon.rotateThrottle * MaxCannonRotationValue
-		newCannonAngle := mech.cannon.angle
-		changeByObject.CannonAngle = &newCannonAngle
+		cannonRotation = mech.cannon.rotateThrottle * MaxCannonRotationValue * timeDelta.Seconds()
+		mech.cannon.angle += cannonRotation
+	}
+
+	if velocityLen != 0 || rotation != 0 {
+		p.wal.AddPosAndVelocityLen(mech.Obj.Pos, velocityLen)
+		p.wal.AddRotation(rotation)
+		p.wal.AddAngle(mech.Obj.Angle)
+		p.wal.AddCannonAngle(mech.cannon.angle)
+		p.wal.AddCannonRotation(cannonRotation)
 	}
 
 	// просчет выстрела
 	if mech.cannon.shoot.state == WillShoot {
 		mech.cannon.shoot.state = Planned
-		mech.cannon.shoot.willShootAt = p.world.timeId + int64(mech.cannon.shoot.delay)
+		mech.cannon.shoot.willShootAt = timeId + int64(mech.cannon.shoot.delay)
 	}
-	if mech.cannon.shoot.state == Planned && areTimeIdNearlySameOrGrater(p.world.timeId, mech.cannon.shoot.willShootAt) {
+	if mech.cannon.shoot.state == Planned && areTimeIdNearlySameOrGrater(timeId, mech.cannon.shoot.willShootAt) {
 		if mech.generator.consumeIfHas(shootEnergy) {
 			mech.cannon.shoot.state = None
 			p.shoot()
+			p.wal.AddShoot()
 		}
 	}
-
-	if mech.rotateThrottle != 0 || velocityLen() != 0 || mech.cannon.rotateThrottle != 0 {
-		return &changeByObject
-	}
-	return nil
 }
 
 // просчет коллизий с другими объектами
-func (p *Player) collisions(ch *changelog.ChangeByObject) {
+func (p *Player) collisions() {
 	for id, object := range p.world.objects {
 		if object.getType() != TypeMissile && p.mech.isCollideWith(object) {
-			ch.DeleteOtherId = id
+			p.wal.AddDeleteOtherIds([]uint32{id})
 			delete(p.world.objects, id)
 			if object.getType() == TypeXelon {
 				p.pickupXelon()

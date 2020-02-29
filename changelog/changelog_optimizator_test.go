@@ -2,7 +2,6 @@ package changelog
 
 import (
 	"aakimov/marsgame/physics"
-	"aakimov/marsgame/world"
 	"fmt"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -32,7 +31,7 @@ func TestChangeLog_OptimizeSimplePositiveCase(t *testing.T) {
 		newCR := cr
 
 		changeByObject := &ChangeByObject{
-			ObjType: world.TypePlayer,
+			ObjType: "player",
 			ObjId:   11,
 			Pos: &physics.Point{
 				X: x,
@@ -82,7 +81,7 @@ func TestChangeLog_OptimizeSimpleNegative(t *testing.T) {
 		newCR := cr
 
 		changeByObject := &ChangeByObject{
-			ObjType: world.TypePlayer,
+			ObjType: "player",
 			ObjId:   11,
 			Pos: &physics.Point{
 				X: x,
@@ -125,7 +124,7 @@ func TestChangeLog_OptimizePositiveMoreElements(t *testing.T) {
 		newCR := cr
 
 		changeByObject := &ChangeByObject{
-			ObjType: world.TypePlayer,
+			ObjType: "player",
 			ObjId:   11,
 			Pos: &physics.Point{
 				X: x,

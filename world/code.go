@@ -47,12 +47,12 @@ func (o *ObjTargetsByType) GetFirst(targetType int, def *object.StructDefinition
 	return targetsTyped[0]
 }
 
-func (o *ObjTargetsByType) actualize(check map[int]bool) {
+func (o *ObjTargetsByType) actualize(check map[uint32]bool) {
 	for k, v := range o.targets {
 		newTargets := make([]*object.Struct, 0)
 		for _, vv := range v {
 			id := vv.Fields["id"].(*object.Integer).Value
-			if _, exist := check[int(id)]; exist {
+			if _, exist := check[uint32(id)]; exist {
 				newTargets = append(newTargets, vv)
 			}
 		}
@@ -161,15 +161,8 @@ func (c *Code) loadWorldObjectsIntoEnv(
 	enums map[string]*object.EnumDefinition,
 	env *object.Environment,
 ) {
-	var objTypeToIntMap = map[string]int{
-		TypePlayer:    0,
-		TypeEnemyMech: 1,
-		TypeRock:      2,
-		TypeXelon:     3,
-		TypeMissile:   4,
-	}
 	elements := make([]object.Object, 0)
-	check := make(map[int]bool)
+	check := make(map[uint32]bool)
 	for _, o := range w.objects {
 		if o.getType() == TypeMissile {
 			// for the time being load only static objects
@@ -184,7 +177,7 @@ func (c *Code) loadWorldObjectsIntoEnv(
 		})
 		objStruct.Fields["type"] = &object.Enum{
 			Definition: enums["ObjectTypes"],
-			Value:      int8(objTypeToIntMap[o.getType()]),
+			Value:      ObjectTypeToInt(o.getType()),
 		}
 		elements = append(elements, objStruct)
 	}

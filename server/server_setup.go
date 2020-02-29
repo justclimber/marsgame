@@ -25,7 +25,7 @@ func (s *Server) wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
-	client := NewClient(id, ws, s)
+	client := NewClient(uint32(id), ws, s)
 	s.connectClient(client)
 	client.Listen()
 }

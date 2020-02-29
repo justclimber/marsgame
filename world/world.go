@@ -4,51 +4,44 @@ import (
 	"aakimov/marsgame/changelog"
 	"aakimov/marsgame/physics"
 	"aakimov/marsgame/server"
+	"aakimov/marsgame/wal"
 	"math/rand"
 	"time"
 )
 
-// max moving forward per turn
-const MaxMovingLength float64 = 7
-
-// max rotation per turn in radians
-const MaxRotationValue float64 = 0.1
-const MaxCannonRotationValue float64 = 0.11
-const MissileSpeed = 50
-const WorldWide = 30000
+const Wide = 30000
 
 type World struct {
 	Server         *server.Server
-	players        map[int]*Player
-	objects        map[int]IObject
-	changeLog      *changelog.ChangeLog
-	timeId         int64
-	objCount       int
+	players        map[uint32]*Player
+	objects        map[uint32]IObject
+	objCount       uint32
 	newObjectsCh   chan IObject
 	width          int
 	height         int
 	runSpeedMs     time.Duration
 	codeRunSpeedMs time.Duration
+	wal            *wal.Wal
 }
 
 func NewWorld(server *server.Server) World {
 	return World{
 		Server:         server,
-		players:        make(map[int]*Player),
-		objects:        make(map[int]IObject),
-		changeLog:      changelog.NewChangeLog(),
+		players:        make(map[uint32]*Player),
+		objects:        make(map[uint32]IObject),
 		newObjectsCh:   make(chan IObject, 10),
-		width:          WorldWide,
-		height:         WorldWide,
+		width:          Wide,
+		height:         Wide,
 		runSpeedMs:     100,
 		codeRunSpeedMs: 1000,
+		wal:            wal.NewWal(),
 	}
 }
 
 func (w *World) Bootstrap() {
 	w.MakeRandomObjects()
 	go w.run()
-	go w.sendChangelogLoop()
+	go w.wal.Sender.SendLoop()
 }
 
 type RandomObjSeed struct {
@@ -63,27 +56,36 @@ func (w *World) MakeRandomObjectsByType(seed RandomObjSeed) {
 		x := 10000.
 		y := x
 		for x > 9800 && x < 10200 && y > 9800 && y < 10200 {
-			x = float64(rand.Int31n(8000)) + 6000.
-			y = float64(rand.Int31n(8000)) + 6000.
+			x = float64(rand.Int31n(10000)) + 6000.
+			y = float64(rand.Int31n(10000)) + 6000.
 		}
 		w.objCount += 1
-		newObj := &Object{physics.Obj{
-			Id:              w.objCount,
-			Type:            seed.objType,
-			Pos:             physics.Point{X: x, Y: y},
-			CollisionRadius: seed.collisionRadius,
-		}}
+		newObj := &Object{
+			Obj: physics.Obj{
+				Id:              w.objCount,
+				Type:            seed.objType,
+				Pos:             physics.Point{X: x, Y: y},
+				CollisionRadius: seed.collisionRadius,
+				Velocity:        &physics.Vector{},
+				Direction:       physics.MakeNormalVectorByAngle(0),
+			},
+			wal: w.wal.NewObjectObserver(w.objCount, ObjectTypeToInt(seed.objType)),
+		}
+
 		if seed.extraCallback != nil {
 			seed.extraCallback(newObj)
 		}
+		newObj.wal.AddAngle(newObj.Angle)
+		newObj.wal.AddPosAndVelocityLen(newObj.Pos, newObj.Speed)
+		newObj.wal.AddRotation(0)
 		w.objects[w.objCount] = newObj
 	}
 }
 
 func (w *World) MakeRandomObjects() {
 	for _, v := range []RandomObjSeed{
-		{TypeRock, 50, 100, nil},
-		{TypeXelon, 50, 50, nil},
+		{TypeRock, 40, 100, nil},
+		{TypeXelon, 30, 50, nil},
 		{TypeEnemyMech, 10, 100, func(obj *Object) {
 			obj.Speed = rand.Float64()*50 + 5.
 			obj.AngleSpeed = rand.Float64()*1.2 - 0.7
@@ -93,12 +95,35 @@ func (w *World) MakeRandomObjects() {
 	}
 }
 
+func ObjectTypeToInt(objType string) int8 {
+	var objTypeToIntMap = map[string]int8{
+		TypePlayer:    0,
+		TypeEnemyMech: 1,
+		TypeRock:      2,
+		TypeXelon:     3,
+		TypeMissile:   4,
+	}
+	return objTypeToIntMap[objType]
+}
+
 func (w *World) createPlayerAndBootstrap(client *server.Client) *Player {
 	x := float64(rand.Int31n(1000)) + 9500.
 	y := float64(rand.Int31n(1000)) + 9500.
 	mech := NewMech(x, y)
-	player := NewPlayer(client.Id, client, w, mech, w.codeRunSpeedMs)
+	player := NewPlayer(
+		client.Id,
+		client,
+		w,
+		mech,
+		w.codeRunSpeedMs,
+		w.wal.NewObjectObserver(client.Id, ObjectTypeToInt(TypePlayer)),
+	)
+	player.wal.AddPosAndVelocityLen(mech.Pos, mech.Velocity.Len())
+	player.wal.AddAngle(mech.Angle)
+	player.wal.AddRotation(0)
+
 	w.players[player.id] = player
+	w.wal.Sender.Subscribe(player.client)
 	go player.runProgram()
 	go player.listen()
 
@@ -106,21 +131,21 @@ func (w *World) createPlayerAndBootstrap(client *server.Client) *Player {
 }
 
 func (w *World) reset() {
+	w.wal.Sender.Terminate()
+	w.wal = wal.NewWal()
 	for i, p := range w.players {
 		p.flowCh <- Terminate
 		astProgram := p.mainProgram.astProgram
 		w.players[i] = w.createPlayerAndBootstrap(p.client)
 		w.players[i].mainProgram.astProgram = astProgram
 	}
-	w.objects = make(map[int]IObject)
+	w.objects = make(map[uint32]IObject)
 	w.objCount = 0
 	w.MakeRandomObjects()
-	w.changeLog.Terminate()
-	w.changeLog = changelog.NewChangeLog()
-	go w.sendChangelogLoop()
 	for _, p := range w.players {
 		w.sendWorldInit(p)
 	}
+	go w.wal.Sender.SendLoop()
 }
 
 func (w *World) sendWorldInit(p *Player) {

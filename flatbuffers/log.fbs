@@ -1,0 +1,35 @@
+namespace WalBuffers;
+
+table Log {
+  currTimeId: int;
+  timeIds: [int];
+  objects: [ObjectLog];
+}
+
+enum ObjectType: byte {player, enemy_mech, rock, xelon, missile}
+
+table ObjectLog {
+  id: uint;
+  objectType: ObjectType;
+  times: [TimeLog];
+}
+
+table TimeLog {
+  timeId: int;
+  x: int = 99999999;
+  y: int = 99999999;
+  angle: float = 99999999;
+  cannonAngle: float = 99999999;
+  cannonRotation: float = 99999999;
+  cannonUntilTimeId: int = 99999999;
+  fire: bool;
+  isDelete: bool;
+  explode: bool;
+  explodeOther: bool;
+  deleteOtherIds: [uint];
+  velocityLen: float = 99999999;
+  velocityRotation: float = 99999999;
+  velocityUntilTimeId: int = 99999999;
+}
+
+root_type Log;

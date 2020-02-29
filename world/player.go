@@ -2,6 +2,7 @@ package world
 
 import (
 	"aakimov/marsgame/server"
+	"aakimov/marsgame/wal"
 	"aakimov/marslang/ast"
 	"aakimov/marslang/lexer"
 	"aakimov/marslang/parser"
@@ -10,7 +11,7 @@ import (
 )
 
 type Player struct {
-	id          int
+	id          uint32
 	world       *World
 	client      *server.Client
 	mech        *Mech
@@ -23,9 +24,16 @@ type Player struct {
 	errorCh     chan *Error
 	commandsCh  chan *server.Command
 	terminateCh chan bool
+	wal         *wal.ObjectObserver
 }
 
-func NewPlayer(id int, client *server.Client, w *World, m *Mech, runSpeedMs time.Duration) *Player {
+func NewPlayer(
+	id uint32,
+	client *server.Client,
+	w *World, m *Mech,
+	runSpeedMs time.Duration,
+	objectLogManager *wal.ObjectObserver,
+) *Player {
 	player := &Player{
 		id:          id,
 		world:       w,
@@ -40,6 +48,7 @@ func NewPlayer(id int, client *server.Client, w *World, m *Mech, runSpeedMs time
 		errorCh:     make(chan *Error, 10),
 		commandsCh:  make(chan *server.Command, 10),
 		terminateCh: make(chan bool, 1),
+		wal:         objectLogManager,
 	}
 	return player
 }

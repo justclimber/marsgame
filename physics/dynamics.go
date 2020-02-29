@@ -39,12 +39,13 @@ func applyAccelerateToVelocity(v *Vector, a *Vector, dt time.Duration) *Vector {
 }
 
 // рассчет перемещения
-func applyVelocityToPosition(p *Point, v *Vector, dt time.Duration) *Point {
-	return p.Add(v.MultiplyOnScalar(dt.Seconds()))
+func ApplyVelocityToPosition(point *Point, velocity *Vector, dt time.Duration) Point {
+	point = point.Add(velocity.MultiplyOnScalar(dt.Seconds()))
+	return *point
 }
 
 // общий рассчет
-func CalcMovementObject(obj *Obj, power float64, dt time.Duration) (*Point, *Vector) {
+func MoveObjectByForces(obj *Obj, power float64, dt time.Duration) (Point, *Vector) {
 	//m := make(map[string]interface{})
 	//m["dir"] = obj.Direction.X
 	//m["velocity"] = obj.Velocity.X
@@ -71,8 +72,8 @@ func CalcMovementObject(obj *Obj, power float64, dt time.Duration) (*Point, *Vec
 
 	// сила трения на малых скоростях может привести к отризательной скорости, убираем это
 	if obj.Direction.MultiplyOnVector(vNew) < 0 {
-		return &obj.Pos, &Vector{}
+		return obj.Pos, &Vector{}
 	}
 
-	return applyVelocityToPosition(&obj.Pos, vNew, dt), vNew
+	return ApplyVelocityToPosition(&obj.Pos, vNew, dt), vNew
 }
