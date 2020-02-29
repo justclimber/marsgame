@@ -70,7 +70,7 @@ func (o *Object) run(world *World, timeDelta time.Duration, timeId int64) {
 	}
 	o.wal.AddAngle(o.Angle)
 	o.wal.AddRotation(rotation)
-	o.wal.AddPosAndVelocity(o.Pos, o.Velocity)
+	o.wal.AddPosAndVelocityLen(o.Pos, o.Speed)
 }
 
 // просчет коллизий с другими объектами

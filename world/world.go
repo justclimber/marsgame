@@ -76,7 +76,7 @@ func (w *World) MakeRandomObjectsByType(seed RandomObjSeed) {
 			seed.extraCallback(newObj)
 		}
 		newObj.wal.AddAngle(newObj.Angle)
-		newObj.wal.AddPosAndVelocity(newObj.Pos, newObj.Velocity)
+		newObj.wal.AddPosAndVelocityLen(newObj.Pos, newObj.Speed)
 		newObj.wal.AddRotation(0)
 		w.objects[w.objCount] = newObj
 	}
@@ -118,6 +118,10 @@ func (w *World) createPlayerAndBootstrap(client *server.Client) *Player {
 		w.codeRunSpeedMs,
 		w.wal.NewObjectObserver(client.Id, ObjectTypeToInt(TypePlayer)),
 	)
+	player.wal.AddPosAndVelocityLen(mech.Pos, mech.Velocity.Len())
+	player.wal.AddAngle(mech.Angle)
+	player.wal.AddRotation(0)
+
 	w.players[player.id] = player
 	w.wal.Sender.Subscribe(player.client)
 	go player.runProgram()

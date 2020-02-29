@@ -47,10 +47,10 @@ func (oo *ObjectObserver) AddAngle(angle float64) {
 	oo.timeLog.Angle = angle
 }
 
-func (oo *ObjectObserver) AddPosAndVelocity(pos physics.Point, velocity *physics.Vector) {
+func (oo *ObjectObserver) AddPosAndVelocityLen(pos physics.Point, velocityLen float64) {
 	oo.timeLog.X = pos.X
 	oo.timeLog.Y = pos.Y
-	oo.timeLog.VelocityLen = helpers.Round(velocity.Len())
+	oo.timeLog.VelocityLen = helpers.Round(velocityLen)
 }
 
 func (oo *ObjectObserver) AddCannonRotation(rotation float64) {

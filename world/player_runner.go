@@ -12,7 +12,7 @@ const mechFullThrottleEnergyPerSec = 5000
 const mechFullRotateThrottleEnergyPerSec = 2000
 const shootEnergy = 4000
 const xelonsInOneCrystal = 200
-const MissileSpeed = 50
+const MissileSpeed = 400
 const MaxRotationValue float64 = 1
 const MaxCannonRotationValue float64 = 1.1
 
@@ -27,6 +27,7 @@ func (p *Player) run(timeDelta time.Duration, timeId int64) {
 	defer p.wal.Commit(timeId)
 
 	rotation := 0.
+	cannonRotation := 0.
 
 	// просчет поворота меха
 	if mech.rotateThrottle != 0 {
@@ -41,8 +42,8 @@ func (p *Player) run(timeDelta time.Duration, timeId int64) {
 	}
 
 	// просчет движения меха по вектору velocity
-	velocityLen := mech.Velocity.Len
-	if mech.throttle != 0 || velocityLen() != 0 {
+	velocityLen := mech.Velocity.Len()
+	if mech.throttle != 0 || velocityLen != 0 {
 		energyNeed := int(mech.throttle * mechFullThrottleEnergyPerSec * timeDelta.Seconds())
 		throttleRegression := mech.generator.consumeWithPartlyUsage(energyNeed)
 		power := mech.throttle * maxPower * throttleRegression
@@ -51,16 +52,18 @@ func (p *Player) run(timeDelta time.Duration, timeId int64) {
 		p.collisions()
 	}
 
-	p.wal.AddPosAndVelocity(mech.Obj.Pos, mech.Obj.Velocity)
-	p.wal.AddRotation(rotation)
-	p.wal.AddAngle(mech.Obj.Angle)
-
 	// просчет поворота башни меха
 	if mech.cannon.rotateThrottle != 0 {
-		cannonRotation := mech.cannon.rotateThrottle * MaxCannonRotationValue
+		cannonRotation = mech.cannon.rotateThrottle * MaxCannonRotationValue * timeDelta.Seconds()
 		mech.cannon.angle += cannonRotation
-		p.wal.AddCannonAngle(cannonRotation)
+	}
+
+	if velocityLen != 0 || rotation != 0 {
+		p.wal.AddPosAndVelocityLen(mech.Obj.Pos, velocityLen)
+		p.wal.AddRotation(rotation)
+		p.wal.AddAngle(mech.Obj.Angle)
 		p.wal.AddCannonAngle(mech.cannon.angle)
+		p.wal.AddCannonRotation(cannonRotation)
 	}
 
 	// просчет выстрела

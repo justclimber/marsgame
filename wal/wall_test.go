@@ -10,7 +10,7 @@ import (
 func TestWallSimple(t *testing.T) {
 	mainWal := NewWal()
 	objectLog := mainWal.NewObjectObserver(1, 1)
-	objectLog.AddPosAndVelocity(physics.Point{X: 10, Y: 10}, &physics.Vector{})
+	objectLog.AddPosAndVelocityLen(physics.Point{X: 10, Y: 10}, 0)
 	objectLog.Commit(101)
 	mainWal.Commit(101)
 	log := mainWal.logBuffer
@@ -52,10 +52,10 @@ func TestWallSimple(t *testing.T) {
 func TestWall2SameSimpleRecords(t *testing.T) {
 	mainWal := NewWal()
 	objectLog := mainWal.NewObjectObserver(1, 1)
-	objectLog.AddPosAndVelocity(physics.Point{X: 10, Y: 10}, &physics.Vector{})
+	objectLog.AddPosAndVelocityLen(physics.Point{X: 10, Y: 10}, 0)
 	objectLog.Commit(101)
 	mainWal.Commit(101)
-	objectLog.AddPosAndVelocity(physics.Point{X: 10, Y: 10}, &physics.Vector{})
+	objectLog.AddPosAndVelocityLen(physics.Point{X: 10, Y: 10}, 0)
 	objectLog.Commit(202)
 	mainWal.Commit(202)
 	log := mainWal.logBuffer
@@ -98,10 +98,10 @@ func TestWall2SameSimpleRecords(t *testing.T) {
 //func TestWall2AlmostSameRecords(t *testing.T) {
 //	mainWal := NewWal()
 //	objectLog := mainWal.NewObjectObserver(1, 1)
-//	objectLog.AddPosAndVelocity(physics.Point{X: 10, Y: 10}, &physics.Vector{})
+//	objectLog.AddPosAndVelocityLen(physics.Point{X: 10, Y: 10}, &physics.Vector{})
 //	objectLog.Commit(101)
 //	mainWal.Commit(101)
-//	objectLog.AddPosAndVelocity(physics.Point{X: 10, Y: 10}, &physics.Vector{})
+//	objectLog.AddPosAndVelocityLen(physics.Point{X: 10, Y: 10}, &physics.Vector{})
 //	objectLog.AddCannonAngle(1)
 //	objectLog.Commit(202)
 //	mainWal.Commit(202)
