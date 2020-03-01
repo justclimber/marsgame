@@ -1,7 +1,6 @@
 package world
 
 import (
-	"aakimov/marsgame/changelog"
 	"aakimov/marsgame/physics"
 	"aakimov/marsgame/server"
 	"aakimov/marsgame/wal"
@@ -84,9 +83,9 @@ func (w *World) MakeRandomObjectsByType(seed RandomObjSeed) {
 
 func (w *World) MakeRandomObjects() {
 	for _, v := range []RandomObjSeed{
-		{TypeRock, 2, 100, nil},
-		{TypeXelon, 2, 50, nil},
-		{TypeEnemyMech, 0, 100, func(obj *Object) {
+		{TypeRock, 30, 100, nil},
+		{TypeXelon, 30, 50, nil},
+		{TypeEnemyMech, 10, 100, func(obj *Object) {
 			obj.Speed = rand.Float64()*50 + 5.
 			obj.AngleSpeed = rand.Float64()*1.2 - 0.7
 		}},
@@ -144,33 +143,5 @@ func (w *World) reset() {
 	w.objects = make(map[uint32]IObject)
 	w.objCount = 0
 	w.MakeRandomObjects()
-	for _, p := range w.players {
-		w.sendWorldInit(p)
-	}
 	go w.wal.Sender.SendLoop()
-}
-
-func (w *World) sendWorldInit(p *Player) {
-	changeByTime := changelog.NewChangeByTime(0)
-	for _, p := range w.players {
-		changeByTime.Add(&changelog.ChangeByObject{
-			ObjType: TypePlayer,
-			ObjId:   p.id,
-			Pos:     &p.mech.Pos,
-			Angle:   &p.mech.Angle,
-		})
-	}
-	for _, o := range w.objects {
-		pos := o.getPos()
-		changeByTime.Add(&changelog.ChangeByObject{
-			ObjType: o.getType(),
-			ObjId:   o.getId(),
-			Pos:     &pos,
-		})
-	}
-	ch := changelog.NewChangeLog()
-	ch.AddAndCheckSize(changeByTime)
-
-	command := server.PackStructToCommand("worldInit", ch.GetLog())
-	p.client.SendCommand(command)
 }

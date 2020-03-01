@@ -36,7 +36,6 @@ func (w *World) listenChannels() {
 		select {
 		case client := <-w.Server.NewClientCh:
 			player := w.createPlayerAndBootstrap(client)
-			w.sendWorldInit(player)
 			log.Printf("New player [%d] added to the game", player.id)
 		case saveCode := <-w.Server.SaveAstCodeCh:
 			player, ok := w.players[saveCode.UserId]
