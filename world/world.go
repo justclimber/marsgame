@@ -84,9 +84,9 @@ func (w *World) MakeRandomObjectsByType(seed RandomObjSeed) {
 
 func (w *World) MakeRandomObjects() {
 	for _, v := range []RandomObjSeed{
-		{TypeRock, 40, 100, nil},
-		{TypeXelon, 30, 50, nil},
-		{TypeEnemyMech, 10, 100, func(obj *Object) {
+		{TypeRock, 2, 100, nil},
+		{TypeXelon, 2, 50, nil},
+		{TypeEnemyMech, 0, 100, func(obj *Object) {
 			obj.Speed = rand.Float64()*50 + 5.
 			obj.AngleSpeed = rand.Float64()*1.2 - 0.7
 		}},
@@ -120,6 +120,8 @@ func (w *World) createPlayerAndBootstrap(client *server.Client) *Player {
 	)
 	player.wal.AddPosAndVelocityLen(mech.Pos, mech.Velocity.Len())
 	player.wal.AddAngle(mech.Angle)
+	player.wal.AddRotation(0)
+	player.wal.AddCannonAngle(0)
 	player.wal.AddRotation(0)
 
 	w.players[player.id] = player
