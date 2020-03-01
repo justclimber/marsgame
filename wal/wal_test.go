@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestWallSimple(t *testing.T) {
+func TestWalSimple(t *testing.T) {
 	mainWal := NewWal()
 	objectLog := mainWal.NewObjectObserver(1, 1)
 	objectLog.AddPosAndVelocityLen(physics.Point{X: 10, Y: 10}, 0)
@@ -49,7 +49,7 @@ func TestWallSimple(t *testing.T) {
 }`, helpers.Pretty(log))
 }
 
-func TestWall2SameSimpleRecords(t *testing.T) {
+func TestWal2SameSimpleRecords(t *testing.T) {
 	mainWal := NewWal()
 	objectLog := mainWal.NewObjectObserver(1, 1)
 	objectLog.AddPosAndVelocityLen(physics.Point{X: 10, Y: 10}, 0)
@@ -95,7 +95,7 @@ func TestWall2SameSimpleRecords(t *testing.T) {
 }`, helpers.Pretty(log))
 }
 
-//func TestWall2AlmostSameRecords(t *testing.T) {
+//func TestWal2AlmostSameRecords(t *testing.T) {
 //	mainWal := NewWal()
 //	objectLog := mainWal.NewObjectObserver(1, 1)
 //	objectLog.AddPosAndVelocityLen(physics.Point{X: 10, Y: 10}, &physics.Vector{})
