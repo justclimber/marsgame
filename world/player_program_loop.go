@@ -74,9 +74,9 @@ func (p *Player) programLoop() {
 		case p.mainProgram.state = <-p.flowCh:
 			switch p.mainProgram.state {
 			case Stopped:
-				p.codeCommandsCh <- &Commands{}
+				p.codeCommandsCh <- NewEmptyCommands()
 			case Terminate:
-				p.codeCommandsCh <- &Commands{}
+				p.codeCommandsCh <- NewEmptyCommands()
 				p.mech.generator.terminate()
 				p.terminateCh <- true
 				ticker.Stop()

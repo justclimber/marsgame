@@ -14,6 +14,13 @@ type Commands struct {
 	mech   *MechCommands
 }
 
+func NewEmptyCommands() *Commands {
+	return &Commands{
+		cannon: &CannonCommands{&Shoot{}, 0},
+		mech:   &MechCommands{},
+	}
+}
+
 type MechCommands struct {
 	move   float64
 	rotate float64
@@ -53,11 +60,8 @@ func NewMech(x, y float64) *Mech {
 			0,
 			1000,
 		),
-		cannon: &Cannon{angle: 0, shoot: &Shoot{}},
-		commands: &Commands{
-			cannon: &CannonCommands{&Shoot{}, 0},
-			mech:   &MechCommands{},
-		},
+		cannon:   &Cannon{angle: 0, shoot: &Shoot{}},
+		commands: NewEmptyCommands(),
 		generator: Generator{
 			efficiency:            900,
 			rateMs:                100,
