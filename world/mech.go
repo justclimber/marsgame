@@ -4,16 +4,29 @@ import "aakimov/marsgame/physics"
 
 type Mech struct {
 	Object
-	cannon         *Cannon
-	throttle       float64
-	rotateThrottle float64
-	generator      Generator
+	cannon    *Cannon
+	commands  *Commands
+	generator Generator
+}
+
+type Commands struct {
+	cannon *CannonCommands
+	mech   *MechCommands
+}
+
+type MechCommands struct {
+	move   float64
+	rotate float64
+}
+
+type CannonCommands struct {
+	shoot  *Shoot
+	rotate float64
 }
 
 type Cannon struct {
-	shoot          Shoot
-	rotateThrottle float64
-	angle          float64
+	shoot *Shoot
+	angle float64
 }
 
 const (
@@ -33,19 +46,18 @@ func NewMech(x, y float64) *Mech {
 		Object: NewObject(
 			1,
 			TypePlayer,
-			physics.Point{x, y},
+			physics.Point{X: x, Y: y},
 			100,
 			0,
 			0,
 			0,
 			1000,
 		),
-		cannon: &Cannon{
-			rotateThrottle: 0,
-			angle:          0,
+		cannon: &Cannon{angle: 0, shoot: &Shoot{}},
+		commands: &Commands{
+			cannon: &CannonCommands{&Shoot{}, 0},
+			mech:   &MechCommands{},
 		},
-		throttle:       0,
-		rotateThrottle: 0,
 		generator: Generator{
 			efficiency:            900,
 			rateMs:                100,

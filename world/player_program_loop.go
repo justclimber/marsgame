@@ -19,13 +19,6 @@ type IO4Client struct {
 	Energy   int
 }
 
-type MechOutputVars struct {
-	MThrottle  float64
-	RThrottle  float64
-	CRThrottle float64
-	Shoot      float64
-}
-
 type ErrorType int
 
 const (
@@ -39,15 +32,26 @@ type Error struct {
 	Message   string    `json:"message"`
 }
 
-func newMechOutputVarsFromEnv(env *object.Environment) *MechOutputVars {
+func newMechOutputVarsFromEnv(env *object.Environment) *Commands {
 	commands, _ := env.Get("commands")
 	cmd := commands.(*object.Struct)
 	cannon := cmd.Fields["cannon"].(*object.Struct)
-	return &MechOutputVars{
-		MThrottle:  cmd.Fields["move"].(*object.Float).Value,
-		RThrottle:  cmd.Fields["rotate"].(*object.Float).Value,
-		CRThrottle: cannon.Fields["rotate"].(*object.Float).Value,
-		Shoot:      cannon.Fields["shoot"].(*object.Float).Value,
+
+	shootValue := cannon.Fields["shoot"].(*object.Float).Value
+	shoot := &Shoot{}
+	if shootValue != 0 {
+		shoot.state = WillShoot
+		shoot.delay = int(shootValue * 1000)
+	}
+	return &Commands{
+		mech: &MechCommands{
+			move:   cmd.Fields["move"].(*object.Float).Value,
+			rotate: cmd.Fields["rotate"].(*object.Float).Value,
+		},
+		cannon: &CannonCommands{
+			rotate: cannon.Fields["rotate"].(*object.Float).Value,
+			shoot:  shoot,
+		},
 	}
 }
 
@@ -70,9 +74,9 @@ func (p *Player) programLoop() {
 		case p.mainProgram.state = <-p.flowCh:
 			switch p.mainProgram.state {
 			case Stopped:
-				p.outputCh <- &MechOutputVars{}
+				p.codeCommandsCh <- &Commands{}
 			case Terminate:
-				p.outputCh <- &MechOutputVars{}
+				p.codeCommandsCh <- &Commands{}
 				p.mech.generator.terminate()
 				p.terminateCh <- true
 				ticker.Stop()
@@ -101,7 +105,7 @@ func (p *Player) programLoop() {
 		}
 
 		p.io4ClientCh <- p.makeIO4Client(env)
-		p.outputCh <- newMechOutputVarsFromEnv(env)
+		p.codeCommandsCh <- newMechOutputVarsFromEnv(env)
 
 		p.mainProgram.codeExecCost = 0
 	}

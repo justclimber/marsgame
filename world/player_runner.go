@@ -21,40 +21,40 @@ func areTimeIdNearlySameOrGrater(t1, t2 int64) bool {
 }
 
 func (p *Player) run(timeDelta time.Duration, timeId int64) {
-	mech := p.mech
-	mech.Lock()
-	defer mech.Unlock()
+	p.mech.Lock()
+	defer p.mech.Unlock()
 	defer p.wal.Commit(timeId)
 
+	mech := p.mech
+	commands := mech.commands
 	rotation := 0.
 	cannonRotation := 0.
 
 	// просчет поворота меха
-	if mech.rotateThrottle != 0 {
-		energyNeed := int(mech.rotateThrottle * mechFullRotateThrottleEnergyPerSec * timeDelta.Seconds())
+	if commands.mech.rotate != 0 {
+		energyNeed := int(commands.mech.rotate * mechFullRotateThrottleEnergyPerSec * timeDelta.Seconds())
 		throttleRegression := mech.generator.consumeWithPartlyUsage(energyNeed)
 
-		rotation = mech.rotateThrottle * MaxRotationValue * throttleRegression * timeDelta.Seconds()
+		rotation = commands.mech.rotate * MaxRotationValue * throttleRegression * timeDelta.Seconds()
 		mech.Obj.Angle = physics.NormalizeAngle(mech.Obj.Angle + rotation)
 		mech.Obj.Direction = physics.MakeNormalVectorByAngle(mech.Obj.Angle)
 		mech.Obj.Velocity = mech.Obj.Direction.MultiplyOnScalar(mech.Obj.Velocity.Len())
-
 	}
 
 	// просчет движения меха по вектору velocity
 	velocityLen := mech.Velocity.Len()
-	if mech.throttle != 0 || velocityLen != 0 {
-		energyNeed := int(mech.throttle * mechFullThrottleEnergyPerSec * timeDelta.Seconds())
+	if commands.mech.move != 0 || velocityLen != 0 {
+		energyNeed := int(commands.mech.move * mechFullThrottleEnergyPerSec * timeDelta.Seconds())
 		throttleRegression := mech.generator.consumeWithPartlyUsage(energyNeed)
-		power := mech.throttle * maxPower * throttleRegression
+		power := commands.mech.move * maxPower * throttleRegression
 
 		mech.Obj.Pos, mech.Obj.Velocity = physics.MoveObjectByForces(&mech.Obj, power, timeDelta)
 		p.collisions()
 	}
 
 	// просчет поворота башни меха
-	if mech.cannon.rotateThrottle != 0 {
-		cannonRotation = mech.cannon.rotateThrottle * MaxCannonRotationValue * timeDelta.Seconds()
+	if commands.cannon.rotate != 0 {
+		cannonRotation = commands.cannon.rotate * MaxCannonRotationValue * timeDelta.Seconds()
 		mech.cannon.angle += cannonRotation
 	}
 
@@ -67,9 +67,10 @@ func (p *Player) run(timeDelta time.Duration, timeId int64) {
 	}
 
 	// просчет выстрела
-	if mech.cannon.shoot.state == WillShoot {
+	if commands.cannon.shoot.state == WillShoot {
+		commands.cannon.shoot.state = None
 		mech.cannon.shoot.state = Planned
-		mech.cannon.shoot.willShootAt = timeId + int64(mech.cannon.shoot.delay)
+		mech.cannon.shoot.willShootAt = timeId + int64(commands.cannon.shoot.delay)
 	}
 	if mech.cannon.shoot.state == Planned && areTimeIdNearlySameOrGrater(timeId, mech.cannon.shoot.willShootAt) {
 		if mech.generator.consumeIfHas(shootEnergy) {

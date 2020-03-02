@@ -11,20 +11,20 @@ import (
 )
 
 type Player struct {
-	id          uint32
-	world       *World
-	client      *server.Client
-	mech        *Mech
-	mainProgram *Code
-	runSpeedMs  time.Duration
-	outputCh    chan *MechOutputVars
-	io4ClientCh chan *IO4Client
-	codeSaveCh  chan *ast.StatementsBlock
-	flowCh      chan ProgramState
-	errorCh     chan *Error
-	commandsCh  chan *server.Command
-	terminateCh chan bool
-	wal         *wal.ObjectObserver
+	id             uint32
+	world          *World
+	client         *server.Client
+	mech           *Mech
+	mainProgram    *Code
+	runSpeedMs     time.Duration
+	codeCommandsCh chan *Commands
+	io4ClientCh    chan *IO4Client
+	codeSaveCh     chan *ast.StatementsBlock
+	flowCh         chan ProgramState
+	errorCh        chan *Error
+	commandsCh     chan *server.Command
+	terminateCh    chan bool
+	wal            *wal.ObjectObserver
 }
 
 func NewPlayer(
@@ -35,26 +35,22 @@ func NewPlayer(
 	objectLogManager *wal.ObjectObserver,
 ) *Player {
 	player := &Player{
-		id:          id,
-		world:       w,
-		client:      client,
-		mech:        m,
-		mainProgram: NewCode("main"),
-		runSpeedMs:  runSpeedMs,
-		outputCh:    make(chan *MechOutputVars, 1),
-		codeSaveCh:  make(chan *ast.StatementsBlock, 1),
-		io4ClientCh: make(chan *IO4Client, 1),
-		flowCh:      make(chan ProgramState, 1),
-		errorCh:     make(chan *Error, 10),
-		commandsCh:  make(chan *server.Command, 10),
-		terminateCh: make(chan bool, 1),
-		wal:         objectLogManager,
+		id:             id,
+		world:          w,
+		client:         client,
+		mech:           m,
+		mainProgram:    NewCode("main"),
+		runSpeedMs:     runSpeedMs,
+		codeCommandsCh: make(chan *Commands, 3),
+		codeSaveCh:     make(chan *ast.StatementsBlock, 1),
+		io4ClientCh:    make(chan *IO4Client, 1),
+		flowCh:         make(chan ProgramState, 1),
+		errorCh:        make(chan *Error, 10),
+		commandsCh:     make(chan *server.Command, 10),
+		terminateCh:    make(chan bool, 1),
+		wal:            objectLogManager,
 	}
 	return player
-}
-
-func (p *Player) setBaseParams() {
-	p.mech.throttle = 1
 }
 
 func (p *Player) saveAstCode(sourceCode string) {
@@ -85,15 +81,9 @@ func (p *Player) listen() {
 	log.Printf("Player [%d] listening started", p.id)
 	for {
 		select {
-		case codeOutputs := <-p.outputCh:
+		case commands := <-p.codeCommandsCh:
 			p.mech.Lock()
-			p.mech.throttle = codeOutputs.MThrottle
-			p.mech.rotateThrottle = codeOutputs.RThrottle
-			p.mech.cannon.rotateThrottle = codeOutputs.CRThrottle
-			if codeOutputs.Shoot != 0 {
-				p.mech.cannon.shoot.state = WillShoot
-				p.mech.cannon.shoot.delay = int(codeOutputs.Shoot * 1000)
-			}
+			p.mech.commands = commands
 			p.mech.Unlock()
 		case codeError := <-p.errorCh:
 			p.client.PackAndSendCommand("codeError", codeError)
