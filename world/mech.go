@@ -28,10 +28,6 @@ type Shoot struct {
 	willShootAt int64
 }
 
-type Missile struct {
-	Object
-}
-
 func NewMech(x, y float64) *Mech {
 	return &Mech{
 		Object: NewObject(

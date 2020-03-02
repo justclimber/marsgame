@@ -26,15 +26,6 @@ type MechOutputVars struct {
 	Shoot      float64
 }
 
-func (m *MechOutputVars) toStrings() []string {
-	result := make([]string, 0)
-	result = append(result, fmt.Sprintf("mThr = %.2f", m.MThrottle))
-	result = append(result, fmt.Sprintf("mrThr = %.2f", m.RThrottle))
-	result = append(result, fmt.Sprintf("crThr = %.2f", m.CRThrottle))
-	result = append(result, fmt.Sprintf("shoot = %.2f", m.Shoot))
-	return result
-}
-
 type ErrorType int
 
 const (
@@ -60,7 +51,7 @@ func newMechOutputVarsFromEnv(env *object.Environment) *MechOutputVars {
 	}
 }
 
-func (p *Player) runProgram() {
+func (p *Player) programLoop() {
 	code := p.mainProgram
 
 	executor := interpereter.NewExecAstVisitor()
@@ -74,7 +65,7 @@ func (p *Player) runProgram() {
 
 	ticker := time.NewTicker(p.runSpeedMs * time.Millisecond)
 	for range ticker.C {
-		//log.Printf("Code runProgram tick\n")
+		//log.Printf("Code programLoop tick\n")
 		select {
 		case p.mainProgram.state = <-p.flowCh:
 			switch p.mainProgram.state {

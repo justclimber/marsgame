@@ -86,8 +86,6 @@ func (p *Player) listen() {
 	for {
 		select {
 		case codeOutputs := <-p.outputCh:
-			//log.Printf("Write code runProgram result for player [%s]: mThr: %f, mrThr: %f, crThr: %f, shoot: %f",
-			//	p.id, codeOutputs.MThrottle, codeOutputs.RThrottle, codeOutputs.CRThrottle, codeOutputs.Shoot)
 			p.mech.Lock()
 			p.mech.throttle = codeOutputs.MThrottle
 			p.mech.rotateThrottle = codeOutputs.RThrottle
