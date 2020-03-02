@@ -63,6 +63,10 @@ func (s *Sender) SendLoop() {
 	}
 }
 
+func prependCommandToBuffer(buf []byte) []byte {
+	return append([]byte{byte(WalBuffers.Commandwal)}, buf...)
+}
+
 func (s *Sender) logToBuffer(logToBuff *Log) []byte {
 	builder := flatbuffers.NewBuilder(1024)
 	WalBuffers.LogStartTimeIdsVector(builder, len(logToBuff.TimeIds))
@@ -132,5 +136,5 @@ func (s *Sender) logToBuffer(logToBuff *Log) []byte {
 
 	builder.Finish(logBufferObj)
 	buf := builder.FinishedBytes()
-	return buf
+	return prependCommandToBuffer(buf)
 }

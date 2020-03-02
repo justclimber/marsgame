@@ -21,6 +21,12 @@ type World struct {
 	runSpeedMs     time.Duration
 	codeRunSpeedMs time.Duration
 	wal            *wal.Wal
+	timer          *Timer
+}
+
+type Timer struct {
+	valueInSeconds int
+	left           int
 }
 
 func NewWorld(server *server.Server) World {
