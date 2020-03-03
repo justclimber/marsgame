@@ -1,6 +1,7 @@
 package wal
 
 import (
+	"aakimov/marsgame/flatbuffers/CommandsBuffer"
 	"aakimov/marsgame/flatbuffers/WalBuffers"
 	"aakimov/marsgame/server"
 )
@@ -64,7 +65,7 @@ func (s *Sender) SendLoop() {
 }
 
 func prependCommandToBuffer(buf []byte) []byte {
-	return append([]byte{byte(WalBuffers.Commandwal)}, buf...)
+	return append([]byte{byte(CommandsBuffer.CommandWal)}, buf...)
 }
 
 func (s *Sender) logToBuffer(logToBuff *Log) []byte {

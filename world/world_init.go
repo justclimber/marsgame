@@ -1,9 +1,12 @@
 package world
 
 import (
+	"aakimov/marsgame/flatbuffers/CommandsBuffer"
+	"aakimov/marsgame/flatbuffers/InitBuffers"
 	"aakimov/marsgame/physics"
 	"aakimov/marsgame/server"
 	"aakimov/marsgame/wal"
+	flatbuffers "github.com/google/flatbuffers/go"
 	"math/rand"
 )
 
@@ -65,6 +68,9 @@ func (w *World) MakeRandomObjects() {
 }
 
 func (w *World) createPlayerAndBootstrap(client *server.Client) *Player {
+	if w.timer.IsStopped() {
+		w.timer.Start(w.stopByTimer)
+	}
 	x := float64(rand.Int31n(1000)) + 9500.
 	y := float64(rand.Int31n(1000)) + 9500.
 	mech := NewMech(x, y)
@@ -84,17 +90,41 @@ func (w *World) createPlayerAndBootstrap(client *server.Client) *Player {
 
 	w.players[player.id] = player
 	w.wal.Sender.Subscribe(player.client)
+	w.sendInitDataToNewPlayer(player)
 	go player.programLoop()
 	go player.listen()
 
 	return player
 }
 
-func (w *World) reset() {
+func (w *World) sendInitDataToNewPlayer(player *Player) {
+	builder := flatbuffers.NewBuilder(1024)
+	InitBuffers.TimerStart(builder)
+	InitBuffers.TimerAddState(builder, w.timer.State())
+	InitBuffers.TimerAddValue(builder, int32(w.timer.Value().Seconds()))
+	initBufferObj := InitBuffers.TimerEnd(builder)
+	builder.Finish(initBufferObj)
+	buf := builder.FinishedBytes()
+	buf = append([]byte{byte(CommandsBuffer.CommandInit)}, buf...)
+	player.client.SendBuffer(buf)
+}
+
+func (w *World) stopByTimer() {
+	// @todo: send commands to clients with stopping the mage
+	w.stop()
+}
+
+func (w *World) stop() {
 	w.wal.Sender.Terminate()
+	for _, p := range w.players {
+		p.flowCh <- Terminate
+	}
+}
+
+func (w *World) reset() {
+	w.stop()
 	w.wal = wal.NewWal()
 	for i, p := range w.players {
-		p.flowCh <- Terminate
 		astProgram := p.mainProgram.astProgram
 		w.players[i] = w.createPlayerAndBootstrap(p.client)
 		w.players[i].mainProgram.astProgram = astProgram

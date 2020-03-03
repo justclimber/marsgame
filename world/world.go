@@ -35,6 +35,7 @@ func NewWorld(server *server.Server) World {
 		runSpeedMs:     100,
 		codeRunSpeedMs: 1000,
 		wal:            wal.NewWal(),
+		timer:          timer.NewTimer(time.Second * 10),
 	}
 }
 

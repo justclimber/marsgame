@@ -1,0 +1,15 @@
+namespace InitBuffers;
+
+table Init {
+  timer: Timer;
+}
+
+enum TimerState: byte {Stopped, Paused, Started, Expired}
+
+table Timer {
+  state: TimerState;
+  value: int32;
+  left: int32;
+}
+
+root_type Init;
