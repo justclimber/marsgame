@@ -9,6 +9,7 @@ import (
 
 type Timer struct {
 	value     time.Duration
+	realValue time.Duration
 	stopCh    chan bool
 	state     int8
 	timer     *time.Timer
@@ -20,10 +21,11 @@ func (t *Timer) Value() time.Duration {
 	return t.value
 }
 
-func NewTimer(value time.Duration) *Timer {
+func NewTimer(value time.Duration, timeMultiplicator int) *Timer {
 	return &Timer{
-		value:  value,
-		stopCh: make(chan bool),
+		value:     value,
+		realValue: value / time.Duration(timeMultiplicator),
+		stopCh:    make(chan bool),
 	}
 }
 
@@ -33,8 +35,9 @@ func (t *Timer) Start(onStopCallback func()) {
 	}
 	t.startedAt = time.Now()
 	t.state = InitBuffers.TimerStateStarted
-	t.timer = time.AfterFunc(t.value, func() {
+	t.timer = time.AfterFunc(t.realValue, func() {
 		onStopCallback()
+		log.Println("Timer end!")
 		t.state = InitBuffers.TimerStateExpired
 	})
 }
@@ -65,7 +68,7 @@ func (t *Timer) Resume() {
 		log.Fatal("Attempt to resume not paused timer")
 	}
 	t.state = InitBuffers.TimerStatePaused
-	t.timer.Reset(t.value - t.pausedAt.Sub(t.startedAt))
+	t.timer.Reset(t.realValue - t.pausedAt.Sub(t.startedAt))
 }
 
 func (t *Timer) State() int8 {

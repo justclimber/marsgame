@@ -64,7 +64,7 @@ func NewMech(x, y float64) *Mech {
 		commands: NewEmptyCommands(),
 		generator: Generator{
 			efficiency:            900,
-			rateMs:                100,
+			rateMs:                100 / TimeMultiplicator,
 			value:                 20000,
 			maxValue:              40000,
 			xelons:                1000,

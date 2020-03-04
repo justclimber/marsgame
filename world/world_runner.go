@@ -14,8 +14,8 @@ func (w *World) run() {
 
 	// world mechanics processing loop
 	for t := range ticker.C {
-		timeId := t.Sub(serverStartTime).Milliseconds()
-		timeDelta := t.Sub(lastTime)
+		timeId := t.Sub(serverStartTime).Milliseconds() * TimeMultiplicator
+		timeDelta := t.Sub(lastTime) * TimeMultiplicator
 		lastTime = t
 		//log.Printf("Game tick %v\n", t)
 		//log.Printf("Time delta %v\n", timeDelta.Milliseconds())

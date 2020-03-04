@@ -7,6 +7,7 @@ import (
 	"aakimov/marsgame/server"
 	"aakimov/marsgame/wal"
 	flatbuffers "github.com/google/flatbuffers/go"
+	"log"
 	"math/rand"
 )
 
@@ -117,6 +118,7 @@ func (w *World) sendInitDataToNewPlayer(player *Player) {
 func (w *World) stopByTimer() {
 	// @todo: send commands to clients with stopping the mage
 	w.stop()
+	log.Fatalln("World stopped by timer")
 }
 
 func (w *World) stop() {

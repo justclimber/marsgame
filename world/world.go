@@ -9,6 +9,7 @@ import (
 )
 
 const Wide = 30000
+const TimeMultiplicator = 1
 
 type World struct {
 	Server         *server.Server
@@ -32,10 +33,10 @@ func NewWorld(server *server.Server) World {
 		newObjectsCh:   make(chan IObject, 10),
 		width:          Wide,
 		height:         Wide,
-		runSpeedMs:     100,
-		codeRunSpeedMs: 1000,
+		runSpeedMs:     100 / TimeMultiplicator,
+		codeRunSpeedMs: 1000 / TimeMultiplicator,
 		wal:            wal.NewWal(),
-		timer:          timer.NewTimer(time.Second * 10),
+		timer:          timer.NewTimer(time.Second*50, TimeMultiplicator),
 	}
 }
 
