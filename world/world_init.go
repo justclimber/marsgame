@@ -102,9 +102,14 @@ func (w *World) sendInitDataToNewPlayer(player *Player) {
 	InitBuffers.TimerStart(builder)
 	InitBuffers.TimerAddState(builder, w.timer.State())
 	InitBuffers.TimerAddValue(builder, int32(w.timer.Value().Seconds()))
-	initBufferObj := InitBuffers.TimerEnd(builder)
+	timerBufferObj := InitBuffers.TimerEnd(builder)
+
+	InitBuffers.InitStart(builder)
+	InitBuffers.InitAddTimer(builder, timerBufferObj)
+	initBufferObj := InitBuffers.InitEnd(builder)
 	builder.Finish(initBufferObj)
 	buf := builder.FinishedBytes()
+
 	buf = append([]byte{byte(CommandsBuffer.CommandInit)}, buf...)
 	player.client.SendBuffer(buf)
 }
