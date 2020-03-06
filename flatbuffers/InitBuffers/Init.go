@@ -4,6 +4,8 @@ package InitBuffers
 
 import (
 	flatbuffers "github.com/google/flatbuffers/go"
+
+	"aakimov/marsgame/flatbuffers/WorldMapBuffers"
 )
 
 type Init struct {
@@ -39,11 +41,27 @@ func (rcv *Init) Timer(obj *Timer) *Timer {
 	return nil
 }
 
+func (rcv *Init) WorldMap(obj *WorldMapBuffers.WorldMap) *WorldMapBuffers.WorldMap {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	if o != 0 {
+		x := rcv._tab.Indirect(o + rcv._tab.Pos)
+		if obj == nil {
+			obj = new(WorldMapBuffers.WorldMap)
+		}
+		obj.Init(rcv._tab.Bytes, x)
+		return obj
+	}
+	return nil
+}
+
 func InitStart(builder *flatbuffers.Builder) {
-	builder.StartObject(1)
+	builder.StartObject(2)
 }
 func InitAddTimer(builder *flatbuffers.Builder, timer flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(timer), 0)
+}
+func InitAddWorldMap(builder *flatbuffers.Builder, worldMap flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(worldMap), 0)
 }
 func InitEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

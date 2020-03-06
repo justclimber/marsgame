@@ -4,6 +4,7 @@ import (
 	"aakimov/marsgame/server"
 	"aakimov/marsgame/timer"
 	"aakimov/marsgame/wal"
+	"aakimov/marsgame/worldmap"
 
 	"time"
 )
@@ -23,6 +24,7 @@ type World struct {
 	codeRunSpeedMs time.Duration
 	wal            *wal.Wal
 	timer          *timer.Timer
+	worldmap       *worldmap.WorldMap
 }
 
 func NewWorld(server *server.Server) World {
@@ -37,6 +39,7 @@ func NewWorld(server *server.Server) World {
 		codeRunSpeedMs: 1000 / TimeMultiplicator,
 		wal:            wal.NewWal(),
 		timer:          timer.NewTimer(time.Second*50, TimeMultiplicator),
+		worldmap:       worldmap.NewWorldMap(),
 	}
 }
 

@@ -1,7 +1,10 @@
+include 'world_map.fbs';
+
 namespace InitBuffers;
 
 table Init {
   timer: Timer;
+  worldMap: WorldMapBuffers.WorldMap;
 }
 
 enum TimerState: byte {Stopped, Paused, Started, Expired}

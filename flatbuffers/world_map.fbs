@@ -1,0 +1,13 @@
+namespace WorldMapBuffers;
+
+table WorldMap {
+  layers: [TileLayer];
+  width: int32;
+  height: int32;
+}
+
+table TileLayer {
+  tileIds: [uint16];
+}
+
+root_type WorldMap;

@@ -3,6 +3,7 @@ package world
 import (
 	"aakimov/marsgame/flatbuffers/CommandsBuffer"
 	"aakimov/marsgame/flatbuffers/InitBuffers"
+	"aakimov/marsgame/flatbuffers/WorldMapBuffers"
 	"aakimov/marsgame/physics"
 	"aakimov/marsgame/server"
 	"aakimov/marsgame/wal"
@@ -12,6 +13,8 @@ import (
 )
 
 func (w *World) Bootstrap() {
+	w.worldmap.Parse("worldmap/testmap.tmx")
+	//t.PrintToConsole()
 	w.MakeRandomObjects()
 	go w.run()
 	go w.wal.Sender.SendLoop()
@@ -105,8 +108,34 @@ func (w *World) sendInitDataToNewPlayer(player *Player) {
 	InitBuffers.TimerAddValue(builder, int32(w.timer.Value().Seconds()))
 	timerBufferObj := InitBuffers.TimerEnd(builder)
 
+	tileLayersCount := len(w.worldmap.TileLayers)
+	tileLayersBuffers := make([]flatbuffers.UOffsetT, tileLayersCount)
+	for layerIndex, layer := range w.worldmap.TileLayers {
+		tileIdsCount := len(layer.TileIds)
+		WorldMapBuffers.TileLayerStartTileIdsVector(builder, tileIdsCount)
+		for i := range layer.TileIds {
+			builder.PrependUint16(layer.TileIds[tileIdsCount-i-1])
+		}
+		tileIdsBuffObject := builder.EndVector(tileIdsCount)
+		WorldMapBuffers.TileLayerStart(builder)
+		WorldMapBuffers.TileLayerAddTileIds(builder, tileIdsBuffObject)
+		tileLayersBuffers[tileLayersCount-layerIndex-1] = WorldMapBuffers.TileLayerEnd(builder)
+	}
+	WorldMapBuffers.WorldMapStartLayersVector(builder, tileLayersCount)
+	for _, buffer := range tileLayersBuffers {
+		builder.PrependUOffsetT(buffer)
+	}
+	layersBufferObj := builder.EndVector(tileLayersCount)
+
+	WorldMapBuffers.WorldMapStart(builder)
+	WorldMapBuffers.WorldMapAddLayers(builder, layersBufferObj)
+	WorldMapBuffers.WorldMapAddWidth(builder, int32(w.worldmap.Width))
+	WorldMapBuffers.WorldMapAddHeight(builder, int32(w.worldmap.Height))
+	worldMapBuffObj := WorldMapBuffers.WorldMapEnd(builder)
+
 	InitBuffers.InitStart(builder)
 	InitBuffers.InitAddTimer(builder, timerBufferObj)
+	InitBuffers.InitAddWorldMap(builder, worldMapBuffObj)
 	initBufferObj := InitBuffers.InitEnd(builder)
 	builder.Finish(initBufferObj)
 	buf := builder.FinishedBytes()

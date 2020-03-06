@@ -69,7 +69,7 @@ func prependCommandToBuffer(buf []byte) []byte {
 }
 
 func (s *Sender) logToBuffer(logToBuff *Log) []byte {
-	builder := flatbuffers.NewBuilder(1024)
+	builder := flatbuffers.NewBuilder(3072)
 	WalBuffers.LogStartTimeIdsVector(builder, len(logToBuff.TimeIds))
 	for i := len(logToBuff.TimeIds) - 1; i >= 0; i-- {
 		builder.PrependInt32(int32(logToBuff.TimeIds[i]))
