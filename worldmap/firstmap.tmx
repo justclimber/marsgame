@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.2" tiledversion="1.3.3" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="32" tileheight="32" infinite="0" backgroundcolor="#000000" nextlayerid="4" nextobjectid="1">
- <tileset firstgid="1" source="lpc-terrains/terrain-v7.tsx"/>
+ <tileset firstgid="1" source="tileset.tsx"/>
  <layer id="2" name="TransitionsBottom" width="100" height="100">
   <data encoding="base64" compression="zlib">
    eJzt2zFuwzAQBEB3+Vn+/6RASCUjMumIlG7NGUCtsXtHAiqsxwMAAAAAAAAAfn1//f0wxtF8Xz1nfoNjV8/IXo7dORd3Zq/SHOymbu+quWaqfA4rZ5ulet+VdpLSNSHjCCk9U3KekXI3Niu8byX2S8zcK7Vbau4eqb1Sc7ek9krN3ZLaKzV3S2qv1Nwtqb1Sc7ek9krN3ZLaKzV3S+q7fGLmXmndUs9Qr7RuaXnfldTv0+/GJqXfCrvYpPRMyDhCwj4SMo6S0LV6vtEq9004L6NV7Vw11xWq9V55F5tK3VffxabKDKrkqODuOdjFXoVvDti7YyZ2cezK2azwv8MRZs/IHt43a1728H8jZ+dOjHH2ez57mKd3pr7JvEbPjO3ges/n330AAAAAAAAAAAAAAAAAAGCGH2UeNww=
