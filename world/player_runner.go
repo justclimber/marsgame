@@ -7,12 +7,12 @@ import (
 )
 
 const nearTimeDelta = 50
-const maxPower = 50000
+const maxPower = 30000
 const mechFullThrottleEnergyPerSec = 5000
 const mechFullRotateThrottleEnergyPerSec = 2000
 const shootEnergy = 4000
 const xelonsInOneCrystal = 200
-const MissileSpeed = 400
+const MissileSpeed = 280
 const MaxRotationValue float64 = 1
 const MaxCannonRotationValue float64 = 1.1
 
@@ -105,12 +105,12 @@ func (p *Player) shoot() {
 	missilePos := p.mech.Pos
 
 	//move missile a bit of forward far away from mech center
-	missilePos.MoveForward(missileAngle, 100.)
+	missilePos.MoveForward(missileAngle, 20.)
 	p.world.newObjectsCh <- &Missile{
 		Object: NewObject(0,
 			TypeMissile,
 			missilePos,
-			20,
+			5,
 			missileAngle,
 			MissileSpeed,
 			0,

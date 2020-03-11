@@ -13,7 +13,7 @@ import (
 )
 
 func (w *World) Bootstrap() {
-	w.worldmap.Parse("worldmap/testmap.tmx")
+	w.worldmap.Parse("worldmap/firstmap.tmx")
 	//t.PrintToConsole()
 	w.MakeRandomObjects()
 	go w.run()
@@ -32,8 +32,8 @@ func (w *World) MakeRandomObjectsByType(seed RandomObjSeed) {
 		x := 10000.
 		y := x
 		for x > 9800 && x < 10200 && y > 9800 && y < 10200 {
-			x = float64(rand.Int31n(8000)) + 6000.
-			y = float64(rand.Int31n(8000)) + 6000.
+			x = float64(rand.Int31n(2000)) + 9000.
+			y = float64(rand.Int31n(2000)) + 9000.
 		}
 		w.objCount += 1
 		newObj := &Object{
@@ -60,9 +60,9 @@ func (w *World) MakeRandomObjectsByType(seed RandomObjSeed) {
 
 func (w *World) MakeRandomObjects() {
 	for _, v := range []RandomObjSeed{
-		{TypeRock, 30, 100, nil},
-		{TypeXelon, 30, 50, nil},
-		{TypeEnemyMech, 10, 100, func(obj *Object) {
+		{TypeRock, 30, 30, nil},
+		{TypeXelon, 30, 10, nil},
+		{TypeEnemyMech, 10, 20, func(obj *Object) {
 			obj.Speed = rand.Float64()*300 + 50.
 			obj.AngleSpeed = rand.Float64()*1.2 - 0.7
 		}},
