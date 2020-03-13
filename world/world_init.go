@@ -5,7 +5,6 @@ import (
 	"aakimov/marsgame/flatbuffers/InitBuffers"
 	"aakimov/marsgame/flatbuffers/WalBuffers"
 	"aakimov/marsgame/flatbuffers/WorldMapBuffers"
-	"aakimov/marsgame/helpers"
 	"aakimov/marsgame/physics"
 	"aakimov/marsgame/server"
 	"aakimov/marsgame/wal"
@@ -58,7 +57,6 @@ func (w *World) makeObjectsFromWorldMap() {
 			log.Fatalf("Unsopported object type %v", entity.EntityType)
 		}
 	}
-	helpers.PrettyPrint("objs", w.objects)
 }
 
 func (w *World) MakeRandomObjectsByType(seed RandomObjSeed) {

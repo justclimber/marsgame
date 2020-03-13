@@ -2,7 +2,6 @@ package worldmap
 
 import (
 	"aakimov/marsgame/flatbuffers/WalBuffers"
-	"aakimov/marsgame/helpers"
 	"aakimov/marsgame/physics"
 	"aakimov/marsgame/tmx"
 
@@ -68,7 +67,6 @@ func (wm *WorldMap) Parse(tmxFilePath string) {
 			}
 			i++
 		}
-		helpers.PrettyPrint("entities", wm.Entities)
 	}
 	for layerIndex, layer := range tiledMap.Layers {
 		refs, err := layer.TileGlobalRefs()
