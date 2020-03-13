@@ -3,19 +3,23 @@ package world
 import (
 	"aakimov/marsgame/flatbuffers/CommandsBuffer"
 	"aakimov/marsgame/flatbuffers/InitBuffers"
+	"aakimov/marsgame/flatbuffers/WalBuffers"
 	"aakimov/marsgame/flatbuffers/WorldMapBuffers"
+	"aakimov/marsgame/helpers"
 	"aakimov/marsgame/physics"
 	"aakimov/marsgame/server"
 	"aakimov/marsgame/wal"
+
 	flatbuffers "github.com/google/flatbuffers/go"
+
 	"log"
 	"math/rand"
 )
 
 func (w *World) Bootstrap() {
 	w.worldmap.Parse("worldmap/firstmap.tmx")
-	//t.PrintToConsole()
-	w.MakeRandomObjects()
+	w.makeObjectsFromWorldMap()
+	//w.MakeRandomObjects()
 	go w.run()
 	go w.wal.Sender.SendLoop()
 }
@@ -25,6 +29,36 @@ type RandomObjSeed struct {
 	count           int
 	collisionRadius int
 	extraCallback   func(*Object)
+}
+
+func (w *World) makeObjectsFromWorldMap() {
+	var newObj *Object
+	for _, entity := range w.worldmap.Entities {
+		switch entity.EntityType {
+		case WalBuffers.ObjectTypexelon, WalBuffers.ObjectTypespore:
+			newObj = &Object{
+				Obj: physics.Obj{
+					Id:              entity.Id,
+					Type:            EntityTypeToObjectType(entity.EntityType),
+					Pos:             entity.Pos,
+					CollisionRadius: 20,
+					Velocity:        &physics.Vector{},
+					Direction:       physics.MakeNormalVectorByAngle(0),
+				},
+				wal: w.wal.NewObjectObserver(entity.Id, ObjectTypeToInt(EntityTypeToObjectType(entity.EntityType))),
+			}
+			w.objects[entity.Id] = newObj
+			w.objCount++
+			newObj.wal.AddAngle(newObj.Angle)
+			newObj.wal.AddPosAndVelocityLen(newObj.Pos, newObj.Speed)
+			newObj.wal.AddRotation(0)
+		case WalBuffers.ObjectTypeplayer:
+			w.playerPosSlots = append(w.playerPosSlots, entity.Pos)
+		default:
+			log.Fatalf("Unsopported object type %v", entity.EntityType)
+		}
+	}
+	helpers.PrettyPrint("objs", w.objects)
 }
 
 func (w *World) MakeRandomObjectsByType(seed RandomObjSeed) {
@@ -75,9 +109,12 @@ func (w *World) createPlayerAndBootstrap(client *server.Client) *Player {
 	if w.timer.IsStopped() {
 		w.timer.Start(w.stopByTimer)
 	}
-	x := float64(rand.Int31n(1000)) + 9500.
-	y := float64(rand.Int31n(1000)) + 9500.
-	mech := NewMech(x, y)
+	if len(w.playerPosSlots) == 0 {
+		log.Fatalln("No free slots for new player, exiting")
+	}
+	playerPosSlot := w.playerPosSlots[0]
+	mech := NewMech(playerPosSlot.X, playerPosSlot.Y)
+	w.playerPosSlots = w.playerPosSlots[1:]
 	player := NewPlayer(
 		client.Id,
 		client,
@@ -145,7 +182,7 @@ func (w *World) sendInitDataToNewPlayer(player *Player) {
 }
 
 func (w *World) stopByTimer() {
-	// @todo: send commands to clients with stopping the mage
+	// @todo: send commands to clients with stopping the game
 	w.stop()
 	log.Fatalln("World stopped by timer")
 }

@@ -116,7 +116,7 @@ func (c *Code) getEnumDefinitions() map[string]*object.EnumDefinition {
 	return map[string]*object.EnumDefinition{
 		"ObjectTypes": {
 			"ObjectTypes",
-			[]string{TypePlayer, TypeEnemyMech, TypeRock, TypeXelon, TypeMissile},
+			[]string{TypePlayer, TypeEnemyMech, TypeRock, TypeXelon, TypeMissile, TypeSpore},
 		},
 	}
 }

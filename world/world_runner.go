@@ -50,10 +50,11 @@ func (w *World) listenChannels() {
 			}
 			player.operateState(programFlowCmd.FlowCmd)
 		case o := <-w.newObjectsCh:
-			w.objCount += 1
-			o.setId(w.objCount)
-			o.setObjectObserver(w.wal.NewObjectObserver(w.objCount, ObjectTypeToInt(o.getType())))
-			w.objects[w.objCount] = o
+			w.objCount++
+			w.lastNewObjId++
+			o.setId(w.lastNewObjId)
+			o.setObjectObserver(w.wal.NewObjectObserver(w.lastNewObjId, ObjectTypeToInt(o.getType())))
+			w.objects[w.lastNewObjId] = o
 		case c := <-w.Server.CommandsCh:
 			player, ok := w.players[c.UserId]
 			if !ok {

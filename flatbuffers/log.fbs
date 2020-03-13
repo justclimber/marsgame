@@ -6,7 +6,7 @@ table Log {
   objects: [ObjectLog];
 }
 
-enum ObjectType: byte {player, enemy_mech, rock, xelon, missile}
+enum ObjectType: byte {player, enemy_mech, rock, xelon, missile, spore}
 
 table ObjectLog {
   id: uint;

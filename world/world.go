@@ -1,6 +1,8 @@
 package world
 
 import (
+	"aakimov/marsgame/flatbuffers/WalBuffers"
+	"aakimov/marsgame/physics"
 	"aakimov/marsgame/server"
 	"aakimov/marsgame/timer"
 	"aakimov/marsgame/wal"
@@ -25,6 +27,8 @@ type World struct {
 	wal            *wal.Wal
 	timer          *timer.Timer
 	worldmap       *worldmap.WorldMap
+	playerPosSlots []physics.Point
+	lastNewObjId   uint32
 }
 
 func NewWorld(server *server.Server) World {
@@ -40,6 +44,8 @@ func NewWorld(server *server.Server) World {
 		wal:            wal.NewWal(),
 		timer:          timer.NewTimer(time.Second*50, TimeMultiplicator),
 		worldmap:       worldmap.NewWorldMap(),
+		playerPosSlots: make([]physics.Point, 0),
+		lastNewObjId:   1000000,
 	}
 }
 
@@ -50,6 +56,15 @@ func ObjectTypeToInt(objType string) int8 {
 		TypeRock:      2,
 		TypeXelon:     3,
 		TypeMissile:   4,
+		TypeSpore:     5,
 	}
 	return objTypeToIntMap[objType]
+}
+
+func EntityTypeToObjectType(objType WalBuffers.ObjectType) string {
+	var entityTypeMap = map[WalBuffers.ObjectType]string{
+		WalBuffers.ObjectTypexelon: TypeXelon,
+		WalBuffers.ObjectTypespore: TypeSpore,
+	}
+	return entityTypeMap[objType]
 }

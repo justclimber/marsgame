@@ -12,6 +12,7 @@ const (
 	TypeRock      = "rock"
 	TypeEnemyMech = "enemy_mech"
 	TypeXelon     = "xelon"
+	TypeSpore     = "spore"
 )
 
 type IObject interface {

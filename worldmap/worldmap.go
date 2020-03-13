@@ -1,15 +1,25 @@
 package worldmap
 
 import (
+	"aakimov/marsgame/flatbuffers/WalBuffers"
+	"aakimov/marsgame/helpers"
+	"aakimov/marsgame/physics"
 	"aakimov/marsgame/tmx"
 
 	"fmt"
 	"log"
 )
 
+var EntityTypeMap = map[string]WalBuffers.ObjectType{
+	"Player": WalBuffers.ObjectTypeplayer,
+	"Xelon":  WalBuffers.ObjectTypexelon,
+	"Spore":  WalBuffers.ObjectTypespore,
+}
+
 type WorldMap struct {
 	TileLayers    []*TileLayer
 	MaterialLayer []uint8
+	Entities      []Entity
 	Width         int
 	Height        int
 }
@@ -21,6 +31,12 @@ func NewWorldMap() *WorldMap {
 type TileLayer struct {
 	Name    string
 	TileIds []uint16
+}
+
+type Entity struct {
+	Id         uint32
+	EntityType WalBuffers.ObjectType
+	Pos        physics.Point
 }
 
 func (wm *WorldMap) Parse(tmxFilePath string) {
@@ -37,6 +53,23 @@ func (wm *WorldMap) Parse(tmxFilePath string) {
 	wm.Height = tiledMap.Height
 
 	wm.TileLayers = make([]*TileLayer, layersCount)
+	if len(tiledMap.ObjectGroups) > 0 {
+		wm.Entities = make([]Entity, len(tiledMap.ObjectGroups[0].Objects))
+		i := 0
+		for _, object := range tiledMap.ObjectGroups[0].Objects {
+			objType, ok := EntityTypeMap[object.Type]
+			if !ok {
+				log.Fatalf("Unsupported entity type %s", object.Type)
+			}
+			wm.Entities[i] = Entity{
+				Id:         uint32(object.ObjectID),
+				EntityType: objType,
+				Pos:        physics.Point{X: object.X, Y: object.Y},
+			}
+			i++
+		}
+		helpers.PrettyPrint("entities", wm.Entities)
+	}
 	for layerIndex, layer := range tiledMap.Layers {
 		refs, err := layer.TileGlobalRefs()
 		if err != nil {

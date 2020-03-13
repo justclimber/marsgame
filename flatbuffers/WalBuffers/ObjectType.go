@@ -10,6 +10,7 @@ const (
 	ObjectTyperock       ObjectType = 2
 	ObjectTypexelon      ObjectType = 3
 	ObjectTypemissile    ObjectType = 4
+	ObjectTypespore      ObjectType = 5
 )
 
 var EnumNamesObjectType = map[ObjectType]string{
@@ -18,4 +19,5 @@ var EnumNamesObjectType = map[ObjectType]string{
 	ObjectTyperock:       "rock",
 	ObjectTypexelon:      "xelon",
 	ObjectTypemissile:    "missile",
+	ObjectTypespore:      "spore",
 }
