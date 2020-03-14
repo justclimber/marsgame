@@ -1,7 +1,7 @@
 package world
 
 import (
-	"aakimov/marsgame/flatbuffers/WalBuffers"
+	"aakimov/marsgame/flatbuffers/generated/WalBuffers"
 	"aakimov/marsgame/physics"
 	"aakimov/marsgame/server"
 	"aakimov/marsgame/timer"

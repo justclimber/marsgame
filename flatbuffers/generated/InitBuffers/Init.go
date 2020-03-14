@@ -5,7 +5,7 @@ package InitBuffers
 import (
 	flatbuffers "github.com/google/flatbuffers/go"
 
-	"aakimov/marsgame/flatbuffers/WorldMapBuffers"
+	"aakimov/marsgame/flatbuffers/generated/WorldMapBuffers"
 )
 
 type Init struct {

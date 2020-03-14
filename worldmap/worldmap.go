@@ -1,7 +1,7 @@
 package worldmap
 
 import (
-	"aakimov/marsgame/flatbuffers/WalBuffers"
+	"aakimov/marsgame/flatbuffers/generated/WalBuffers"
 	"aakimov/marsgame/physics"
 	"aakimov/marsgame/tmx"
 
