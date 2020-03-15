@@ -54,7 +54,7 @@ func NewMech(x, y float64) *Mech {
 			1,
 			TypePlayer,
 			physics.Point{X: x, Y: y},
-			25,
+			getObjectsMeta()[TypePlayer].collisionRadius,
 			0,
 			0,
 			0,

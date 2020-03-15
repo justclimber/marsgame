@@ -68,3 +68,14 @@ func EntityTypeToObjectType(objType WalBuffers.ObjectType) string {
 	}
 	return entityTypeMap[objType]
 }
+
+func getObjectsMeta() map[string]ObjectMeta {
+	return map[string]ObjectMeta{
+		TypePlayer:    {ObjectTypeToInt(TypePlayer), 25},
+		TypeEnemyMech: {ObjectTypeToInt(TypeEnemyMech), 10},
+		TypeRock:      {ObjectTypeToInt(TypeRock), 10},
+		TypeXelon:     {ObjectTypeToInt(TypeXelon), 14},
+		TypeMissile:   {ObjectTypeToInt(TypeMissile), 6},
+		TypeSpore:     {ObjectTypeToInt(TypeSpore), 40},
+	}
+}

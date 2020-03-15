@@ -11,7 +11,7 @@ func (o *Object) run(world *World, timeDelta time.Duration, timeId int64) {
 	defer o.Unlock()
 	defer o.wal.Commit(timeId)
 
-	rotation := o.AngleSpeed * timeDelta.Seconds()
+	rotation := o.Rotation * timeDelta.Seconds()
 
 	if rotation != 0 {
 		o.Angle = physics.NormalizeAngle(o.Angle + rotation)

@@ -110,7 +110,7 @@ func (p *Player) shoot() {
 		Object: NewObject(0,
 			TypeMissile,
 			missilePos,
-			5,
+			getObjectsMeta()[TypeMissile].collisionRadius,
 			missileAngle,
 			MissileSpeed,
 			0,

@@ -14,6 +14,24 @@ func (w *World) initDataToBuf() []byte {
 	InitBuffers.TimerAddValue(builder, int32(w.timer.Value().Seconds()))
 	timerBufferObj := InitBuffers.TimerEnd(builder)
 
+	objectsMeta := getObjectsMeta()
+	objectsMetaCount := len(objectsMeta)
+	objectsMetaBuffers := make([]flatbuffers.UOffsetT, objectsMetaCount)
+	i := objectsMetaCount - 1
+	for _, meta := range objectsMeta {
+		InitBuffers.ObjectMetaStart(builder)
+		InitBuffers.ObjectMetaAddObjectType(builder, meta.objectType)
+		InitBuffers.ObjectMetaAddCollisionRadius(builder, meta.collisionRadius)
+		objectsMetaBuffers[i] = InitBuffers.ObjectMetaEnd(builder)
+		i--
+	}
+
+	InitBuffers.InitStartObjectsMetaVector(builder, objectsMetaCount)
+	for _, buffer := range objectsMetaBuffers {
+		builder.PrependUOffsetT(buffer)
+	}
+	objectsMetaBufObj := builder.EndVector(objectsMetaCount)
+
 	tileLayersCount := len(w.worldmap.TileLayers)
 	tileLayersBuffers := make([]flatbuffers.UOffsetT, tileLayersCount)
 	for layerIndex, layer := range w.worldmap.TileLayers {
@@ -42,6 +60,7 @@ func (w *World) initDataToBuf() []byte {
 	InitBuffers.InitStart(builder)
 	InitBuffers.InitAddTimer(builder, timerBufferObj)
 	InitBuffers.InitAddWorldMap(builder, worldMapBuffObj)
+	InitBuffers.InitAddObjectsMeta(builder, objectsMetaBufObj)
 	initBufferObj := InitBuffers.InitEnd(builder)
 	builder.Finish(initBufferObj)
 	buf := builder.FinishedBytes()

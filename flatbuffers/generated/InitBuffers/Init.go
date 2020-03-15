@@ -54,14 +54,40 @@ func (rcv *Init) WorldMap(obj *WorldMapBuffers.WorldMap) *WorldMapBuffers.WorldM
 	return nil
 }
 
+func (rcv *Init) ObjectsMeta(obj *ObjectMeta, j int) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
+	if o != 0 {
+		x := rcv._tab.Vector(o)
+		x += flatbuffers.UOffsetT(j) * 4
+		x = rcv._tab.Indirect(x)
+		obj.Init(rcv._tab.Bytes, x)
+		return true
+	}
+	return false
+}
+
+func (rcv *Init) ObjectsMetaLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
 func InitStart(builder *flatbuffers.Builder) {
-	builder.StartObject(2)
+	builder.StartObject(3)
 }
 func InitAddTimer(builder *flatbuffers.Builder, timer flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(timer), 0)
 }
 func InitAddWorldMap(builder *flatbuffers.Builder, worldMap flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(worldMap), 0)
+}
+func InitAddObjectsMeta(builder *flatbuffers.Builder, objectsMeta flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(objectsMeta), 0)
+}
+func InitStartObjectsMetaVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(4, numElems, 4)
 }
 func InitEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

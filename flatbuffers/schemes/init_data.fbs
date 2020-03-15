@@ -5,6 +5,7 @@ namespace InitBuffers;
 table Init {
   timer: Timer;
   worldMap: WorldMapBuffers.WorldMap;
+  objectsMeta: [ObjectMeta];
 }
 
 enum TimerState: byte {Stopped, Paused, Started, Expired}
@@ -13,6 +14,11 @@ table Timer {
   state: TimerState;
   value: int32;
   left: int32;
+}
+
+table ObjectMeta {
+  objectType: int8;
+  collisionRadius: int16;
 }
 
 root_type Init;

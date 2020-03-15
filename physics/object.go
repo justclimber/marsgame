@@ -9,10 +9,10 @@ type Obj struct {
 	Type string
 	sync.Mutex
 	Pos             Point
-	CollisionRadius int
+	CollisionRadius int16
 	Angle           float64
 	Speed           float64
-	AngleSpeed      float64
+	Rotation        float64
 	Weight          float64
 	Velocity        *Vector
 	Direction       *Vector

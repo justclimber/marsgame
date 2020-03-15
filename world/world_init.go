@@ -18,10 +18,15 @@ func (w *World) Bootstrap() {
 	go w.wal.Sender.SendLoop()
 }
 
+type ObjectMeta struct {
+	objectType      WalBuffers.ObjectType
+	collisionRadius int16
+}
+
 type RandomObjSeed struct {
 	objType         string
 	count           int
-	collisionRadius int
+	collisionRadius int16
 	extraCallback   func(*Object)
 }
 
@@ -35,7 +40,7 @@ func (w *World) makeObjectsFromWorldMap() {
 					Id:              entity.Id,
 					Type:            EntityTypeToObjectType(entity.EntityType),
 					Pos:             entity.Pos,
-					CollisionRadius: 20,
+					CollisionRadius: getObjectsMeta()[EntityTypeToObjectType(entity.EntityType)].collisionRadius,
 					Velocity:        &physics.Vector{},
 					Direction:       physics.MakeNormalVectorByAngle(0),
 				},
@@ -91,7 +96,7 @@ func (w *World) MakeRandomObjects() {
 		{TypeXelon, 30, 10, nil},
 		{TypeEnemyMech, 10, 20, func(obj *Object) {
 			obj.Speed = rand.Float64()*300 + 50.
-			obj.AngleSpeed = rand.Float64()*1.2 - 0.7
+			obj.Rotation = rand.Float64()*1.2 - 0.7
 		}},
 	} {
 		w.MakeRandomObjectsByType(v)
