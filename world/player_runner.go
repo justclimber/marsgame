@@ -1,8 +1,9 @@
 package world
 
 import (
-	"aakimov/marsgame/helpers"
-	"aakimov/marsgame/physics"
+	"github.com/justclimber/marsgame/helpers"
+	"github.com/justclimber/marsgame/physics"
+
 	"time"
 )
 

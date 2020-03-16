@@ -1,8 +1,9 @@
 package main
 
 import (
-	"aakimov/marsgame/server"
-	"aakimov/marsgame/world"
+	"github.com/justclimber/marsgame/server"
+	"github.com/justclimber/marsgame/world"
+
 	"math/rand"
 	"time"
 )

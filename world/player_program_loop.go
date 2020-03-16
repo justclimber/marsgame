@@ -1,9 +1,9 @@
 package world
 
 import (
-	"aakimov/marsgame/server"
-	"aakimov/marslang/interpereter"
-	"aakimov/marslang/object"
+	"github.com/justclimber/marsgame/server"
+	"github.com/justclimber/marslang/interpereter"
+	"github.com/justclimber/marslang/object"
 
 	"fmt"
 	"log"

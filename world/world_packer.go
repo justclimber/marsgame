@@ -1,9 +1,10 @@
 package world
 
 import (
-	"aakimov/marsgame/flatbuffers/generated/CommandsBuffer"
-	"aakimov/marsgame/flatbuffers/generated/InitBuffers"
-	"aakimov/marsgame/flatbuffers/generated/WorldMapBuffers"
+	"github.com/justclimber/marsgame/flatbuffers/generated/CommandsBuffer"
+	"github.com/justclimber/marsgame/flatbuffers/generated/InitBuffers"
+	"github.com/justclimber/marsgame/flatbuffers/generated/WorldMapBuffers"
+
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 

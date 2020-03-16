@@ -1,11 +1,12 @@
 package world
 
 import (
-	"aakimov/marsgame/server"
-	"aakimov/marsgame/wal"
-	"aakimov/marslang/ast"
-	"aakimov/marslang/lexer"
-	"aakimov/marslang/parser"
+	"github.com/justclimber/marsgame/server"
+	"github.com/justclimber/marsgame/wal"
+	"github.com/justclimber/marslang/ast"
+	"github.com/justclimber/marslang/lexer"
+	"github.com/justclimber/marslang/parser"
+
 	"log"
 	"time"
 )

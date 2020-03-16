@@ -1,12 +1,12 @@
 package world
 
 import (
-	"aakimov/marsgame/flatbuffers/generated/WalBuffers"
-	"aakimov/marsgame/physics"
-	"aakimov/marsgame/server"
-	"aakimov/marsgame/timer"
-	"aakimov/marsgame/wal"
-	"aakimov/marsgame/worldmap"
+	"github.com/justclimber/marsgame/flatbuffers/generated/WalBuffers"
+	"github.com/justclimber/marsgame/physics"
+	"github.com/justclimber/marsgame/server"
+	"github.com/justclimber/marsgame/timer"
+	"github.com/justclimber/marsgame/wal"
+	"github.com/justclimber/marsgame/worldmap"
 
 	"time"
 )

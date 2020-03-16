@@ -1,10 +1,10 @@
 package world
 
 import (
-	"aakimov/marsgame/flatbuffers/generated/WalBuffers"
-	"aakimov/marsgame/physics"
-	"aakimov/marsgame/server"
-	"aakimov/marsgame/wal"
+	"github.com/justclimber/marsgame/flatbuffers/generated/WalBuffers"
+	"github.com/justclimber/marsgame/physics"
+	"github.com/justclimber/marsgame/server"
+	"github.com/justclimber/marsgame/wal"
 
 	"log"
 	"math/rand"

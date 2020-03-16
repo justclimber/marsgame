@@ -1,7 +1,7 @@
 package timer
 
 import (
-	"aakimov/marsgame/flatbuffers/generated/InitBuffers"
+	"github.com/justclimber/marsgame/flatbuffers/generated/InitBuffers"
 	"log"
 
 	"time"

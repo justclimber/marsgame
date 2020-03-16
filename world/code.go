@@ -1,10 +1,11 @@
 package world
 
 import (
-	"aakimov/marsgame/physics"
-	"aakimov/marslang/ast"
-	"aakimov/marslang/interpereter"
-	"aakimov/marslang/object"
+	"github.com/justclimber/marsgame/physics"
+	"github.com/justclimber/marslang/ast"
+	"github.com/justclimber/marslang/interpereter"
+	"github.com/justclimber/marslang/object"
+
 	"math"
 	"sync"
 )

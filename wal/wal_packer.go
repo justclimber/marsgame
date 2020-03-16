@@ -1,8 +1,9 @@
 package wal
 
 import (
-	"aakimov/marsgame/flatbuffers/generated/CommandsBuffer"
-	"aakimov/marsgame/flatbuffers/generated/WalBuffers"
+	"github.com/justclimber/marsgame/flatbuffers/generated/CommandsBuffer"
+	"github.com/justclimber/marsgame/flatbuffers/generated/WalBuffers"
+
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 

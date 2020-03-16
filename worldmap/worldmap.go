@@ -1,9 +1,9 @@
 package worldmap
 
 import (
-	"aakimov/marsgame/flatbuffers/generated/WalBuffers"
-	"aakimov/marsgame/physics"
-	"aakimov/marsgame/tmx"
+	"github.com/justclimber/marsgame/flatbuffers/generated/WalBuffers"
+	"github.com/justclimber/marsgame/physics"
+	"github.com/justclimber/marsgame/tmx"
 
 	"fmt"
 	"log"

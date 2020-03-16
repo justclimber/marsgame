@@ -1,7 +1,7 @@
 package wal
 
 import (
-	"aakimov/marsgame/server"
+	"github.com/justclimber/marsgame/server"
 )
 
 type Subscriber struct {

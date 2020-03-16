@@ -1,6 +1,6 @@
 package world
 
-import "aakimov/marsgame/physics"
+import "github.com/justclimber/marsgame/physics"
 
 type Mech struct {
 	Object
