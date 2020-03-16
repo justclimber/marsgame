@@ -1,6 +1,12 @@
 # marsgame
 прототип игры для программистов
 
+##Установка
+
+`go get ./...`
+
+`go get -t ./...`
+
 пример кода, который управляет mech'ом:
 ```
 ifempty xelon = getFirstTarget(1) {
@@ -12,10 +18,10 @@ ifempty xelon = getFirstTarget(1) {
 angleTo = angleToRotate(mech.angle, mech.x, mech.y, xelon.x, xelon.y)
 commands.rotate = keepBounds(angleTo, 1.)
 
-commands.move = 1. - commands.rotate
+commands.move = 1. - absFloat(commands.rotate)
 
 ifempty obj = getFirstTarget(2) {   
-   ifempty obj = nearestByType(mech, objects, ObjectTypes:rock) {
+   ifempty obj = nearestByType(mech, objects, ObjectTypes:spore) {
       return 1
    }
    addTarget(obj, 2)
