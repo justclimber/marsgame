@@ -1,6 +1,9 @@
 package server
 
 import (
+	"github.com/justclimber/marsgame/auth"
+	"github.com/justclimber/marsgame/auth/session"
+
 	"log"
 	"strconv"
 )
@@ -15,6 +18,8 @@ type Server struct {
 	SaveAstCodeCh   chan *SaveAstCode
 	ProgramFlowCh   chan *ProgramFlow
 	CommandsCh      chan *CommandFromClient
+	session         *session.Session
+	userStorage     *auth.UsersDataStorage
 }
 
 func NewServer() *Server {
@@ -28,6 +33,8 @@ func NewServer() *Server {
 		SaveAstCodeCh:   make(chan *SaveAstCode, 10),
 		ProgramFlowCh:   make(chan *ProgramFlow, 10),
 		CommandsCh:      make(chan *CommandFromClient, 10),
+		session:         session.NewSession(),
+		userStorage:     auth.NewUsersDataStorage(),
 	}
 }
 
