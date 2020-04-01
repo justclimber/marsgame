@@ -89,7 +89,7 @@ func (s *Server) wsHandler(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) Setup() {
 	go s.ListenClients()
-	http.HandleFunc("/ws", s.withAuth(s.wsHandler))
+	http.HandleFunc("/ws", s.wsHandler)
 	http.HandleFunc("/login", s.loginHandler)
 	http.HandleFunc("/register", s.registerHandler)
 	log.Fatal(http.ListenAndServe(":80", nil))
