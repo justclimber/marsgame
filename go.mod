@@ -1,6 +1,6 @@
 module github.com/justclimber/marsgame
 
-go 1.13
+go 1.14
 
 require (
 	github.com/google/flatbuffers v1.12.0
