@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.2" tiledversion="1.3.3" name="terra" tilewidth="32" tileheight="32" tilecount="2048" columns="32">
- <image source="../../../../../marsgame/assets/t.png" width="1024" height="2048"/>
+<tileset version="1.2" tiledversion="1.3.4" name="terra" tilewidth="32" tileheight="32" tilecount="2048" columns="32">
+ <image source="../../assets/tiledmap/t.png" width="1024" height="2048"/>
  <terraintypes>
   <terrain name="Dirt_Tan" tile="97"/>
   <terrain name="Dirt_Brown" tile="100"/>
@@ -970,4 +970,334 @@
  <tile id="1433" terrain="10,19,19,10"/>
  <tile id="1435" terrain="19,12,12,19"/>
  <tile id="1436" terrain="12,19,19,12"/>
+ <tile id="1476">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1477">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1478">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1479">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1480">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1481">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1482">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1483">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1484">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1485">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1486">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1508">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1509">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1510">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1511">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1512">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1513">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1514">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1515">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1516">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1517">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1518">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1540">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1541">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1542">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1543">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1544">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1545">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1546">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1547">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1548">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1549">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1550">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1572">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1573">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1574">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1575">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1576">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1577">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1578">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1579">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1580">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1581">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1582">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1604">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1605">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1606">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1607">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1608">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1609">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1610">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1611">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1612">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1613">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1614">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1636">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1637">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1638">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1639">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1640">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1641">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1642">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1643">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1644">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1645">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
+ <tile id="1646">
+  <properties>
+   <property name="collision" type="int" value="1"/>
+  </properties>
+ </tile>
 </tileset>
