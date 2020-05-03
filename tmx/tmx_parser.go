@@ -12,6 +12,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -88,6 +89,7 @@ type Map struct {
 	BackgroundColor string        `xml:"backgroundcolor,attr"`
 	NextObjectID    ObjectID      `xml:"nextobjectid,attr"`
 	TileSets        []TileSet     `xml:"tileset"`
+	MainTileSet     *TileSet
 	Properties      Properties    `xml:"properties>property"`
 	Layers          []Layer       `xml:"layer"`
 	ObjectGroups    []ObjectGroup `xml:"objectgroup"`
@@ -679,18 +681,42 @@ type Tag struct {
 // DecodeByFilePath takes file path, and returns a new Map decoded from
 // that XML.
 func DecodeByFilePath(tmxFilePath string) *Map {
-	file, err := os.Open(tmxFilePath)
+	f, err := os.Open(tmxFilePath)
+	defer f.Close()
 	if err != nil {
 		panic(err.Error())
 	}
 
-	m, err := Decode(file)
+	m, err := Decode(f)
 	if err != nil {
 		panic(err.Error())
 	}
 
 	if m == nil {
 		panic(errors.New("something go wrong with tiled map"))
+	}
+
+	// tileset loading
+	for _, tileSet := range m.TileSets {
+		if len(tileSet.Source) == 0 {
+			continue
+		}
+		tf, err := os.Open(filepath.Dir(tmxFilePath) + "/" + tileSet.Source)
+		if err != nil {
+			panic(err.Error())
+		}
+		d := xml.NewDecoder(tf)
+		ts := &TileSet{}
+
+		if err := d.Decode(ts); err != nil {
+			panic(err.Error())
+		}
+		m.MainTileSet = ts
+		err = tf.Close()
+		if err != nil {
+			panic(err.Error())
+		}
+		break
 	}
 	return m
 }
