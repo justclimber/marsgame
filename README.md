@@ -9,8 +9,10 @@
 
 пример кода, который управляет mech'ом:
 ```
-ifempty xelon = getFirstTarget(1) {
-   ifempty xelon = nearestByType(mech, objects, ObjectTypes:xelon) {
+xelon = getFirstTarget(1)
+if empty(xelon) {
+   xelon = nearestByType(mech, objects, ObjectTypes:xelon)
+   if empty(xelon) {
       return 1
    }
    addTarget(xelon, 1)
@@ -20,8 +22,10 @@ commands.rotate = keepBounds(angleTo, 1.)
 
 commands.move = 1. - absFloat(commands.rotate)
 
-ifempty obj = getFirstTarget(2) {   
-   ifempty obj = nearestByType(mech, objects, ObjectTypes:spore) {
+obj = getFirstTarget(2)
+if empty(obj) {
+   obj = nearestByType(mech, objects, ObjectTypes:spore)
+   if empty(obj) {
       return 1
    }
    addTarget(obj, 2)
@@ -40,5 +44,4 @@ toShoot = cAngleTo * cAngleTo * dist
 if toShoot < 40. {
    commands.cannon.shoot = 0.1
 }
-
 ```
