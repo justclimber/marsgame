@@ -3,6 +3,7 @@ package world
 import (
 	"github.com/justclimber/marsgame/helpers"
 	"github.com/justclimber/marsgame/physics"
+	"github.com/justclimber/marsgame/worldmap"
 
 	"time"
 )
@@ -49,8 +50,9 @@ func (p *Player) run(timeDelta time.Duration, timeId int64) {
 		throttleRegression := mech.generator.consumeWithPartlyUsage(energyNeed)
 		power := commands.mech.move * maxPower * throttleRegression
 
-		mech.Obj.Pos, mech.Obj.Velocity = physics.MoveObjectByForces(&mech.Obj, power, timeDelta)
-		p.collisions()
+		var newPos physics.Point
+		newPos, mech.Obj.Velocity = physics.MoveObjectByForces(&mech.Obj, power, timeDelta)
+		p.collisions(newPos)
 	}
 
 	// просчет поворота башни меха
@@ -83,7 +85,12 @@ func (p *Player) run(timeDelta time.Duration, timeId int64) {
 }
 
 // просчет коллизий с другими объектами
-func (p *Player) collisions() {
+func (p *Player) collisions(newPos physics.Point) {
+	p.collideWithMap(newPos)
+	p.collideWithObjects()
+}
+
+func (p *Player) collideWithObjects() {
 	for id, object := range p.world.objects {
 		if object.getType() != TypeMissile && p.mech.isCollideWith(object) {
 			p.wal.AddDeleteOtherIds([]uint32{id})
@@ -94,6 +101,84 @@ func (p *Player) collisions() {
 			break
 		}
 	}
+}
+
+func (p *Player) collideWithMap(newPos physics.Point) {
+	x, y := findMapCoords(newPos)
+	cMap := p.world.worldmap.MaterialLayer
+	// →:
+	//  0  0  ?
+	//  0  M  ?
+	//  0  0  ?
+	if p.mech.Velocity.X > 0 && p.mech.Velocity.Y == 0 {
+		if cMap[x+1][y-1] > 0 || cMap[x+1][y] > 0 || cMap[x+1][y+1] > 0 {
+			return
+		}
+	// ↓:
+	//  0  0  0
+	//  0  M  0
+	//  ?  ?  ?
+	} else if p.mech.Velocity.X == 0 && p.mech.Velocity.Y > 0 {
+		if cMap[x-1][y+1] > 0 || cMap[x][y+1] > 0 || cMap[x+1][y+1] > 0 {
+			return
+		}
+	// ⃪:
+	//  ?  0  0
+	//  ?  M  0
+	//  ?  0  0
+	} else if p.mech.Velocity.X < 0 && p.mech.Velocity.Y == 0 {
+		if cMap[x-1][y-1] > 0 || cMap[x-1][y] > 0 || cMap[x-1][y+1] > 0 {
+			return
+		}
+	//↑:
+	//  ?  ?  ?
+	//  0  M  0
+	//  0  0  0
+	} else if p.mech.Velocity.X == 0 && p.mech.Velocity.Y < 0 {
+		if cMap[x-1][y-1] > 0 || cMap[x][y-1] > 0 || cMap[x+1][y-1] > 0 {
+			return
+		}
+	// ↘:
+	//  0  0  0
+	//  0  M  ?
+	//  0  ?  ?
+	} else if p.mech.Velocity.X > 0 && p.mech.Velocity.Y > 0 {
+		//  0  0  0
+		//  0  M  1
+		//  0  1  ?
+		if cMap[x+1][y] > 0 && cMap[x][y+1] > 0 {
+			return
+		//  0  0  0
+		//  0  M  1
+		//  0  0  ?
+		} else if cMap[x+1][y] > 0 {
+			p.mech.Obj.Pos.Y = newPos.Y
+			return
+		//  0  0  0
+		//  0  M  0
+		//  0  1  ?
+		} else if cMap[x][y+1] > 0 {
+			p.mech.Obj.Pos.X = newPos.X
+			return
+			//  0  0  0
+			//  0  M  0
+			//  0  0  1
+		} else if cMap[x+1][y+1] > 0 {
+			if p.mech.Velocity.X > p.mech.Velocity.Y {
+				p.mech.Obj.Pos.X = newPos.X
+			} else {
+				p.mech.Obj.Pos.Y = newPos.Y
+			}
+			return
+		}
+	}
+	p.mech.Obj.Pos = newPos
+}
+
+func findMapCoords(pos physics.Point) (int, int) {
+	x := int(pos.X / worldmap.TileSize)
+	y := int(pos.Y / worldmap.TileSize)
+	return x, y
 }
 
 // подбор кристалла кселона - увеличение количества кселона в генераторе

@@ -10,6 +10,8 @@ import (
 	"log"
 )
 
+const TileSize = 32
+
 var EntityTypeMap = map[string]WalBuffers.ObjectType{
 	"Player": WalBuffers.ObjectTypeplayer,
 	"Xelon":  WalBuffers.ObjectTypexelon,
